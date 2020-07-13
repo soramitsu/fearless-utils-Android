@@ -26,6 +26,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation project(':fearless-utils')
     implementation kotlinDep
     implementation androidDep
     implementation constraintDep
