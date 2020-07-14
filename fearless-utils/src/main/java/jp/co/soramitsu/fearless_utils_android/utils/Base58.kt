@@ -23,7 +23,8 @@ import java.security.NoSuchAlgorithmException
 import java.util.Arrays
 
 class Base58 {
-    private val ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
+    private val ALPHABET =
+        "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
     private val INDEXES = IntArray(128)
     private var digest: MessageDigest? = null
 
@@ -101,7 +102,6 @@ class Base58 {
             input58[i] = digit58.toByte()
         }
 
-
         var zeroCount = 0
         while (zeroCount < input58.size && input58[zeroCount].toInt() == 0) {
             ++zeroCount
@@ -130,7 +130,7 @@ class Base58 {
 
     @Throws(AddressFormatException::class)
     fun decodeToBigInteger(input: String): BigInteger {
-        return BigInteger(1, decode(input) )
+        return BigInteger(1, decode(input))
     }
 
     /**
@@ -148,7 +148,7 @@ class Base58 {
         }
 
         val bytes = copyOfRange(tmp, 0, tmp.size - 4)
-        val checksum = copyOfRange(tmp, tmp.size - 4, tmp.size )
+        val checksum = copyOfRange(tmp, tmp.size - 4, tmp.size)
         tmp = doubleDigest(bytes)
         val hash = copyOfRange(tmp, 0, 4)
 
@@ -159,7 +159,7 @@ class Base58 {
         return bytes
     }
 
-   private fun divmod58(number: ByteArray, startAt: Int): Byte {
+    private fun divmod58(number: ByteArray, startAt: Int): Byte {
         var remainder = 0
         for (i in startAt until number.size) {
             val digit256 = number[i].toInt() and 0xFF
@@ -187,7 +187,11 @@ class Base58 {
         return range
     }
 
-    private fun doubleDigest(input: ByteArray, offset: Int = 0, length: Int = input.size): ByteArray {
+    private fun doubleDigest(
+        input: ByteArray,
+        offset: Int = 0,
+        length: Int = input.size
+    ): ByteArray {
         synchronized(digest!!) {
             digest!!.reset()
             digest!!.update(input, offset, length)
