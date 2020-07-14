@@ -30,6 +30,8 @@ buildscript {
 
         navControllerVersion = '2.0.0-rc02'
 
+        spoungyCastleVersion = '1.58.0.0'
+
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
         robolectricVersion = '4.1'
@@ -62,6 +64,9 @@ buildscript {
         rxCallAdapterDep = "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
         gsonConvertedDep = "com.squareup.retrofit2:converter-gson:$retrofitVersion"
         gsonDep = "com.google.code.gson:gson:$gsonVersion"
+
+        spoungyCastleBcPixDep = "com.madgag.spongycastle:bcpkix-jdk15on:$spoungyCastleVersion"
+        spoungyCastleBcPg = "com.madgag.spongycastle:bcpg-jdk15on:$spoungyCastleVersion"
 
         jUnitDep = "junit:junit:$junitVersion"
         mockitoDep = "org.mockito:mockito-inline:$mockitoVersion"

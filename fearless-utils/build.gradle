@@ -29,4 +29,6 @@ dependencies {
     implementation cardViewDep
     implementation materialDep
     implementation constraintDep
+    implementation spoungyCastleBcPixDep
+    implementation spoungyCastleBcPg
 }
