@@ -34,5 +34,4 @@ class SS58Encoder {
 
         return decodedByteArray.copyOfRange(ADDRESS_TYPE_SIZE, PUBLIC_KEY_SIZE + ADDRESS_TYPE_SIZE)
     }
-
 }

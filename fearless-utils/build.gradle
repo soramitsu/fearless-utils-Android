@@ -30,5 +30,5 @@ dependencies {
     implementation materialDep
     implementation constraintDep
     implementation spoungyCastleBcPixDep
-    implementation spoungyCastleBcPg
+    implementation spoungyCastleBcPgDep
 }
