@@ -24,7 +24,6 @@ class SS58Encoder {
 
     fun decode(ss58String: String, addressType: AddressType): ByteArray {
         val decodedByteArray = Base58.decode(ss58String)
-
         if (decodedByteArray.first() != addressType.addressByte) {
             throw AddressTypeException()
         }
