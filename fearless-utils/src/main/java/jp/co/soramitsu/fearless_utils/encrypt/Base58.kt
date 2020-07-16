@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.co.soramitsu.fearless_utils_android.utils
+package jp.co.soramitsu.fearless_utils.encrypt
 
-import jp.co.soramitsu.fearless_utils_android.exceptions.AddressFormatException
+import jp.co.soramitsu.fearless_utils.exceptions.AddressFormatException
 import java.io.UnsupportedEncodingException
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -23,8 +23,8 @@ import java.security.NoSuchAlgorithmException
 import java.util.Arrays
 
 class Base58 {
-    private val ALPHABET =
-        "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
+
+    private val ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
     private val INDEXES = IntArray(128)
     private var digest: MessageDigest? = null
 

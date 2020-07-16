@@ -13,6 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.co.soramitsu.fearless_utils_android.exceptions
+package jp.co.soramitsu.fearless_utils.exceptions
 
 class AddressFormatException(message: String?) : Exception(message)

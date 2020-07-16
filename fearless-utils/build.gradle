@@ -31,4 +31,7 @@ dependencies {
     implementation constraintDep
     implementation spoungyCastleBcPixDep
     implementation spoungyCastleBcPgDep
+
+    testImplementation jUnitDep
+    testImplementation mockitoDep
 }
