@@ -4,9 +4,7 @@ import jp.co.soramitsu.fearless_utils.exceptions.AddressTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.Base58
 import org.spongycastle.jcajce.provider.digest.Blake2b
 
-class SS58Encoder(
-    private val base58: Base58
-) {
+class SS58Encoder {
 
     companion object {
 
@@ -15,6 +13,8 @@ class SS58Encoder(
         private const val PREFIX_SIZE = 2
         private const val PUBLIC_KEY_SIZE = 32
     }
+
+    private val base58 = Base58()
 
     fun encode(publicKey: ByteArray, addressType: AddressType): String {
         val addressTypeByteArray = byteArrayOf(addressType.addressByte)

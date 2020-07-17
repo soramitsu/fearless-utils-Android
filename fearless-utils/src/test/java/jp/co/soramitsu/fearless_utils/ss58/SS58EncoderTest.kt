@@ -1,6 +1,5 @@
 package jp.co.soramitsu.fearless_utils.ss58
 
-import jp.co.soramitsu.fearless_utils.encrypt.Base58
 import org.junit.Test
 
 import org.junit.Assert.assertEquals
@@ -19,7 +18,7 @@ class SS58EncoderTest {
 
     @Before
     fun setUp() {
-        ss58Encoder = SS58Encoder(Base58())
+        ss58Encoder = SS58Encoder()
     }
 
     @Test
