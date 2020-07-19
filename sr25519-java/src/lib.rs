@@ -79,7 +79,7 @@ fn create_secret(secret: &[u8]) -> JniResult<SecretKey> {
 }
 
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_test<'a>(
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_test<'a>(
     jni_env: JNIEnv<'a>,
     _: JClass,
     hello_what: JString) -> JString<'a> {
@@ -98,7 +98,7 @@ pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_test<'a>(
  * @return true if signature is valid, false otherwise
  */
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_verify(
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_verify(
     jni_env: JNIEnv,
     _: JClass,
     signature_bytes: jbyteArray, message: jbyteArray, public_key: jbyteArray) -> jboolean {
@@ -126,7 +126,7 @@ pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_verify(
  * @return the signature
  */
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_sign(
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_sign(
     jni_env: JNIEnv,
     _: JClass,
     public_key: jbyteArray, secret: jbyteArray, message: jbyteArray) -> jbyteArray {
@@ -151,7 +151,7 @@ pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_sign(
  * @return pre-allocated output buffer of SR25519_KEYPAIR_SIZE bytes
  */
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_deriveKeypairHard(
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_deriveKeypairHard(
     jni_env: JNIEnv,
     _: JClass,
    pair: jbyteArray, cc: jbyteArray,
@@ -173,7 +173,7 @@ pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_deriveKeypairHar
  * @return keypair: pre-allocated output buffer of SR25519_KEYPAIR_SIZE bytes
  */
 #[no_mangle]
-pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_deriveKeypairSoft(
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_deriveKeypairSoft(
     jni_env: JNIEnv,
     _: JClass,
     pair: jbyteArray,
@@ -194,7 +194,7 @@ pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_deriveKeypairSof
  * @param cc:         chaincode - input buffer of SR25519_CHAINCODE_SIZE bytes
  * @return pre-allocated output buffer of SR25519_PUBLIC_SIZE bytes
  */
-pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_derivePublicSoft(
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_derivePublicSoft(
     jni_env: JNIEnv,
     _: JClass,
     pair: jbyteArray,
@@ -213,7 +213,7 @@ pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_derivePublicSoft
  * @param seed: generation seed - input buffer of SR25519_SEED_SIZE bytes
  * @return keypair [32b key | 32b nonce | 32b public], pre-allocated output buffer of SR25519_KEYPAIR_SIZE bytes
  */
-pub unsafe extern "system" fn Java_com_soramitsu_crypto_Sr25519_keypairFromSeed(
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_keypairFromSeed(
     jni_env: JNIEnv,
     _: JClass,
     seed: jbyteArray) -> jbyteArray {
