@@ -1,9 +1,12 @@
 package jp.co.soramitsu.fearless_utils_android.icon
 
 import android.graphics.Color
+import android.graphics.drawable.PictureDrawable
 import androidx.core.graphics.ColorUtils
+import com.caverock.androidsvg.SVG
 import org.spongycastle.jcajce.provider.digest.Blake2b
 import java.lang.RuntimeException
+import java.lang.StringBuilder
 import kotlin.math.floor
 import kotlin.math.sqrt
 
@@ -23,7 +26,7 @@ class IconGenerator {
         private const val RADIUS = 5
     }
 
-    fun generateIconCircles(id: ByteArray, isAlternative: Boolean = false): List<Circle> {
+    private fun generateIconCircles(id: ByteArray, isAlternative: Boolean = false): List<Circle> {
         val r1 = if (isAlternative) {
             MAIN_RADIUS / 8 * 5
         } else {
@@ -72,7 +75,7 @@ class IconGenerator {
         var index = 0
 
         return mutableListOf(
-            Circle(MAIN_RADIUS, MAIN_RADIUS, Color.parseColor("#eee"), MAIN_RADIUS.toInt()),
+            Circle(MAIN_RADIUS, MAIN_RADIUS, Color.parseColor("#eeeeee"), MAIN_RADIUS.toInt()),
             Circle(MAIN_RADIUS, MAIN_RADIUS - r1, colors[index++], RADIUS),
             Circle(MAIN_RADIUS, MAIN_RADIUS - ro2, colors[index++], RADIUS),
             Circle(MAIN_RADIUS - rroot3o4, MAIN_RADIUS - r3o4, colors[index++], RADIUS),
@@ -93,6 +96,23 @@ class IconGenerator {
             Circle(MAIN_RADIUS + rroot3o4, MAIN_RADIUS - r3o4, colors[index++], RADIUS),
             Circle(MAIN_RADIUS, MAIN_RADIUS, colors[index], RADIUS)
         )
+    }
+
+    fun getSvgImage(id: ByteArray, isAlternative: Boolean = false): PictureDrawable {
+        val circles = generateIconCircles(id, isAlternative)
+
+        val stringBuilder = StringBuilder()
+        stringBuilder.append("<svg ")
+        stringBuilder.append("viewBox='0 0 64 64' ")
+        stringBuilder.append("width='300' ")
+        stringBuilder.append("height='300' ")
+        stringBuilder.append(">")
+        circles.forEach {
+            stringBuilder.append("<circle cx='${it.x}' cy='${it.y}' r='${it.radius}' fill='${String.format("#%06X", 0xFFFFFF and it.color)}'/>")
+        }
+        stringBuilder.append("</svg>")
+        val svg = SVG.getFromString(stringBuilder.toString())
+        return PictureDrawable(svg.renderToPicture())
     }
 
     private fun findScheme(d: Int): Scheme {

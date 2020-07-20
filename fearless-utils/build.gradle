@@ -31,4 +31,5 @@ dependencies {
     implementation constraintDep
     implementation spoungyCastleBcPixDep
     implementation spoungyCastleBcPg
+    implementation svgDep
 }

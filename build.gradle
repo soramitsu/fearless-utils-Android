@@ -35,6 +35,7 @@ buildscript {
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
         robolectricVersion = '4.1'
+        svgVersion = '1.4'
 
         kotlinDep = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
@@ -68,6 +69,8 @@ buildscript {
         spoungyCastleBcPixDep = "com.madgag.spongycastle:bcpkix-jdk15on:$spoungyCastleVersion"
         spoungyCastleBcPg = "com.madgag.spongycastle:bcpg-jdk15on:$spoungyCastleVersion"
 
+        svgDep = "com.caverock:androidsvg-aar:$svgVersion"
+
         jUnitDep = "junit:junit:$junitVersion"
         mockitoDep = "org.mockito:mockito-inline:$mockitoVersion"
         robolectricDep = "org.robolectric:robolectric:$robolectricVersion"
@@ -89,6 +92,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
 }
 
