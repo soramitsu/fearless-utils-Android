@@ -194,6 +194,7 @@ pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr255
  * @param cc:         chaincode - input buffer of SR25519_CHAINCODE_SIZE bytes
  * @return pre-allocated output buffer of SR25519_PUBLIC_SIZE bytes
  */
+ #[no_mangle]
 pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_derivePublicSoft(
     jni_env: JNIEnv,
     _: JClass,
@@ -213,6 +214,7 @@ pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr255
  * @param seed: generation seed - input buffer of SR25519_SEED_SIZE bytes
  * @return keypair [32b key | 32b nonce | 32b public], pre-allocated output buffer of SR25519_KEYPAIR_SIZE bytes
  */
+ #[no_mangle]
 pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_keypairFromSeed(
     jni_env: JNIEnv,
     _: JClass,
