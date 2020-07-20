@@ -10,5 +10,5 @@ app/*.apk
 /.idea/
 *.so
 *.lock
-sr25519-java/target
-sr25519-java/.idea
+/sr25519-java/target
+/sr25519-java/.idea
