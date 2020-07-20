@@ -98,14 +98,14 @@ class IconGenerator {
         )
     }
 
-    fun getSvgImage(id: ByteArray, isAlternative: Boolean = false): PictureDrawable {
+    fun getSvgImage(id: ByteArray, sizeInPixels: Int, isAlternative: Boolean = false): PictureDrawable {
         val circles = generateIconCircles(id, isAlternative)
 
         val stringBuilder = StringBuilder()
         stringBuilder.append("<svg ")
         stringBuilder.append("viewBox='0 0 64 64' ")
-        stringBuilder.append("width='300' ")
-        stringBuilder.append("height='300' ")
+        stringBuilder.append("width='$sizeInPixels' ")
+        stringBuilder.append("height='$sizeInPixels' ")
         stringBuilder.append(">")
         circles.forEach {
             stringBuilder.append("<circle cx='${it.x}' cy='${it.y}' r='${it.radius}' fill='${String.format("#%06X", 0xFFFFFF and it.color)}'/>")
