@@ -1,8 +1,6 @@
 package jp.co.soramitsu.fearless_utils_android.icon
 
-import android.graphics.Color
 import android.graphics.drawable.PictureDrawable
-import androidx.core.graphics.ColorUtils
 import com.caverock.androidsvg.SVG
 import org.spongycastle.jcajce.provider.digest.Blake2b
 import java.lang.RuntimeException
@@ -22,6 +20,7 @@ class IconGenerator {
             Scheme("vmirror", 128, arrayOf(0, 1, 2, 3, 4, 5, 3, 4, 2, 0, 1, 6, 7, 8, 9, 7, 8, 6, 10)),
             Scheme("hmirror", 128, arrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 8, 6, 7, 5, 3, 4, 2, 11))
         )
+
         private const val MAIN_RADIUS = 32.0
         private const val RADIUS = 5
     }
@@ -45,37 +44,35 @@ class IconGenerator {
         val idHash = Blake2b.Blake2b512().digest(id).mapIndexed { index, byte -> (byte + 256 - zeroHash[index]) % 256 }
 
         val sat = (floor(idHash[29].toDouble() * 70 / 256 + 26) % 80) + 30
-        val d = floor((id[30].toDouble() + id[31].toDouble() * 256) % totalFreq)
+        val d = floor((idHash[30].toDouble() + idHash[31].toDouble() * 256) % totalFreq)
         val scheme = findScheme(d.toInt())
 
         val palette = idHash.mapIndexed { index, byte ->
             val b = (byte + index % 28 * 58) % 256
-            var resultColor = 0
+            var resultColor = ""
             resultColor = when (b) {
                 0 -> {
-                    Color.parseColor("#444")
+                    "#444"
                 }
                 255 -> {
-                    Color.TRANSPARENT
+                    "transparent"
                 }
                 else -> {
                     val h = floor(b.toDouble() % 64 * 360 / 64)
                     val array = arrayOf(53, 15, 35, 75)
                     val l = array[floor(b.toDouble() / 64).toInt()]
-                    ColorUtils.HSLToColor(floatArrayOf(h.toFloat(), sat.toFloat(), l.toFloat()))
+                    "hsl($h, $sat%, $l%)"
                 }
             }
-
             resultColor
         }
 
-        val rot = (id[28] % 6) * 3
-        val colors =
-            scheme.colors.mapIndexed { index, _ -> palette[if (index < 18) (index + rot) % 18 else 18] }
+        val rot = (idHash[28] % 6) * 3
+        val colors = scheme.colors.mapIndexed { index, _ -> palette[scheme.colors[if (index < 18) (index + rot) % 18 else 18]] }
         var index = 0
 
         return mutableListOf(
-            Circle(MAIN_RADIUS, MAIN_RADIUS, Color.parseColor("#eeeeee"), MAIN_RADIUS.toInt()),
+            Circle(MAIN_RADIUS, MAIN_RADIUS, "#eeeeee", MAIN_RADIUS.toInt()),
             Circle(MAIN_RADIUS, MAIN_RADIUS - r1, colors[index++], RADIUS),
             Circle(MAIN_RADIUS, MAIN_RADIUS - ro2, colors[index++], RADIUS),
             Circle(MAIN_RADIUS - rroot3o4, MAIN_RADIUS - r3o4, colors[index++], RADIUS),
@@ -108,7 +105,7 @@ class IconGenerator {
         stringBuilder.append("height='$sizeInPixels' ")
         stringBuilder.append(">")
         circles.forEach {
-            stringBuilder.append("<circle cx='${it.x}' cy='${it.y}' r='${it.radius}' fill='${String.format("#%06X", 0xFFFFFF and it.color)}'/>")
+            stringBuilder.append("<circle cx='${it.x}' cy='${it.y}' r='${it.radius}' fill='${it.colorString}' />")
         }
         stringBuilder.append("</svg>")
         val svg = SVG.getFromString(stringBuilder.toString())
