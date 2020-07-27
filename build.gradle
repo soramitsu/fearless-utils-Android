@@ -31,7 +31,9 @@ buildscript {
         navControllerVersion = '2.0.0-rc02'
 
         spoungyCastleVersion = '1.58.0.0'
+        ed25519Version = '1.0'
         bip39version = '2019.01.27'
+        web3jVersion = '4.6.0-android'
 
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
@@ -64,10 +66,12 @@ buildscript {
         retrofitDep = "com.squareup.retrofit2:retrofit:$retrofitVersion"
         rxCallAdapterDep = "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
         gsonConvertedDep = "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-        gsonDep = "com.google.code.gson:gson:$gsonVersion"
+        gsonDepDep = "com.google.code.gson:gson:$gsonVersion"
 
         spoungyCastleBcPixDep = "com.madgag.spongycastle:bcpkix-jdk15on:$spoungyCastleVersion"
         spoungyCastleBcPgDep = "com.madgag.spongycastle:bcpg-jdk15on:$spoungyCastleVersion"
+        ed25519Dep = "com.github.warchant:ed25519-sha3-java:$ed25519Version"
+        web3jDep = "org.web3j:crypto:$web3jVersion"
 
         bip39Dep = "io.github.novacrypto:BIP39:$bip39version"
         secureStringDep = "io.github.novacrypto:securestring:$bip39version@jar"
@@ -97,6 +101,9 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://jitpack.io"
+        }
     }
 }
 
