@@ -27,8 +27,8 @@ class Signer {
     private fun signEd25519(message: ByteArray, keypair: Keypair): SignatureWrapper {
         val spec: EdDSAParameterSpec = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
         val sgr: Signature = Signature.getInstance("EdDSA/SHA3", "EdDSA")
-        val privKey = EdDSAPrivateKeySpec(keypair.privateKey, spec)
-        val privateKey = EdDSAPrivateKey(privKey)
+        val privKeySpec = EdDSAPrivateKeySpec(keypair.privateKey, spec)
+        val privateKey = EdDSAPrivateKey(privKeySpec)
         sgr.initSign(privateKey)
         sgr.update(message)
         return SignatureWrapper(signature = sgr.sign())
