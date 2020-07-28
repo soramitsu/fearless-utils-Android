@@ -23,7 +23,6 @@ class Bip39Test {
     fun generateMnemonic() {
         val mnemonic = bip39.generateMnemonic(Words.TWELVE)
         val wordsCount = mnemonic.split(" ").size
-
         assertEquals(12, wordsCount)
 
         val mnemonic2 = bip39.generateMnemonic(Words.TWENTY_ONE)

@@ -33,7 +33,6 @@ class Bip39 {
 
     fun generateEntropy(mnemonic: String): ByteArray {
         val words = normalize(mnemonic, Normalizer.Form.NFKD).split(' ')
-
         if (words.size % 3 != 0) {
             throw Bip39Exception()
         }
