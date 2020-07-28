@@ -77,13 +77,13 @@ class KeypairFactory {
     }
 
     private fun deriveSr25519SoftKeypair(chaincode: ByteArray, previousKeypair: Keypair): Keypair {
-        val keypair = previousKeypair.privateKey + previousKeypair.nonce + previousKeypair.publicKey
+        val keypair = previousKeypair.privateKey + previousKeypair.nonce!! + previousKeypair.publicKey
         val newKeypairbytes = Sr25519.deriveKeypairSoft(keypair, chaincode)
         return decodeSr25519Keypair(newKeypairbytes)
     }
 
     private fun deriveSr25519HardKeypair(chaincode: ByteArray, previousKeypair: Keypair): Keypair {
-        val keypair = previousKeypair.privateKey + previousKeypair.nonce + previousKeypair.publicKey
+        val keypair = previousKeypair.privateKey + previousKeypair.nonce!! + previousKeypair.publicKey
         val newKeypairbytes = Sr25519.deriveKeypairHard(keypair, chaincode)
         return decodeSr25519Keypair(newKeypairbytes)
     }
