@@ -31,6 +31,7 @@ buildscript {
         navControllerVersion = '2.0.0-rc02'
 
         spoungyCastleVersion = '1.58.0.0'
+        bip39version = '2019.01.27'
 
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
@@ -67,7 +68,10 @@ buildscript {
         gsonDep = "com.google.code.gson:gson:$gsonVersion"
 
         spoungyCastleBcPixDep = "com.madgag.spongycastle:bcpkix-jdk15on:$spoungyCastleVersion"
-        spoungyCastleBcPg = "com.madgag.spongycastle:bcpg-jdk15on:$spoungyCastleVersion"
+        spoungyCastleBcPgDep = "com.madgag.spongycastle:bcpg-jdk15on:$spoungyCastleVersion"
+
+        bip39Dep = "io.github.novacrypto:BIP39:$bip39version"
+        secureStringDep = "io.github.novacrypto:securestring:$bip39version@jar"
 
         svgDep = "com.caverock:androidsvg-aar:$svgVersion"
 
@@ -81,9 +85,13 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'gradle.plugin.org.mozilla.rust-android-gradle:plugin:0.8.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
