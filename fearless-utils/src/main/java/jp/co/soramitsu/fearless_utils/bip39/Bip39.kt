@@ -8,7 +8,6 @@ import jp.co.soramitsu.fearless_utils.exceptions.Bip39Exception
 import org.spongycastle.crypto.digests.SHA512Digest
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator
 import org.spongycastle.crypto.params.KeyParameter
-import org.spongycastle.util.encoders.Hex
 import java.security.SecureRandom
 import java.text.Normalizer
 import java.text.Normalizer.normalize

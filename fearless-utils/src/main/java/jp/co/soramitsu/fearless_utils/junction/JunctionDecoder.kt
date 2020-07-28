@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.junction
 
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
+import org.spongycastle.jcajce.provider.digest.Blake2b
 import org.spongycastle.util.encoders.Hex
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
@@ -9,11 +10,11 @@ import java.nio.ByteOrder
 class JunctionDecoder {
 
     companion object {
-        private val HEX_ALPHABET = "0123456789abcdef"
+        private const val HEX_ALPHABET = "0123456789abcdef"
     }
 
     fun decodeDerivationPath(path: String): List<Junction> {
-        val chaincode = mutableListOf<Junction>()
+        val chaincodes = mutableListOf<Junction>()
         var slashCount = 0
         var currentType = JunctionType.NONE
         val currentJunctionBuilder = StringBuilder()
@@ -21,10 +22,10 @@ class JunctionDecoder {
         path.forEach { c ->
             if (c == '/') {
                 if (currentType != JunctionType.NONE) {
-                    chaincode.add(
+                    chaincodes.add(
                         Junction(
                             currentType,
-                            decodeJunction(currentJunctionBuilder.toString())
+                            proccessBytes(decodeJunction(currentJunctionBuilder.toString()))
                         )
                     )
                     slashCount = 0
@@ -51,21 +52,20 @@ class JunctionDecoder {
             }
         }
 
-        chaincode.add(
+        chaincodes.add(
             Junction(
                 currentType,
-                decodeJunction(currentJunctionBuilder.toString())
+                proccessBytes(decodeJunction(currentJunctionBuilder.toString()))
             )
         )
 
-
-        return chaincode
+        return chaincodes
     }
 
     private fun decodeJunction(junction: String): ByteArray {
-        junction.toDoubleOrNull()?.let {
+        junction.toLongOrNull()?.let {
             val bytes = ByteArray(8)
-            ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).putDouble(it)
+            ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).putLong(it)
             return bytes
         }
 
@@ -78,6 +78,19 @@ class JunctionDecoder {
         }
     }
 
+    private fun proccessBytes(bytes: ByteArray): ByteArray {
+        if (bytes.size < 32) {
+            val newBytes = ByteArray(32)
+            bytes.copyInto(newBytes)
+            return newBytes
+        }
+
+        if (bytes.size > 32) {
+            return Blake2b.Blake2b256().digest(bytes)
+        }
+
+        return bytes
+    }
 
     private fun isHexString(hexaDecimal: String): Boolean {
         for (char in hexaDecimal) {
@@ -87,5 +100,4 @@ class JunctionDecoder {
         }
         return true
     }
-
 }
