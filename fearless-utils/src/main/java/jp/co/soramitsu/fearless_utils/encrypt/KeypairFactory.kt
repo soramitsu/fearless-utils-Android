@@ -4,6 +4,7 @@ import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.crypto.ed25519.EdDSASecurityProvider
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSANamedCurveTable
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSAPrivateKeySpec
+import jp.co.soramitsu.fearless_utils.exceptions.JunctionTypeException
 import jp.co.soramitsu.fearless_utils.junction.JunctionDecoder
 import jp.co.soramitsu.fearless_utils.junction.JunctionType
 import org.bouncycastle.jcajce.provider.digest.Blake2b
@@ -42,18 +43,26 @@ class KeypairFactory {
                         }
                     }
                     EncryptionType.ED25519 -> {
-                        val buf = ByteArrayOutputStream()
-                        ScaleCodecWriter(buf).writeString("Ed25519HDKD")
-                        val inputSeed = Blake2b.Blake2b256()
-                            .digest(buf.toByteArray() + previousKeypair.privateKey + it.chaincode)
-                        deriveEd25519MasterKeypair(inputSeed)
+                        if (it.type == JunctionType.HARD) {
+                            val buf = ByteArrayOutputStream()
+                            ScaleCodecWriter(buf).writeString("Ed25519HDKD")
+                            val inputSeed = Blake2b.Blake2b256()
+                                .digest(buf.toByteArray() + previousKeypair.privateKey + it.chaincode)
+                            deriveEd25519MasterKeypair(inputSeed)
+                        } else {
+                            throw JunctionTypeException()
+                        }
                     }
                     EncryptionType.ECDCA -> {
-                        val buf = ByteArrayOutputStream()
-                        ScaleCodecWriter(buf).writeString("Secp256k1HDKD")
-                        val inputSeed = Blake2b.Blake2b256()
-                            .digest(buf.toByteArray() + previousKeypair.privateKey + it.chaincode)
-                        deriveECDCAMasterKeypair(inputSeed)
+                        if (it.type == JunctionType.HARD) {
+                            val buf = ByteArrayOutputStream()
+                            ScaleCodecWriter(buf).writeString("Secp256k1HDKD")
+                            val inputSeed = Blake2b.Blake2b256()
+                                .digest(buf.toByteArray() + previousKeypair.privateKey + it.chaincode)
+                            deriveECDCAMasterKeypair(inputSeed)
+                        } else {
+                            throw JunctionTypeException()
+                        }
                     }
                 }
             }
