@@ -21,7 +21,8 @@ class Signer {
     }
 
     private fun signSr25519(message: ByteArray, keypair: Keypair): SignatureWrapper {
-        return SignatureWrapper(signature = Sr25519.sign(keypair.publicKey, keypair.privateKey, message))
+        val sign = Sr25519.sign(keypair.publicKey, keypair.privateKey, message)
+        return SignatureWrapper(signature = sign)
     }
 
     private fun signEd25519(message: ByteArray, keypair: Keypair): SignatureWrapper {
@@ -38,6 +39,6 @@ class Signer {
         val privateKey = BigInteger(Hex.toHexString(keypair.privateKey), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
         val sign = Sign.signMessage(message, ECKeyPair(privateKey, publicKey))
-        return SignatureWrapper(v = sign.v, r = sign.r, s = sign.s)
+        return SignatureWrapper(signature = sign.r + sign.s + sign.s)
     }
 }
