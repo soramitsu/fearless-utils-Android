@@ -36,6 +36,7 @@ buildscript {
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
         robolectricVersion = '4.1'
+        wsVersion = '2.10'
 
         kotlinDep = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
@@ -71,6 +72,8 @@ buildscript {
 
         bip39Dep = "io.github.novacrypto:BIP39:$bip39version"
         secureStringDep = "io.github.novacrypto:securestring:$bip39version@jar"
+
+        wsDep = "com.neovisionaries:nv-websocket-client:$wsVersion"
 
         jUnitDep = "junit:junit:$junitVersion"
         mockitoDep = "org.mockito:mockito-inline:$mockitoVersion"

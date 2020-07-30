@@ -49,6 +49,8 @@ dependencies {
     implementation spoungyCastleBcPgDep
     implementation bip39Dep
     implementation secureStringDep
+    implementation wsDep
+    implementation gsonDep
 
     testImplementation jUnitDep
     testImplementation mockitoDep
