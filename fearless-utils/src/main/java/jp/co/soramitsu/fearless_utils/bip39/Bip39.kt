@@ -134,6 +134,6 @@ class Bip39 {
             2048
         )
         val key = generator.generateDerivedMacParameters(512) as KeyParameter
-        return key.key
+        return key.key.copyOfRange(0, 32)
     }
 }

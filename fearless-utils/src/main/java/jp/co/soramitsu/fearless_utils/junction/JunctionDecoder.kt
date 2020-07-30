@@ -13,7 +13,21 @@ class JunctionDecoder {
         private const val HEX_ALPHABET = "0123456789abcdef"
     }
 
-    fun decodeDerivationPath(path: String): List<Junction> {
+    fun getPassword(path: String): String {
+        if (path.contains("///")) {
+            return path.substring(path.indexOf("///")).substring(3)
+        }
+
+        return ""
+    }
+
+    fun decodeDerivationPath(derivationPath: String): List<Junction> {
+        val path = if (derivationPath.contains("///")) {
+            derivationPath.substring(0, derivationPath.indexOf("///"))
+        } else {
+            derivationPath
+        }
+
         val chaincodes = mutableListOf<Junction>()
         var slashCount = 0
         var currentType = JunctionType.NONE
@@ -41,10 +55,6 @@ class JunctionDecoder {
 
                     2 -> {
                         currentType = JunctionType.HARD
-                    }
-
-                    3 -> {
-                        currentType = JunctionType.PASSWORD
                     }
                 }
 
