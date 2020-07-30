@@ -6,7 +6,10 @@ import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketException
 
-class WebSocketWrapper(url: String, listener: WebSocketResponseListener) {
+class WebSocketWrapper(
+    url: String,
+    listener: WebSocketResponseListener
+) {
 
     private val ws = WebSocketFactory().createSocket(url)
     private val gson = Gson()
