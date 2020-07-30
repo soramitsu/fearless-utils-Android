@@ -48,6 +48,7 @@ dependencies {
     implementation spoungyCastleBcPixDep
     implementation spoungyCastleBcPgDep
     implementation ed25519Dep
+    implementation svgDep
     implementation bip39Dep
     implementation secureStringDep
     implementation web3jDep
