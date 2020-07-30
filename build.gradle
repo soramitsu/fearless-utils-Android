@@ -38,6 +38,7 @@ buildscript {
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
         robolectricVersion = '4.1'
+        svgVersion = '1.4'
 
         kotlinDep = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
@@ -76,6 +77,8 @@ buildscript {
         bip39Dep = "io.github.novacrypto:BIP39:$bip39version"
         secureStringDep = "io.github.novacrypto:securestring:$bip39version@jar"
 
+        svgDep = "com.caverock:androidsvg-aar:$svgVersion"
+
         jUnitDep = "junit:junit:$junitVersion"
         mockitoDep = "org.mockito:mockito-inline:$mockitoVersion"
         robolectricDep = "org.robolectric:robolectric:$robolectricVersion"
@@ -104,6 +107,7 @@ allprojects {
         maven {
             url "https://jitpack.io"
         }
+        mavenCentral()
     }
 }
 
