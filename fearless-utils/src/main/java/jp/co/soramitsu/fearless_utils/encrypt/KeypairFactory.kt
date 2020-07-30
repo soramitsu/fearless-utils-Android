@@ -4,6 +4,7 @@ import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.crypto.ed25519.EdDSASecurityProvider
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSANamedCurveTable
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSAPrivateKeySpec
+import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.exceptions.JunctionTypeException
 import jp.co.soramitsu.fearless_utils.junction.JunctionDecoder
 import jp.co.soramitsu.fearless_utils.junction.JunctionType
@@ -94,19 +95,29 @@ class KeypairFactory {
         val privKeySpec = EdDSAPrivateKeySpec(seed, spec)
         val private = keyFac.generatePrivate(privKeySpec).encoded
         val public = keyFac.generatePublic(privKeySpec).encoded
-        return Keypair(private, public)
+        return Keypair(
+            private,
+            public
+        )
     }
 
     private fun deriveECDCAMasterKeypair(seed: ByteArray): Keypair {
         val privateKey = BigInteger(Hex.toHexString(seed), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
-        return Keypair(seed, publicKey.toByteArray())
+        return Keypair(
+            seed,
+            publicKey.toByteArray()
+        )
     }
 
     private fun decodeSr25519Keypair(bytes: ByteArray): Keypair {
         val privateKey = bytes.copyOfRange(0, 32)
         val nonce = bytes.copyOfRange(32, 64)
         val publicKey = bytes.copyOfRange(64, bytes.size)
-        return Keypair(privateKey, publicKey, nonce)
+        return Keypair(
+            privateKey,
+            publicKey,
+            nonce
+        )
     }
 }

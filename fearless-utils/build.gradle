@@ -52,6 +52,7 @@ dependencies {
     implementation bip39Dep
     implementation secureStringDep
     implementation web3jDep
+    implementation gsonDep
 
     testImplementation jUnitDep
     testImplementation mockitoDep
