@@ -5,6 +5,8 @@ import com.neovisionaries.ws.client.WebSocketFactory
 import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketException
+import jp.co.soramitsu.fearless_utils.wsrpc.request.RpcRequest
+import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 
 class WebSocketWrapper(
     url: String,

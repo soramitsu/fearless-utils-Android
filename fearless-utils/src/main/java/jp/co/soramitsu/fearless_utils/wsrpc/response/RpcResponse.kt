@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.wsrpc
+package jp.co.soramitsu.fearless_utils.wsrpc.response
 
 import com.google.gson.annotations.SerializedName
 
