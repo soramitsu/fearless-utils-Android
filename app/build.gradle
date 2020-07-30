@@ -30,4 +30,6 @@ dependencies {
     implementation kotlinDep
     implementation androidDep
     implementation constraintDep
+    implementation spoungyCastleBcPixDep
+    implementation spoungyCastleBcPgDep
 }

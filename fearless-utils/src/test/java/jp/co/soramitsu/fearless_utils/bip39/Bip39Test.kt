@@ -53,7 +53,7 @@ class Bip39Test {
 
     @Test
     fun generateSeed() {
-        val expectedSeed = "44e9d125f037ac1d51f0a7d3649689d422c2af8b1ec8e00d71db4d7bf6d127e33f50c3d5c84fa3e5399c72d6cbbbbc4a49bf76f76d952f479d74655a2ef2d453"
+        val expectedSeed = "44e9d125f037ac1d51f0a7d3649689d422c2af8b1ec8e00d71db4d7bf6d127e3"
         val mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
         val passphrase = "Substrate"
 

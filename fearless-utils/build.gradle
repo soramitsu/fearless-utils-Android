@@ -47,10 +47,13 @@ dependencies {
     implementation constraintDep
     implementation spoungyCastleBcPixDep
     implementation spoungyCastleBcPgDep
+    implementation ed25519Dep
+    implementation svgDep
     implementation bip39Dep
     implementation secureStringDep
     implementation wsDep
     implementation gsonDep
+    implementation web3jDep
 
     testImplementation jUnitDep
     testImplementation mockitoDep
