@@ -47,6 +47,7 @@ dependencies {
     implementation constraintDep
     implementation spoungyCastleBcPixDep
     implementation spoungyCastleBcPgDep
+    implementation svgDep
     implementation bip39Dep
     implementation secureStringDep
 
