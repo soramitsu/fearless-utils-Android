@@ -32,4 +32,5 @@ dependencies {
     implementation constraintDep
     implementation spoungyCastleBcPixDep
     implementation spoungyCastleBcPgDep
+    implementation gsonDep
 }

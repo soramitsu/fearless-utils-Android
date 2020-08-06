@@ -9,8 +9,6 @@ import org.bouncycastle.crypto.params.ParametersWithIV
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.*
-import java8.util.Optional
-import org.spongycastle.util.encoders.Hex
 
 /*
  * Copyright © 2017 Coda Hale (coda.hale@gmail.com)
@@ -110,7 +108,7 @@ class SecretBox(secretKey: ByteArray) {
     fun open(
         nonce: ByteArray?,
         ciphertext: ByteArray
-    ): Optional<ByteArray> {
+    ): ByteArray {
         val xsalsa20 =
             XSalsa20Engine()
         val poly1305 =
@@ -143,13 +141,12 @@ class SecretBox(secretKey: ByteArray) {
         )
         // compare macs
         if (!MessageDigest.isEqual(calculatedMAC, presentedMAC)) {
-            return Optional.empty()
+            return ByteArray(0)
         }
         // decrypt ciphertext
         val plaintext = ByteArray(len)
         xsalsa20.processBytes(ciphertext, poly1305.macSize, plaintext.size, plaintext, 0)
-        println(Hex.toHexString(plaintext))
-        return Optional.of(plaintext)
+        return plaintext
     }
 
     /**

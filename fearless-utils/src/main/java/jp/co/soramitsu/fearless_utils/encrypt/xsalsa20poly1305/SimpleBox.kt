@@ -71,9 +71,9 @@ class SimpleBox {
      * @return an [Optional] of the original plaintext, or if either the key, nonce, or
      * ciphertext was modified, an empty [Optional]
      */
-    fun open(ciphertext: ByteArray): Optional<ByteArray> {
+    fun open(ciphertext: ByteArray): ByteArray {
         if (ciphertext.size < SecretBox.NONCE_SIZE) {
-            return Optional.empty()
+            return ByteArray(0)
         }
         val nonce =
             Arrays.copyOfRange(ciphertext, 0, SecretBox.NONCE_SIZE)
