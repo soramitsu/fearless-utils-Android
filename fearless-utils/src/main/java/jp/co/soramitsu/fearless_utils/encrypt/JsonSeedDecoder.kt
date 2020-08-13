@@ -12,7 +12,11 @@ import org.spongycastle.util.encoders.Base64
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class JsonSeedDecoder(private val gson: Gson, private val sS58Encoder: SS58Encoder, private val keypairFactory: KeypairFactory) {
+class JsonSeedDecoder(
+    private val gson: Gson,
+    private val sS58Encoder: SS58Encoder,
+    private val keypairFactory: KeypairFactory
+) {
 
     fun decode(json: String, password: String): ImportAccountData {
         val jsonData = gson.fromJson(json, JsonAccountData::class.java)

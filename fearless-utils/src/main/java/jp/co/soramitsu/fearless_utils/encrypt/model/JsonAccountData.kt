@@ -14,9 +14,9 @@ data class JsonAccountData(
 ) {
     data class Encoding(
         @SerializedName("content")
-        val content: Array<String>,
+        val content: List<String>,
         @SerializedName("type")
-        val type: Array<String>,
+        val type: List<String>,
         @SerializedName("version")
         val version: Int
     )
