@@ -2,12 +2,15 @@ package jp.co.soramitsu.fearless_utils.bip39
 
 import io.github.novacrypto.SecureCharBuffer
 import io.github.novacrypto.bip39.MnemonicGenerator
+import io.github.novacrypto.bip39.MnemonicValidator
 import io.github.novacrypto.bip39.Words
+import io.github.novacrypto.bip39.wordlists.English
 import io.github.novacrypto.hashing.Sha256
 import jp.co.soramitsu.fearless_utils.exceptions.Bip39Exception
 import org.spongycastle.crypto.digests.SHA512Digest
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator
 import org.spongycastle.crypto.params.KeyParameter
+import java.lang.Exception
 import java.security.SecureRandom
 import java.text.Normalizer
 import java.text.Normalizer.normalize
@@ -135,5 +138,16 @@ class Bip39 {
         )
         val key = generator.generateDerivedMacParameters(512) as KeyParameter
         return key.key.copyOfRange(0, 32)
+    }
+
+    fun isMnemonicValid(mnemonic: String): Boolean {
+        return try {
+            MnemonicValidator
+                .ofWordList(English.INSTANCE)
+                .validate(mnemonic)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }

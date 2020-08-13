@@ -21,6 +21,10 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     ndkVersion "21.3.6528147"
 }
 
@@ -36,6 +40,19 @@ tasks.whenTaskAdded { task ->
         task.dependsOn 'cargoBuild'
     }
 }
+
+task deleteJar(type: Delete) {
+    delete 'libs/jars/libfearless.jar'
+}
+
+task createJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('libs/jars/')
+    include('classes.jar')
+    rename('classes.jar', 'libfearless.jar')
+}
+
+createJar.dependsOn(deleteJar, build)
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
