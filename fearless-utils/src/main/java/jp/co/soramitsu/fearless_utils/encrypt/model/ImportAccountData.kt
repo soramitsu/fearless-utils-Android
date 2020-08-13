@@ -7,5 +7,6 @@ data class ImportAccountData(
     val keypair: Keypair,
     val encryptionType: EncryptionType,
     val networType: NetworkType,
-    val username: String
+    val username: String,
+    val address: String
 )

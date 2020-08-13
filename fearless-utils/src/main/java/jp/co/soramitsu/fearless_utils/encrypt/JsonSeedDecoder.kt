@@ -22,6 +22,7 @@ class JsonSeedDecoder(private val gson: Gson, private val sS58Encoder: SS58Encod
         }
 
         val username = jsonData.meta.name
+        val address = jsonData.address
         val networkType = sS58Encoder.getNetworkType(jsonData.address)
 
         val byteData = Base64.decode(jsonData.encoded)
@@ -41,19 +42,19 @@ class JsonSeedDecoder(private val gson: Gson, private val sS58Encoder: SS58Encod
                 val privateKeyCompressed = secret.copyOfRange(16, 80)
                 val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
                 val publicKey = secret.copyOfRange(85, 117)
-                ImportAccountData(Keypair(privateAndNonce.copyOfRange(0, 32), privateAndNonce.copyOfRange(32, 64), publicKey), EncryptionType.SR25519, networkType, username)
+                ImportAccountData(Keypair(privateAndNonce.copyOfRange(0, 32), privateAndNonce.copyOfRange(32, 64), publicKey), EncryptionType.SR25519, networkType, username, address)
             }
 
             "ed25519" -> {
                 val seed = secret.copyOfRange(16, 48)
                 val keys = keypairFactory.generate(EncryptionType.ED25519, seed, "")
-                ImportAccountData(keys, EncryptionType.ED25519, networkType, username)
+                ImportAccountData(keys, EncryptionType.ED25519, networkType, username, address)
             }
 
             "ecdsa" -> {
                 val seed = secret.copyOfRange(16, 48)
                 val keys = keypairFactory.generate(EncryptionType.ECDSA, seed, "")
-                ImportAccountData(keys, EncryptionType.ECDSA, networkType, username)
+                ImportAccountData(keys, EncryptionType.ECDSA, networkType, username, address)
             }
             else -> throw JSONException("")
         }
