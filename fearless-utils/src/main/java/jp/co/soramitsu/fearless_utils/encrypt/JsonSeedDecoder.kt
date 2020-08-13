@@ -1,7 +1,6 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
