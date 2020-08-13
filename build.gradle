@@ -38,6 +38,7 @@ buildscript {
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
         robolectricVersion = '4.1'
+        wsVersion = '2.10'
         svgVersion = '1.4'
 
         kotlinDep = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
@@ -67,7 +68,7 @@ buildscript {
         retrofitDep = "com.squareup.retrofit2:retrofit:$retrofitVersion"
         rxCallAdapterDep = "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
         gsonConvertedDep = "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-        gsonDepDep = "com.google.code.gson:gson:$gsonVersion"
+        gsonDep = "com.google.code.gson:gson:$gsonVersion"
 
         spoungyCastleBcPixDep = "com.madgag.spongycastle:bcpkix-jdk15on:$spoungyCastleVersion"
         spoungyCastleBcPgDep = "com.madgag.spongycastle:bcpg-jdk15on:$spoungyCastleVersion"
@@ -76,7 +77,7 @@ buildscript {
 
         bip39Dep = "io.github.novacrypto:BIP39:$bip39version"
         secureStringDep = "io.github.novacrypto:securestring:$bip39version@jar"
-
+        wsDep = "com.neovisionaries:nv-websocket-client:$wsVersion"
         svgDep = "com.caverock:androidsvg-aar:$svgVersion"
 
         jUnitDep = "junit:junit:$junitVersion"

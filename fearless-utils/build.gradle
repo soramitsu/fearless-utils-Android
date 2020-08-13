@@ -51,6 +51,8 @@ dependencies {
     implementation svgDep
     implementation bip39Dep
     implementation secureStringDep
+    implementation wsDep
+    implementation gsonDep
     implementation web3jDep
 
     testImplementation jUnitDep
