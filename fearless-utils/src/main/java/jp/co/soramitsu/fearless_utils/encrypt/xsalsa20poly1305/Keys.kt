@@ -21,7 +21,6 @@ import kotlin.experimental.or
  * limitations under the License.
  */
 
-
 /** Utility methods for generating XSalsa20Poly1305 keys.  */
 object Keys {
     const val KEY_LEN = 32

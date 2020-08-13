@@ -1,9 +1,11 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
+import jp.co.soramitsu.crypto.ed25519.EdDSAKey
 import jp.co.soramitsu.crypto.ed25519.EdDSASecurityProvider
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSANamedCurveTable
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSAPrivateKeySpec
+import jp.co.soramitsu.crypto.ed25519.spec.EdDSAPublicKeySpec
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.exceptions.JunctionTypeException
 import jp.co.soramitsu.fearless_utils.junction.JunctionDecoder
@@ -28,12 +30,12 @@ class KeypairFactory {
         var previousKeypair = when (encryptionType) {
             EncryptionType.SR25519 -> deriveSr25519MasterKeypair(seed)
             EncryptionType.ED25519 -> deriveEd25519MasterKeypair(seed)
-            EncryptionType.ECDCA -> deriveECDCAMasterKeypair(seed)
+            EncryptionType.ECDSA -> deriveECDCAMasterKeypair(seed)
         }
 
         if (derivationPath.isNotEmpty()) {
             val junctions = junctionDecoder.decodeDerivationPath(derivationPath)
-
+            1
             junctions.forEach {
                 previousKeypair = when (encryptionType) {
                     EncryptionType.SR25519 -> {
@@ -54,7 +56,7 @@ class KeypairFactory {
                             throw JunctionTypeException()
                         }
                     }
-                    EncryptionType.ECDCA -> {
+                    EncryptionType.ECDSA -> {
                         if (it.type == JunctionType.HARD) {
                             val buf = ByteArrayOutputStream()
                             ScaleCodecWriter(buf).writeString("Secp256k1HDKD")
@@ -90,11 +92,12 @@ class KeypairFactory {
     }
 
     private fun deriveEd25519MasterKeypair(seed: ByteArray): Keypair {
-        val keyFac = KeyFactory.getInstance("EdDSA/SHA3", "EdDSA")
+        val keyFac = KeyFactory.getInstance(EdDSAKey.KEY_ALGORITHM, "EdDSA")
         val spec = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
         val privKeySpec = EdDSAPrivateKeySpec(seed, spec)
         val private = keyFac.generatePrivate(privKeySpec).encoded
-        val public = keyFac.generatePublic(privKeySpec).encoded
+        val publicKeySpec = EdDSAPublicKeySpec(privKeySpec.a, spec)
+        val public = keyFac.generatePublic(publicKeySpec).encoded
         return Keypair(
             private,
             public

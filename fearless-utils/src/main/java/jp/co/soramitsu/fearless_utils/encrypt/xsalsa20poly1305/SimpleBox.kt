@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305
 
-import java.util.*
+import java.util.Arrays
 import java8.util.Optional
 
 /*
@@ -18,7 +18,6 @@ import java8.util.Optional
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 /**
  * Convenience functions for encryption without requiring nonce management.

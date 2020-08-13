@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets
  * limitations under the License.
  */
 
-
 /** An implementation of the HSalsa20 hash based on the Bouncy Castle Salsa20 core.  */
 internal object HSalsa20 {
     private val SIGMA =

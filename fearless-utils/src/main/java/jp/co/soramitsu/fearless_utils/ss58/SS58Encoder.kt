@@ -16,8 +16,8 @@ class SS58Encoder {
 
     private val base58 = Base58()
 
-    fun encode(publicKey: ByteArray, addressType: AddressType): String {
-        val addressTypeByteArray = byteArrayOf(addressType.addressByte)
+    fun encode(publicKey: ByteArray, networkType: NetworkType): String {
+        val addressTypeByteArray = byteArrayOf(networkType.addressByte)
         val blake2b = Blake2b.Blake2b512().digest(PREFIX + addressTypeByteArray + publicKey)
 
         val resultByteArray = addressTypeByteArray + publicKey + blake2b.copyOfRange(0, PREFIX_SIZE)
@@ -25,13 +25,23 @@ class SS58Encoder {
         return base58.encode(resultByteArray)
     }
 
-    fun decode(ss58String: String, addressType: AddressType): ByteArray {
+    fun decode(ss58String: String, networkType: NetworkType): ByteArray {
         val decodedByteArray = base58.decode(ss58String)
 
-        if (decodedByteArray.first() != addressType.addressByte) {
+        if (decodedByteArray.first() != networkType.addressByte) {
             throw AddressTypeException()
         }
 
         return decodedByteArray.copyOfRange(ADDRESS_TYPE_SIZE, PUBLIC_KEY_SIZE + ADDRESS_TYPE_SIZE)
+    }
+
+    fun getNetworkType(address: String): NetworkType {
+        val decodedByteArray = base58.decode(address)
+
+        return when (decodedByteArray.first()) {
+            NetworkType.KUSAMA.addressByte -> NetworkType.KUSAMA
+            NetworkType.POLKADOT.addressByte -> NetworkType.POLKADOT
+            else -> NetworkType.KUSAMA
+        }
     }
 }

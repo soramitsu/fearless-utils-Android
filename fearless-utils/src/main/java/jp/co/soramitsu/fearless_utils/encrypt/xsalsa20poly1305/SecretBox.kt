@@ -8,7 +8,7 @@ import org.bouncycastle.crypto.params.KeyParameter
 import org.bouncycastle.crypto.params.ParametersWithIV
 import java.security.MessageDigest
 import java.security.SecureRandom
-import java.util.*
+import java.util.Arrays
 
 /*
  * Copyright © 2017 Coda Hale (coda.hale@gmail.com)
@@ -25,7 +25,6 @@ import java.util.*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 /**
  * Encryption and decryption using XSalsa20Poly1305.
