@@ -35,7 +35,7 @@ class KeypairFactory {
 
         if (derivationPath.isNotEmpty()) {
             val junctions = junctionDecoder.decodeDerivationPath(derivationPath)
-            1
+
             junctions.forEach {
                 previousKeypair = when (encryptionType) {
                     EncryptionType.SR25519 -> {
