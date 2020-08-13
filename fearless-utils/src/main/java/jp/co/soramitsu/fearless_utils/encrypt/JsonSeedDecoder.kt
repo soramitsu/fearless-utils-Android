@@ -7,6 +7,7 @@ import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
+import org.json.JSONException
 import org.spongycastle.crypto.generators.SCrypt
 import org.spongycastle.util.encoders.Base64
 import java.nio.ByteBuffer
@@ -18,7 +19,7 @@ class JsonSeedDecoder(private val gson: Gson, private val sS58Encoder: SS58Encod
         val jsonData = gson.fromJson(json, JsonAccountData::class.java)
 
         if (jsonData.encoding.type.size < 2 && jsonData.encoding.type[0] != "scrypt" && jsonData.encoding.type[1] != "xsalsa20-poly1305") {
-            throw JsonSyntaxException("aaa")
+            throw JSONException("")
         }
 
         val username = jsonData.meta.name
@@ -55,7 +56,7 @@ class JsonSeedDecoder(private val gson: Gson, private val sS58Encoder: SS58Encod
                 val keys = keypairFactory.generate(EncryptionType.ECDSA, seed, "")
                 ImportAccountData(keys, EncryptionType.ECDSA, networkType, username)
             }
-            else -> throw JsonSyntaxException("")
+            else -> throw JSONException("")
         }
     }
 }
