@@ -71,6 +71,7 @@ dependencies {
     implementation wsDep
     implementation gsonDep
     implementation web3jDep
+    implementation gsonDep
 
     testImplementation jUnitDep
     testImplementation mockitoDep

@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.encrypt
+package jp.co.soramitsu.fearless_utils.encrypt.model
 
 data class Keypair(
     val privateKey: ByteArray,

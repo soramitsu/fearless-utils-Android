@@ -3,7 +3,7 @@
 
 use jni::JNIEnv;
 use jni::objects::{JClass, JString, JObject};
-use jni::sys::{jbyteArray, jboolean};
+use jni::sys::{jbyteArray, jboolean, jsize};
 use jni::errors::{Result as JniResult, Error as JniError, ErrorKind};
 use schnorrkel::{
     derive::{CHAIN_CODE_LENGTH, ChainCode, Derivation}, ExpansionMode, Keypair, MiniSecretKey, PublicKey,
@@ -11,6 +11,24 @@ use schnorrkel::{
 use std::ptr;
 
 const SIGNING_CTX: &'static [u8] = b"substrate";
+
+/// Size of input SEED for derivation, bytes
+pub const SR25519_SEED_SIZE: jsize = 32;
+
+/// Size of CHAINCODE, bytes
+pub const SR25519_CHAINCODE_SIZE: jsize = 32;
+
+/// Size of SR25519 PUBLIC KEY, bytes
+pub const SR25519_PUBLIC_SIZE: jsize = 32;
+
+/// Size of SR25519 PRIVATE (SECRET) KEY, which consists of [32 bytes key | 32 bytes nonce]
+pub const SR25519_SECRET_SIZE: jsize = 64;
+
+/// Size of SR25519 SIGNATURE, bytes
+pub const SR25519_SIGNATURE_SIZE: jsize = 64;
+
+/// Size of SR25519 KEYPAIR. [32 bytes key | 32 bytes nonce | 32 bytes public]
+pub const SR25519_KEYPAIR_SIZE: jsize = 96;
 
 macro_rules! r#try_or_throw {
     ($jni_env: ident, $expr:expr, $ret: expr) => {
@@ -194,7 +212,7 @@ pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr255
  * @param cc:         chaincode - input buffer of SR25519_CHAINCODE_SIZE bytes
  * @return pre-allocated output buffer of SR25519_PUBLIC_SIZE bytes
  */
- #[no_mangle]
+#[no_mangle]
 pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_derivePublicSoft(
     jni_env: JNIEnv,
     _: JClass,
@@ -214,7 +232,7 @@ pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr255
  * @param seed: generation seed - input buffer of SR25519_SEED_SIZE bytes
  * @return keypair [32b key | 32b nonce | 32b public], pre-allocated output buffer of SR25519_KEYPAIR_SIZE bytes
  */
- #[no_mangle]
+#[no_mangle]
 pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_keypairFromSeed(
     jni_env: JNIEnv,
     _: JClass,
@@ -222,4 +240,41 @@ pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr255
     let seed_vec = try_or_throw_null!(jni_env, jni_env.convert_byte_array(seed));
     let kp = try_or_throw_null!(jni_env, create_from_seed(&seed_vec));
     try_or_throw_null!(jni_env, jni_env.byte_array_from_slice(kp.to_bytes().as_ref()))
+}
+
+/**
+ * Converts a secret key, provided as an array of 64 bytes,
+ * to a corresponding ed25519 expanded secret key
+ * @return an array of 64 bytes, with the first 32 bytes being the secret scalar shifted ed25519 style,
+ * and the last 32 bytes being the seed for nonces
+ */
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_toEd25519Bytes(
+    jni_env: JNIEnv,
+    _: JClass,
+    secret: jbyteArray
+) -> jbyteArray {
+    let secret_vec = try_or_throw_null!(jni_env, jni_env.convert_byte_array(secret));
+    let secret = try_or_throw_null!(jni_env, create_secret(secret_vec.as_slice()));
+    let secret_ed_bytes = secret.to_ed25519_bytes();
+    try_or_throw_null!(jni_env, jni_env.byte_array_from_slice(&secret_ed_bytes))
+}
+
+/**
+ * Converts an ed25519 expanded secret key to a corresponding sr25519 secret key.
+ * @return an array of 64 bytes, with the first 32 bytes being the secret scalar
+ * represented canonically, and the last 32 bytes being the seed for nonces
+ */
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_fromEd25519Bytes(
+    jni_env: JNIEnv,
+    _: JClass,
+    expanded_ed_secret: jbyteArray
+) -> jbyteArray {
+    let ed_secret_vec = try_or_throw_null!(jni_env, jni_env.convert_byte_array(expanded_ed_secret));
+    let secret = match SecretKey::from_ed25519_bytes(ed_secret_vec.as_slice()) {
+        Ok(s) => s,
+        Err(_) => return ptr::null_mut()
+    };
+    try_or_throw_null!(jni_env, jni_env.byte_array_from_slice(secret.to_bytes().as_ref()))
 }

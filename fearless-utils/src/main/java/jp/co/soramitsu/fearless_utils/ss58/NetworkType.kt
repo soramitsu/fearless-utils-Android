@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.ss58
 
-enum class AddressType(
+enum class NetworkType(
     val addressByte: Byte
 ) {
     KUSAMA(2.toByte()),
