@@ -4,6 +4,7 @@ import jp.co.soramitsu.crypto.ed25519.EdDSAPrivateKey
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSANamedCurveTable
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSAParameterSpec
 import jp.co.soramitsu.crypto.ed25519.spec.EdDSAPrivateKeySpec
+import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Sign
@@ -16,7 +17,7 @@ class Signer {
         return when (encryptionType) {
             EncryptionType.SR25519 -> signSr25519(message, keypair)
             EncryptionType.ED25519 -> signEd25519(message, keypair)
-            EncryptionType.ECDCA -> signEcdca(message, keypair)
+            EncryptionType.ECDSA -> signEcdca(message, keypair)
         }
     }
 

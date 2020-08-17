@@ -23,14 +23,14 @@ class SS58EncoderTest {
 
     @Test
     fun encode_called() {
-        val result = ss58Encoder.encode(Hex.decode(inputPublicKey), NetworkType.KUSAMA)
+        val result = ss58Encoder.encode(Hex.decode(inputPublicKey), AddressType.KUSAMA)
 
         assertEquals(outputAddress, result)
     }
 
     @Test
     fun decode_called() {
-        val result = Hex.toHexString(ss58Encoder.decode(outputAddress, NetworkType.KUSAMA))
+        val result = Hex.toHexString(ss58Encoder.decode(outputAddress, AddressType.KUSAMA))
 
         assertEquals(inputPublicKey, result)
     }
