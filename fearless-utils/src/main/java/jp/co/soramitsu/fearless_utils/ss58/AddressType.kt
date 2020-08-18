@@ -5,5 +5,5 @@ enum class AddressType(
 ) {
     KUSAMA(2.toByte()),
     POLKADOT(0.toByte()),
-    WESTEND(66.toByte())
+    WESTEND(42.toByte())
 }

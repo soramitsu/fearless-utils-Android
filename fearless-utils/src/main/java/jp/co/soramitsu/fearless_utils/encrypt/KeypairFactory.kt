@@ -1,27 +1,32 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.crypto.ed25519.EdDSAKey
-import jp.co.soramitsu.crypto.ed25519.EdDSASecurityProvider
-import jp.co.soramitsu.crypto.ed25519.spec.EdDSANamedCurveTable
-import jp.co.soramitsu.crypto.ed25519.spec.EdDSAPrivateKeySpec
-import jp.co.soramitsu.crypto.ed25519.spec.EdDSAPublicKeySpec
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.exceptions.JunctionTypeException
 import jp.co.soramitsu.fearless_utils.junction.JunctionDecoder
 import jp.co.soramitsu.fearless_utils.junction.JunctionType
+import net.i2p.crypto.eddsa.EdDSAKey
+import net.i2p.crypto.eddsa.EdDSASecurityProvider
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
+import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
+import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import org.bouncycastle.jcajce.provider.digest.Blake2b
+import org.spongycastle.crypto.params.ECPublicKeyParameters
+import org.spongycastle.jcajce.provider.asymmetric.util.ECUtil
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.Sign
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.security.KeyFactory
+import java.security.KeyPairGenerator
 import java.security.Security
+import java.security.spec.ECGenParameterSpec
 
 class KeypairFactory {
 
     init {
         Security.addProvider(EdDSASecurityProvider())
+        Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
     }
 
     private val junctionDecoder = JunctionDecoder()
@@ -30,12 +35,13 @@ class KeypairFactory {
         var previousKeypair = when (encryptionType) {
             EncryptionType.SR25519 -> deriveSr25519MasterKeypair(seed)
             EncryptionType.ED25519 -> deriveEd25519MasterKeypair(seed)
-            EncryptionType.ECDSA -> deriveECDCAMasterKeypair(seed)
+            EncryptionType.ECDSA -> deriveECDSAMasterKeypair(seed)
         }
+
 
         if (derivationPath.isNotEmpty()) {
             val junctions = junctionDecoder.decodeDerivationPath(derivationPath)
-
+            var currentSeed = seed
             junctions.forEach {
                 previousKeypair = when (encryptionType) {
                     EncryptionType.SR25519 -> {
@@ -49,9 +55,9 @@ class KeypairFactory {
                         if (it.type == JunctionType.HARD) {
                             val buf = ByteArrayOutputStream()
                             ScaleCodecWriter(buf).writeString("Ed25519HDKD")
-                            val inputSeed = Blake2b.Blake2b256()
-                                .digest(buf.toByteArray() + previousKeypair.privateKey + it.chaincode)
-                            deriveEd25519MasterKeypair(inputSeed)
+                            currentSeed = Blake2b.Blake2b256()
+                                .digest(buf.toByteArray() + currentSeed + it.chaincode)
+                            deriveEd25519MasterKeypair(currentSeed)
                         } else {
                             throw JunctionTypeException()
                         }
@@ -60,9 +66,9 @@ class KeypairFactory {
                         if (it.type == JunctionType.HARD) {
                             val buf = ByteArrayOutputStream()
                             ScaleCodecWriter(buf).writeString("Secp256k1HDKD")
-                            val inputSeed = Blake2b.Blake2b256()
-                                .digest(buf.toByteArray() + previousKeypair.privateKey + it.chaincode)
-                            deriveECDCAMasterKeypair(inputSeed)
+                            currentSeed = Blake2b.Blake2b256()
+                                .digest(buf.toByteArray() + currentSeed + it.chaincode)
+                            deriveECDSAMasterKeypair(currentSeed)
                         } else {
                             throw JunctionTypeException()
                         }
@@ -99,17 +105,18 @@ class KeypairFactory {
         val publicKeySpec = EdDSAPublicKeySpec(privKeySpec.a, spec)
         val public = keyFac.generatePublic(publicKeySpec).encoded
         return Keypair(
-            private,
-            public
+            private.copyOfRange(12, private.size),
+            public.copyOfRange(12, public.size)
         )
     }
 
-    private fun deriveECDCAMasterKeypair(seed: ByteArray): Keypair {
+    private fun deriveECDSAMasterKeypair(seed: ByteArray): Keypair {
         val privateKey = BigInteger(Hex.toHexString(seed), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
+        val compressed = compressPubKey(publicKey)
         return Keypair(
             seed,
-            publicKey.toByteArray()
+            Hex.decode(compressed)
         )
     }
 
@@ -122,5 +129,12 @@ class KeypairFactory {
             publicKey,
             nonce
         )
+    }
+
+    private fun compressPubKey(pubKey: BigInteger): String? {
+        val pubKeyYPrefix = if (pubKey.testBit(0)) "03" else "02"
+        val pubKeyHex = pubKey.toString(16)
+        val pubKeyX = pubKeyHex.substring(0, 64)
+        return pubKeyYPrefix + pubKeyX
     }
 }

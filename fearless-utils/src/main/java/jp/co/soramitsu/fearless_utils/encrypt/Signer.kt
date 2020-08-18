@@ -1,10 +1,10 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
-import jp.co.soramitsu.crypto.ed25519.EdDSAPrivateKey
-import jp.co.soramitsu.crypto.ed25519.spec.EdDSANamedCurveTable
-import jp.co.soramitsu.crypto.ed25519.spec.EdDSAParameterSpec
-import jp.co.soramitsu.crypto.ed25519.spec.EdDSAPrivateKeySpec
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
+import net.i2p.crypto.eddsa.EdDSAPrivateKey
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
+import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec
+import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Sign

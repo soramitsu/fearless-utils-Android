@@ -31,9 +31,10 @@ buildscript {
         navControllerVersion = '2.0.0-rc02'
 
         spoungyCastleVersion = '1.58.0.0'
-        ed25519Version = '1.0'
+        ed25519Version = '0.3.0'
         bip39version = '2019.01.27'
         web3jVersion = '4.6.0-android'
+        apacheXercesVersion = '2.9.0'
 
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
@@ -72,8 +73,9 @@ buildscript {
 
         spoungyCastleBcPixDep = "com.madgag.spongycastle:bcpkix-jdk15on:$spoungyCastleVersion"
         spoungyCastleBcPgDep = "com.madgag.spongycastle:bcpg-jdk15on:$spoungyCastleVersion"
-        ed25519Dep = "com.github.warchant:ed25519-sha3-java:$ed25519Version"
+        ed25519Dep = "net.i2p.crypto:eddsa:$ed25519Version"
         web3jDep = "org.web3j:crypto:$web3jVersion"
+        apacheXercesDep = "org.eclipse.birt.runtime.3_7_1:org.apache.xerces:$apacheXercesVersion"
 
         bip39Dep = "io.github.novacrypto:BIP39:$bip39version"
         secureStringDep = "io.github.novacrypto:securestring:$bip39version@jar"
