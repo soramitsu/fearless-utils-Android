@@ -11,16 +11,12 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import org.bouncycastle.jcajce.provider.digest.Blake2b
-import org.spongycastle.crypto.params.ECPublicKeyParameters
-import org.spongycastle.jcajce.provider.asymmetric.util.ECUtil
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.Sign
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.security.KeyFactory
-import java.security.KeyPairGenerator
 import java.security.Security
-import java.security.spec.ECGenParameterSpec
 
 class KeypairFactory {
 
@@ -37,7 +33,6 @@ class KeypairFactory {
             EncryptionType.ED25519 -> deriveEd25519MasterKeypair(seed)
             EncryptionType.ECDSA -> deriveECDSAMasterKeypair(seed)
         }
-
 
         if (derivationPath.isNotEmpty()) {
             val junctions = junctionDecoder.decodeDerivationPath(derivationPath)
