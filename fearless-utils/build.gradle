@@ -3,6 +3,15 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.mozilla.rust-android-gradle.rust-android'
+apply from: '../maven-publish-helper.gradle'
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId 'jp.co.soramitsu.fearless-utils'
+        }
+    }
+}
 
 android {
     compileSdkVersion rootProject.compileVersion
@@ -23,6 +32,11 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
 
     ndkVersion "21.3.6528147"
