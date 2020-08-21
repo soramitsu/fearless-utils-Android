@@ -3,7 +3,6 @@ package jp.co.soramitsu.fearless_utils.bip39
 import io.github.novacrypto.SecureCharBuffer
 import io.github.novacrypto.bip39.MnemonicGenerator
 import io.github.novacrypto.bip39.MnemonicValidator
-import io.github.novacrypto.bip39.Words
 import io.github.novacrypto.bip39.wordlists.English
 import io.github.novacrypto.hashing.Sha256
 import jp.co.soramitsu.fearless_utils.exceptions.Bip39Exception
@@ -23,9 +22,9 @@ class Bip39 {
         private const val SEED_PREFIX = "mnemonic"
     }
 
-    fun generateMnemonic(length: Words): String {
+    fun generateMnemonic(length: MnemonicLength): String {
         SecureCharBuffer().use { secure ->
-            val entropy = ByteArray(length.byteLength())
+            val entropy = ByteArray(length.byteLength)
             SecureRandom().nextBytes(entropy)
             MnemonicGenerator(EnglishWordList.INSTANCE)
                 .createMnemonic(entropy, secure::append)
