@@ -29,45 +29,48 @@ class JunctionDecoder {
         }
 
         val chaincodes = mutableListOf<Junction>()
-        var slashCount = 0
-        var currentType = JunctionType.NONE
-        val currentJunctionBuilder = StringBuilder()
 
-        path.forEach { c ->
-            if (c == '/') {
-                if (currentType != JunctionType.NONE) {
-                    chaincodes.add(
-                        Junction(
-                            currentType,
-                            proccessBytes(decodeJunction(currentJunctionBuilder.toString()))
+        if (path.isNotEmpty()) {
+            var slashCount = 0
+            var currentType = JunctionType.NONE
+            val currentJunctionBuilder = StringBuilder()
+
+            path.forEach { c ->
+                if (c == '/') {
+                    if (currentType != JunctionType.NONE) {
+                        chaincodes.add(
+                            Junction(
+                                currentType,
+                                proccessBytes(decodeJunction(currentJunctionBuilder.toString()))
+                            )
                         )
-                    )
-                    slashCount = 0
-                    currentType = JunctionType.NONE
-                    currentJunctionBuilder.clear()
-                }
-                slashCount++
-            } else {
-                when (slashCount) {
-                    1 -> {
-                        currentType = JunctionType.SOFT
+                        slashCount = 0
+                        currentType = JunctionType.NONE
+                        currentJunctionBuilder.clear()
+                    }
+                    slashCount++
+                } else {
+                    when (slashCount) {
+                        1 -> {
+                            currentType = JunctionType.SOFT
+                        }
+
+                        2 -> {
+                            currentType = JunctionType.HARD
+                        }
                     }
 
-                    2 -> {
-                        currentType = JunctionType.HARD
-                    }
+                    currentJunctionBuilder.append(c)
                 }
-
-                currentJunctionBuilder.append(c)
             }
-        }
 
-        chaincodes.add(
-            Junction(
-                currentType,
-                proccessBytes(decodeJunction(currentJunctionBuilder.toString()))
+            chaincodes.add(
+                Junction(
+                    currentType,
+                    proccessBytes(decodeJunction(currentJunctionBuilder.toString()))
+                )
             )
-        )
+        }
 
         return chaincodes
     }

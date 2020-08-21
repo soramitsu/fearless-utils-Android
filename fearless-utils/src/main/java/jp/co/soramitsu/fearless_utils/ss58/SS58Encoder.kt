@@ -17,10 +17,16 @@ class SS58Encoder {
     private val base58 = Base58()
 
     fun encode(publicKey: ByteArray, networkType: AddressType): String {
-        val addressTypeByteArray = byteArrayOf(networkType.addressByte)
-        val blake2b = Blake2b.Blake2b512().digest(PREFIX + addressTypeByteArray + publicKey)
+        val pubKey = if (publicKey.size > 32) {
+            Blake2b.Blake2b256().digest(publicKey)
+        } else {
+            publicKey
+        }
 
-        val resultByteArray = addressTypeByteArray + publicKey + blake2b.copyOfRange(0, PREFIX_SIZE)
+        val addressTypeByteArray = byteArrayOf(networkType.addressByte)
+        val blake2b = Blake2b.Blake2b512().digest(PREFIX + addressTypeByteArray + pubKey)
+
+        val resultByteArray = addressTypeByteArray + pubKey + blake2b.copyOfRange(0, PREFIX_SIZE)
 
         return base58.encode(resultByteArray)
     }
