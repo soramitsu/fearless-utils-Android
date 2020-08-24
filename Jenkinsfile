@@ -1,6 +1,6 @@
 def dockerImage = 'build-tools/android-build-box:latest'
 def jenkinsAgent = 'android'
-def deploymentBranches = ['master', 'develop']
+def deploymentBranches = ['master', 'develop', 'feature/ci']
 
 node(jenkinsAgent) {
     properties(
