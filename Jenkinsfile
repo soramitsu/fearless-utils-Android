@@ -1,5 +1,6 @@
 def dockerImage = 'build-tools/android-build-box:latest'
 def jenkinsAgent = 'android'
+def deploymentBranches = ['master', 'develop']
 
 node(jenkinsAgent) {
     properties(
@@ -23,11 +24,11 @@ node(jenkinsAgent) {
                             sh "./gradlew ktlint"
                         }
                         stage('Build library') {
-                            sh "./gradlew clean Build"
+                            sh "./gradlew clean build"
                         }
-                        if (env.BRANCH_NAME == 'master') {
+                        if (env.BRANCH_NAME in deploymentBranches) {
                             stage('Deploy library') {
-                                sh "./gradlew uploadArchives"
+                                sh "./gradlew publish"
                             }
                         }
                     }
