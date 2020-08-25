@@ -100,6 +100,6 @@ def computeVersionName() {
     if (System.getenv('BUILD_ID') != null && System.getenv('BRANCH_NAME') != null && System.getenv('BRANCH_NAME') == 'develop') {
         return "${verMatcher.group(1)}.${System.getenv('BUILD_ID')}"
     } else {
-        return "$rootProject.versionName"
+        return "${rootProject.versionName}"
     }
 }
