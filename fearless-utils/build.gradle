@@ -19,7 +19,7 @@ android {
         minSdkVersion rootProject.minVersion
         targetSdkVersion rootProject.targetVersion
         versionCode rootProject.versionCode
-        versionName rootProject.versionName
+        versionName computeVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -90,4 +90,16 @@ dependencies {
 
     testImplementation jUnitDep
     testImplementation mockitoDep
+}
+
+def computeVersionName() {
+    def verMatcher = rootProject.versionName =~ /^([0-9]+\.[0-9]+)\.([0-9]+)$/
+    if (!verMatcher.find()) {
+        throw new GradleException("Invalid versionName!")
+    }
+    if (System.getenv('BUILD_ID') != null && System.getenv('BRANCH_NAME') != null && System.getenv('BRANCH_NAME') == 'develop') {
+        return "${verMatcher.group(1)}.${System.getenv('BUILD_ID')}"
+    } else {
+        return "${rootProject.versionName}"
+    }
 }
