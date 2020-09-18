@@ -1,7 +1,9 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
-import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.*
+import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.IncorrectPasswordException
+import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.InvalidJsonException
+import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.UnsupportedEncryptionTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
@@ -36,7 +38,7 @@ class JsonSeedDecoder(
         }
     }
 
-    private fun decode(jsonData: JsonAccountData, password: String) : ImportAccountData {
+    private fun decode(jsonData: JsonAccountData, password: String): ImportAccountData {
         if (jsonData.encoding.type.size < 2 && jsonData.encoding.type[0] != "scrypt" && jsonData.encoding.type[1] != "xsalsa20-poly1305") {
             throw InvalidJsonException()
         }
@@ -55,7 +57,9 @@ class JsonSeedDecoder(
         val nonce = byteData.copyOfRange(44, 68)
         val encrData = byteData.copyOfRange(68, byteData.size)
 
-        val encryptionSecret = SCrypt.generate(password.toByteArray(Charsets.UTF_8), salt, N, r, p, 64).copyOfRange(0, 32)
+        val encryptionSecret =
+            SCrypt.generate(password.toByteArray(Charsets.UTF_8), salt, N, r, p, 64)
+                .copyOfRange(0, 32)
         val secret = SecretBox(encryptionSecret).open(nonce, encrData)
 
         val importData = try {
@@ -64,7 +68,13 @@ class JsonSeedDecoder(
                     val privateKeyCompressed = secret.copyOfRange(16, 80)
                     val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
                     val publicKey = secret.copyOfRange(85, 117)
-                    ImportAccountData(Keypair(privateAndNonce.copyOfRange(0, 32), publicKey, privateAndNonce.copyOfRange(32, 64)), EncryptionType.SR25519, networkType, username, address)
+                    ImportAccountData(
+                        Keypair(
+                            privateAndNonce.copyOfRange(0, 32),
+                            publicKey,
+                            privateAndNonce.copyOfRange(32, 64)
+                        ), EncryptionType.SR25519, networkType, username, address
+                    )
                 }
 
                 "ed25519" -> {
