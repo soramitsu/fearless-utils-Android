@@ -46,7 +46,7 @@ class JsonSeedDecoder(
                 val privateKeyCompressed = secret.copyOfRange(16, 80)
                 val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
                 val publicKey = secret.copyOfRange(85, 117)
-                ImportAccountData(Keypair(privateAndNonce.copyOfRange(0, 32), privateAndNonce.copyOfRange(32, 64), publicKey), EncryptionType.SR25519, networkType, username, address)
+                ImportAccountData(Keypair(privateAndNonce.copyOfRange(0, 32), publicKey, privateAndNonce.copyOfRange(32, 64)), EncryptionType.SR25519, networkType, username, address)
             }
 
             "ed25519" -> {
