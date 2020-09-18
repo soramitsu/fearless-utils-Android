@@ -13,14 +13,13 @@ import org.mockito.junit.MockitoJUnitRunner
 private const val VALID_JSON = "{\"address\":\"F2dMuaCik4Ackmo9hoMMV79ETtVNvKSZMVK5sue9q1syPrW\",\"encoded\":\"DjQJTO2m1HlbCuaF0A9B9XJPHQlz1+0dOVURUSSS3VsAgAAAAQAAAAgAAAC9nLArVYH4ip7+fN03vcLOy727cNE6PWMCVXtpPKoAktb4YTIaf/Oe8oPZOUa1KnMCPtTRJPUsZbCMp41rdaT82b6wvOI/CL3kmmPlVIX8GmW6GZHaPVvvu2fGiC7EchpV5V1SR11GhTbqE94JhfSKSJALkd1Nxy4Ilfizyx7UZAw/pzavw7PR7td0MXEjctUhiWg1TDApXXGiUX3+\",\"encoding\":{\"content\":[\"pkcs8\",\"sr25519\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"meta\":{\"genesisHash\":\"0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe\",\"name\":\"test\",\"tags\":[],\"whenCreated\":1600410143263}}"
 
 private const val VALID_PASSWORD = "12345"
-private const val INVALID_PASSWORD = "not_valid_pass"
+private const val INVALID_PASSWORD = "123456"
 
 private const val VALID_NAME = "name"
 private const val VALID_ADDRESS = "F2dMuaCik4Ackmo9hoMMV79ETtVNvKSZMVK5sue9q1syPrW"
 private val VALID_NETWORK = AddressType.KUSAMA
 
-
-private const val INVALID_JSON = "\"some_field\": 123"
+private const val INVALID_JSON = "{\"some_field\": 123}"
 
 @RunWith(MockitoJUnitRunner::class)
 class JsonSeedDecoderTest {
