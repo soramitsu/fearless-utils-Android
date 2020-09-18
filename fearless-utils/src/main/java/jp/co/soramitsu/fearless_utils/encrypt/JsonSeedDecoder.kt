@@ -2,7 +2,9 @@ package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.*
+import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.InvalidJsonException
+import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.IncorrectPasswordException
+import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.UnsupportedEncryptionTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
@@ -50,7 +52,8 @@ class JsonSeedDecoder(
 
         val encryptionSecret = SCrypt.generate(password.toByteArray(Charsets.UTF_8), salt, N, r, p, 64).copyOfRange(0, 32)
         val secret = SecretBox(encryptionSecret).open(nonce, encrData)
-        val importData =  when (jsonData.encoding.content[1]) {
+
+        val importData = when (jsonData.encoding.content[1]) {
             "sr25519" -> {
                 val privateKeyCompressed = secret.copyOfRange(16, 80)
                 val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
@@ -69,7 +72,7 @@ class JsonSeedDecoder(
                 val keys = keypairFactory.generate(EncryptionType.ECDSA, seed, "")
                 ImportAccountData(keys, EncryptionType.ECDSA, networkType, username, address)
             }
-            else -> throw JSONException("")
+            else -> throw UnsupportedEncryptionTypeException()
         }
 
         val extractedAddress = sS58Encoder.encode(importData.keypair.publicKey, networkType)
