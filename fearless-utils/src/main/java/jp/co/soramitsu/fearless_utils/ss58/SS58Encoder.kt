@@ -47,6 +47,7 @@ class SS58Encoder {
         return when (decodedByteArray.first()) {
             AddressType.KUSAMA.addressByte -> AddressType.KUSAMA
             AddressType.POLKADOT.addressByte -> AddressType.POLKADOT
+            AddressType.WESTEND.addressByte -> AddressType.WESTEND
             else -> AddressType.KUSAMA
         }
     }
