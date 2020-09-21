@@ -1,10 +1,14 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
+import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.ECDSA
+import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.ED25519
+import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.SR25519
 import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.IncorrectPasswordException
 import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.InvalidJsonException
 import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.UnsupportedEncryptionTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountData
+import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountMeta
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
@@ -25,6 +29,23 @@ class JsonSeedDecoder(
     private val sS58Encoder: SS58Encoder,
     private val keypairFactory: KeypairFactory
 ) {
+    fun extractImportMetaData(json: String): ImportAccountMeta {
+        val jsonData = decodeJson(json)
+
+        try {
+            val address = jsonData.address
+            val networkType = sS58Encoder.getNetworkType(address)
+
+            val encryptionTypeRaw = jsonData.encoding.content[1]
+            val encryptionType = EncryptionType.fromString(encryptionTypeRaw)
+
+            val name = jsonData.meta.name
+
+            return ImportAccountMeta(name, networkType, encryptionType)
+        } catch (_: Exception) {
+            throw InvalidJsonException()
+        }
+    }
 
     fun decode(json: String, password: String): ImportAccountData {
         val jsonData = decodeJson(json)
@@ -64,7 +85,7 @@ class JsonSeedDecoder(
 
         val importData = try {
             when (jsonData.encoding.content[1]) {
-                "sr25519" -> {
+                SR25519.rawName -> {
                     val privateKeyCompressed = secret.copyOfRange(16, 80)
                     val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
                     val publicKey = secret.copyOfRange(85, 117)
@@ -73,20 +94,20 @@ class JsonSeedDecoder(
                             privateAndNonce.copyOfRange(0, 32),
                             publicKey,
                             privateAndNonce.copyOfRange(32, 64)
-                        ), EncryptionType.SR25519, networkType, username, address
+                        ), SR25519, networkType, username, address
                     )
                 }
 
-                "ed25519" -> {
+                ED25519.rawName -> {
                     val seed = secret.copyOfRange(16, 48)
-                    val keys = keypairFactory.generate(EncryptionType.ED25519, seed, "")
-                    ImportAccountData(keys, EncryptionType.ED25519, networkType, username, address)
+                    val keys = keypairFactory.generate(ED25519, seed, "")
+                    ImportAccountData(keys, ED25519, networkType, username, address)
                 }
 
-                "ecdsa" -> {
+                ECDSA.rawName -> {
                     val seed = secret.copyOfRange(16, 48)
-                    val keys = keypairFactory.generate(EncryptionType.ECDSA, seed, "")
-                    ImportAccountData(keys, EncryptionType.ECDSA, networkType, username, address)
+                    val keys = keypairFactory.generate(ECDSA, seed, "")
+                    ImportAccountData(keys, ECDSA, networkType, username, address)
                 }
 
                 else -> throw UnsupportedEncryptionTypeException()

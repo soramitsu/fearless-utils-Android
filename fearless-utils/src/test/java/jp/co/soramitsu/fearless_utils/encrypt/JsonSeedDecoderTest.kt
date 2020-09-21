@@ -69,6 +69,22 @@ class JsonSeedDecoderTest {
         decoder.decode(INVALID_JSON, INVALID_PASSWORD)
     }
 
+    @Test
+    fun `should extract meta from valid json`() {
+        val data = decoder.extractImportMetaData(VALID_JSON_SR25519);
+
+        assertEquals(EncryptionType.SR25519, data.encryptionType)
+        assertEquals(VALID_NETWORK, data.networkType)
+        assertEquals(VALID_NAME, data.name)
+    }
+
+    @Test
+    fun `should handle meta from invalid json`() {
+        assertThrows<InvalidJsonException> {
+            decoder.extractImportMetaData(INVALID_JSON)
+        }
+    }
+
     private inline fun <reified T : Throwable> assertThrows(block: () -> Unit) {
         var throwable: Throwable? = null
 

@@ -10,3 +10,9 @@ data class ImportAccountData(
     val username: String,
     val address: String
 )
+
+class ImportAccountMeta(
+    val name: String,
+    val networkType: AddressType,
+    val encryptionType: EncryptionType
+)
