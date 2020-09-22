@@ -86,6 +86,7 @@ dependencies {
     implementation web3jDep
     implementation gsonDep
     implementation apacheXercesDep
+    implementation xxHashDep
 
     testImplementation jUnitDep
     testImplementation mockitoDep
