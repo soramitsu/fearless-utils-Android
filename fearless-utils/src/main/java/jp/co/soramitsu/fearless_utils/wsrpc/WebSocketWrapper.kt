@@ -5,12 +5,13 @@ import com.neovisionaries.ws.client.WebSocketFactory
 import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketException
-import jp.co.soramitsu.fearless_utils.wsrpc.request.RpcRequest
+import jp.co.soramitsu.fearless_utils.wsrpc.request.base.RpcRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 
 class WebSocketWrapper(
     url: String,
-    listener: WebSocketResponseListener
+    listener: WebSocketResponseListener,
+    val singleResponse: Boolean = true
 ) {
 
     private val ws = WebSocketFactory().createSocket(url)
@@ -20,7 +21,12 @@ class WebSocketWrapper(
         ws.addListener(object : WebSocketAdapter() {
             override fun onTextMessage(websocket: WebSocket?, text: String?) {
                 super.onTextMessage(websocket, text)
+
                 listener.onResponse(gson.fromJson(text, RpcResponse::class.java))
+
+                if (singleResponse) {
+                    ws.disconnect()
+                }
             }
 
             override fun onError(websocket: WebSocket?, cause: WebSocketException?) {
@@ -31,7 +37,7 @@ class WebSocketWrapper(
         ws.connectAsynchronously()
     }
 
-    fun sendRpcMessage(rpcRequest: RpcRequest) {
+    fun sendRpcRequest(rpcRequest: RpcRequest) {
         val text = gson.toJson(rpcRequest)
         ws.sendText(text)
     }

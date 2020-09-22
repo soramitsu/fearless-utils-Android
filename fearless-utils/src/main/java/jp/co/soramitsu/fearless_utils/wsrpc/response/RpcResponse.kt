@@ -2,7 +2,7 @@ package jp.co.soramitsu.fearless_utils.wsrpc.response
 
 import com.google.gson.annotations.SerializedName
 
-data class RpcResponse(
+class RpcResponse(
     @SerializedName("jsonrpc")
     val jsonrpc: String,
     @SerializedName("result")
