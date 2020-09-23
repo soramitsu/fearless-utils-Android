@@ -34,7 +34,18 @@ class WebSocketWrapper(
                 listener.onError(cause!!)
             }
         })
+    }
+
+    fun connect() {
+        ws.connect()
+    }
+
+    fun connectAsync() {
         ws.connectAsynchronously()
+    }
+
+    fun disconnect() {
+        ws.disconnect()
     }
 
     fun sendRpcRequest(rpcRequest: RpcRequest) {

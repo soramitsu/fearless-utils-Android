@@ -6,7 +6,7 @@ class RpcResponse(
     @SerializedName("jsonrpc")
     val jsonrpc: String,
     @SerializedName("result")
-    val result: Any,
+    val result: Any?,
     @SerializedName("id")
     val id: Int
 )
