@@ -5,6 +5,7 @@ import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import jp.co.soramitsu.fearless_utils.wsrpc.request.base.RpcRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.account.AccountInfoRequest
+import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.system.NodeNetworkTypeRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Test
@@ -40,6 +41,17 @@ class RequestsIntegrationTest {
         val response = single.blockingGet()
 
         assert(response.result != null)
+    }
+
+    @Test
+    fun `should get node network type`() {
+        val url = "wss://westend-rpc.polkadot.io"
+
+        val response = startSocketAsSingle(url, NodeNetworkTypeRequest()).blockingGet()
+
+        val type = response.result as String
+
+        assert(type == "Westend")
     }
 
     private fun startSocketAsSingle(url: String, request: RpcRequest) : Single<RpcResponse> {
