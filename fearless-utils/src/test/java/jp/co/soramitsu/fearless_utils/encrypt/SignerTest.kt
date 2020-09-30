@@ -13,20 +13,21 @@ class SignerTest {
     fun `should sign message`() {
         val messageHex = "this is a message"
 
-        val expected = "90588f3f512496f2dd40571d162e8182860081c74e2085316e7c4396918f07da412ee029978e4dd714057fe973bd9e7d645148bf7b66680d67c93227cde95202"
+//        val expected = "90588f3f512496f2dd40571d162e8182860081c74e2085316e7c4396918f07da412ee029978e4dd714057fe973bd9e7d645148bf7b66680d67c93227cde95202"
+//
+//        val publicKey = "2f8c6129d816cf51c374bc7f08c3e63ed156cf78aefb4a6550d97b87997977ee"
+//        val publicKeyBytes = Hex.decode(publicKey)
+//
+//        val privateKey = "f0106660c3dda23f16daa9ac5b811b963077f5bc0af89f85804f0de8e424f050"
+//        val privateKeyBytes = Hex.decode(privateKey)
 
-        val publicKey = "2f8c6129d816cf51c374bc7f08c3e63ed156cf78aefb4a6550d97b87997977ee"
-        val publicKeyBytes = Hex.decode(publicKey)
-
-        val privateKey = "f0106660c3dda23f16daa9ac5b811b963077f5bc0af89f85804f0de8e424f050"
-        val privateKeyBytes = Hex.decode(privateKey)
-
-        val keypair = Keypair(privateKeyBytes, publicKeyBytes)
+        val seed = Hex.decode("3132333435363738393031323334353637383930313233343536373839303132")
+        val keypair = KeypairFactory().generate(EncryptionType.ED25519, seed, "")
 
         val signer = Signer()
 
         val result = signer.sign(EncryptionType.ED25519, messageHex.toByteArray(), keypair)
 
-        assert(signer.verifyEd25519(result.signature, publicKeyBytes))
+        assert(signer.verifyEd25519(messageHex.toByteArray(), result.signature, keypair.publicKey))
     }
 }

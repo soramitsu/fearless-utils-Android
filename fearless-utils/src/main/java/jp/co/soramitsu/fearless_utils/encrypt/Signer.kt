@@ -46,14 +46,14 @@ class Signer {
         return SignatureWrapper(signature = sgr.sign())
     }
 
-    fun verifyEd25519(signature: ByteArray, publicKeyBytes: ByteArray) : Boolean {
+    fun verifyEd25519(message: ByteArray, signature: ByteArray, publicKeyBytes: ByteArray) : Boolean {
         val spec: EdDSAParameterSpec = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
         val sgr: Signature = Signature.getInstance(EdDSAEngine.SIGNATURE_ALGORITHM, EdDSASecurityProvider.PROVIDER_NAME)
 
         val privKeySpec = EdDSAPublicKeySpec(publicKeyBytes, spec)
         val publicKey = EdDSAPublicKey(privKeySpec)
         sgr.initVerify(publicKey)
-        sgr.update(signature)
+        sgr.update(message)
 
         return sgr.verify(signature)
     }
