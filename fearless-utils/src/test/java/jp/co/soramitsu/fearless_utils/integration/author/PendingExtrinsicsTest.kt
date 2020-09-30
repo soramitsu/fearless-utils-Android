@@ -2,11 +2,13 @@ package jp.co.soramitsu.fearless_utils.integration.author
 
 import jp.co.soramitsu.fearless_utils.integration.executeRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.author.PendingExtrinsicsRequest
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
+@Ignore("Manual run only")
 class PendingExtrinsicsTest {
 
     @Test
