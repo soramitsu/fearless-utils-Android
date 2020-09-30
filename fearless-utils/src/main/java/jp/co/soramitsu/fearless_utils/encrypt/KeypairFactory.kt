@@ -99,6 +99,12 @@ class KeypairFactory {
         val private = keyFac.generatePrivate(privKeySpec).encoded
         val publicKeySpec = EdDSAPublicKeySpec(privKeySpec.a, spec)
         val public = keyFac.generatePublic(publicKeySpec).encoded
+//
+//        val hex = Hex.toHexString(private)
+//
+//        println(Hex.toHexString(public))
+//        println(hex)
+
         return Keypair(
             private.copyOfRange(12, private.size),
             public.copyOfRange(12, public.size)
