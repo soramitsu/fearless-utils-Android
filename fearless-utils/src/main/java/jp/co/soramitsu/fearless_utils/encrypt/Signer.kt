@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
+import net.i2p.crypto.eddsa.EdDSAKey
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec
@@ -28,7 +29,7 @@ class Signer {
 
     private fun signEd25519(message: ByteArray, keypair: Keypair): SignatureWrapper {
         val spec: EdDSAParameterSpec = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
-        val sgr: Signature = Signature.getInstance("EdDSA/SHA3", "EdDSA")
+        val sgr: Signature = Signature.getInstance(EdDSAKey.KEY_ALGORITHM, "EdDSA")
         val privKeySpec = EdDSAPrivateKeySpec(keypair.privateKey, spec)
         val privateKey = EdDSAPrivateKey(privKeySpec)
         sgr.initSign(privateKey)
