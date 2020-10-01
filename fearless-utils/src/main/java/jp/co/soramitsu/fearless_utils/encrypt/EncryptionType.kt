@@ -1,9 +1,9 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
-enum class EncryptionType(val rawName: String) {
-    SR25519("sr25519"),
-    ED25519("ed25519"),
-    ECDSA("ecdsa");
+enum class EncryptionType(val rawName: String, val signatureVersion: Int) {
+    ED25519("ed25519", 0),
+    SR25519("sr25519", 1),
+    ECDSA("ecdsa", 2);
 
     companion object {
         fun fromString(string: String): EncryptionType {
