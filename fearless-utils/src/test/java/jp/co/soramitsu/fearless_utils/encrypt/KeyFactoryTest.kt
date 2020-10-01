@@ -13,17 +13,12 @@ class KeyFactoryTest {
 
     @Test
     fun `should generate keypair`() {
-        val private = "f0106660c3dda23f16daa9ac5b811b963077f5bc0af89f85804f0de8e424f050"
-        val public = "2f8c6129d816cf51c374bc7f08c3e63ed156cf78aefb4a6550d97b87997977ee"
-
-        val seed = Hex.decode("3132333435363738393031323334353637383930313233343536373839303132")
-
-        val keypair = keypairFactory.generate(EncryptionType.ED25519, seed, "")
+        val keypair = keypairFactory.generate(EncryptionType.ED25519, TestData.SEED_BYTES, "")
 
         val actualPrivate = Hex.toHexString(keypair.privateKey)
         val actualPublic = Hex.toHexString(keypair.publicKey)
 
-//        assertEquals(private, actualPrivate)
-        assertEquals(public, actualPublic)
+        assertEquals(TestData.PUBLIC_KEY, actualPublic)
+        assertEquals(actualPrivate.length, TestData.PRIVATE_KEY.length)
     }
 }

@@ -106,11 +106,6 @@ class KeypairFactory {
         val publicKeySpec = EdDSAPublicKeySpec(privKeySpec.a, spec)
         val public = keyFac.generatePublic(publicKeySpec).encoded
 
-        val hex = Hex.toHexString(private)
-
-        println(Hex.toHexString(public))
-        println(hex)
-
         return Keypair(
             private.copyOfRange(ed25519PrivateKeyPrefix.length / 2, private.size),
             public.copyOfRange(ed25519PubKeyPrefix.length / 2, public.size)
