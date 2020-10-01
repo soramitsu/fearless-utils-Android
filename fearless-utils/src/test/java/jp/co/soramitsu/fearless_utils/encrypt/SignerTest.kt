@@ -1,5 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
+import jp.co.soramitsu.fearless_utils.bip39.Bip39
+import jp.co.soramitsu.fearless_utils.bip39.MnemonicLength
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,13 +23,17 @@ class SignerTest {
 //        val privateKey = "f0106660c3dda23f16daa9ac5b811b963077f5bc0af89f85804f0de8e424f050"
 //        val privateKeyBytes = Hex.decode(privateKey)
 
-        val seed = Hex.decode("3132333435363738393031323334353637383930313233343536373839303132")
-        val keypair = KeypairFactory().generate(EncryptionType.ED25519, seed, "")
+        val bip = Bip39()
+//        val entr = bip.generateEntropy("fog shadow perfect fiction gesture famous pet original aim topic pepper need")
+//        val seed = bip.generateSeed(entr, "")
+
+        val seed = Hex.decode("82eb5cf58d175aaf389a0dacb16ef78f712fbc1a4712e2d57fcf5fd5e8ec3f13")
+        val keypair = KeypairFactory().generate(EncryptionType.ECDSA, seed, "")
 
         val signer = Signer()
 
-        val result = signer.sign(EncryptionType.ED25519, messageHex.toByteArray(), keypair)
+        val result = signer.sign(EncryptionType.ECDSA, messageHex.toByteArray(), keypair)
 
-        assert(signer.verifyEd25519(messageHex.toByteArray(), result.signature, keypair.publicKey))
+        assert(signer.verifyECDSA(messageHex.toByteArray(), result, keypair.publicKey))
     }
 }
