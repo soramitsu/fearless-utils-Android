@@ -80,14 +80,6 @@ class Signer {
         return sgr.verify(signature)
     }
 
-    fun verifySr25519(
-        message: ByteArray,
-        signature: ByteArray,
-        publicKeyBytes: ByteArray
-    ): Boolean {
-        return Sr25519.verify(signature, message, publicKeyBytes)
-    }
-
     private fun signEcdca(message: ByteArray, keypair: Keypair): SignatureWrapper {
         val privateKey = BigInteger(Hex.toHexString(keypair.privateKey), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
