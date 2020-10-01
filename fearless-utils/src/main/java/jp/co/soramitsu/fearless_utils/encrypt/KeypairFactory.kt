@@ -20,6 +20,11 @@ import java.security.Security
 
 class KeypairFactory {
 
+    companion object {
+        const val ed25519PrivateKeyPrefix = "302e020100300506032b657004220420"
+        const val ed25519PubKeyPrefix = "302a300506032b6570032100"
+    }
+
     init {
         Security.addProvider(EdDSASecurityProvider())
         Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
@@ -99,9 +104,10 @@ class KeypairFactory {
         val private = keyFac.generatePrivate(privKeySpec).encoded
         val publicKeySpec = EdDSAPublicKeySpec(privKeySpec.a, spec)
         val public = keyFac.generatePublic(publicKeySpec).encoded
+
         return Keypair(
-            private.copyOfRange(12, private.size),
-            public.copyOfRange(12, public.size)
+            private.copyOfRange(ed25519PrivateKeyPrefix.length / 2, private.size),
+            public.copyOfRange(ed25519PubKeyPrefix.length / 2, public.size)
         )
     }
 
