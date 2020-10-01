@@ -43,6 +43,10 @@ class Signer {
         return SignatureWrapper(signature = sign)
     }
 
+    fun verifySr25519(message: ByteArray, signature: ByteArray, publicKeyBytes: ByteArray): Boolean {
+        return Sr25519.verify(signature, message, publicKeyBytes)
+    }
+
     private fun signEd25519(message: ByteArray, keypair: Keypair): SignatureWrapper {
         val spec: EdDSAParameterSpec = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
         val sgr: Signature = Signature.getInstance(
@@ -75,18 +79,18 @@ class Signer {
         return sgr.verify(signature)
     }
 
-    fun verifySr25519(
-        message: ByteArray,
-        signature: ByteArray,
-        publicKeyBytes: ByteArray
-    ): Boolean {
-        return Sr25519.verify(signature, message, publicKeyBytes)
-    }
-
     private fun signEcdca(message: ByteArray, keypair: Keypair): SignatureWrapper {
         val privateKey = BigInteger(Hex.toHexString(keypair.privateKey), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
         val sign = Sign.signMessage(message, ECKeyPair(privateKey, publicKey))
-        return SignatureWrapper(signature = sign.r + sign.s + sign.s)
+        return SignatureWrapper(v = sign.v, r = sign.r, s = sign.s)
+    }
+
+    fun verifyECDSA(message: ByteArray, signature: SignatureWrapper, publicKeyBytes: ByteArray): Boolean {
+        val uncompressedPubkey = ECDSAUtils.decompressPubKey(publicKeyBytes)
+
+        val recoveredPubKey = Sign.signedMessageToKey(message, Sign.SignatureData(signature.v, signature.r, signature.s))
+
+        return uncompressedPubkey == recoveredPubKey
     }
 }
