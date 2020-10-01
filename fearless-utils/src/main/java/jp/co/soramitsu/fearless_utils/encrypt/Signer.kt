@@ -9,7 +9,6 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
-import org.bouncycastle.asn1.x9.X9IntegerConverter
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Sign
@@ -44,7 +43,7 @@ class Signer {
         return SignatureWrapper(signature = sign)
     }
 
-    fun verifySr25519(message: ByteArray, signature: ByteArray, publicKeyBytes: ByteArray) : Boolean {
+    fun verifySr25519(message: ByteArray, signature: ByteArray, publicKeyBytes: ByteArray): Boolean {
         return Sr25519.verify(signature, message, publicKeyBytes)
     }
 
@@ -84,18 +83,14 @@ class Signer {
         val privateKey = BigInteger(Hex.toHexString(keypair.privateKey), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
         val sign = Sign.signMessage(message, ECKeyPair(privateKey, publicKey))
-        return SignatureWrapper(v = sign.v , r = sign.r, s = sign.s)
+        return SignatureWrapper(v = sign.v, r = sign.r, s = sign.s)
     }
 
-    fun verifyECDSA(message: ByteArray, signature: SignatureWrapper, publicKeyBytes: ByteArray) : Boolean {
-        val ecdsaUtils = ECDSAUtils()
-        val uncompressedPubkey = ecdsaUtils.decompressPubKey(publicKeyBytes)
+    fun verifyECDSA(message: ByteArray, signature: SignatureWrapper, publicKeyBytes: ByteArray): Boolean {
+        val uncompressedPubkey = ECDSAUtils.decompressPubKey(publicKeyBytes)
 
         val recoveredPubKey = Sign.signedMessageToKey(message, Sign.SignatureData(signature.v, signature.r, signature.s))
 
         return uncompressedPubkey == recoveredPubKey
     }
-
-
 }
-

@@ -25,6 +25,6 @@ class MainActivity : AppCompatActivity() {
 
         val result = signer.sign(EncryptionType.SR25519, messageHex.toByteArray(), keypair)
 
-        require(signer.verifySr25519(messageHex.toByteArray(), result.signature, keypair.publicKey))
+        require(signer.verifySr25519(messageHex.toByteArray(), result.signature!!, keypair.publicKey))
     }
 }

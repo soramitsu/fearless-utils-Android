@@ -11,7 +11,6 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import org.bouncycastle.jcajce.provider.digest.Blake2b
-import org.spongycastle.jce.ECNamedCurveTable
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.Sign
 import java.io.ByteArrayOutputStream
@@ -113,10 +112,9 @@ class KeypairFactory {
     }
 
     private fun deriveECDSAMasterKeypair(seed: ByteArray): Keypair {
-        val ecdsaUtils = ECDSAUtils()
         val privateKey = BigInteger(Hex.toHexString(seed), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
-        val compressed = ecdsaUtils.compressPubKey(publicKey)
+        val compressed = ECDSAUtils.compressPubKey(publicKey)
         return Keypair(
             seed,
             Hex.decode(compressed)
