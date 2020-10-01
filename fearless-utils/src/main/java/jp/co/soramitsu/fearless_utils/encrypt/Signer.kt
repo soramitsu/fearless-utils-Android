@@ -23,7 +23,11 @@ class Signer {
         Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
     }
 
-    fun sign(encryptionType: EncryptionType, message: ByteArray, keypair: Keypair): SignatureWrapper {
+    fun sign(
+        encryptionType: EncryptionType,
+        message: ByteArray,
+        keypair: Keypair
+    ): SignatureWrapper {
         return when (encryptionType) {
             EncryptionType.SR25519 -> signSr25519(message, keypair)
             EncryptionType.ED25519 -> signEd25519(message, keypair)
@@ -32,13 +36,19 @@ class Signer {
     }
 
     private fun signSr25519(message: ByteArray, keypair: Keypair): SignatureWrapper {
-        val sign = Sr25519.sign(keypair.publicKey, keypair.privateKey, message)
+        require(keypair.nonce != null)
+
+        val sign = Sr25519.sign(keypair.publicKey, keypair.privateKey + keypair.nonce, message)
+
         return SignatureWrapper(signature = sign)
     }
 
     private fun signEd25519(message: ByteArray, keypair: Keypair): SignatureWrapper {
         val spec: EdDSAParameterSpec = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
-        val sgr: Signature = Signature.getInstance(EdDSAEngine.SIGNATURE_ALGORITHM, EdDSASecurityProvider.PROVIDER_NAME)
+        val sgr: Signature = Signature.getInstance(
+            EdDSAEngine.SIGNATURE_ALGORITHM,
+            EdDSASecurityProvider.PROVIDER_NAME
+        )
         val privKeySpec = EdDSAPrivateKeySpec(keypair.privateKey, spec)
         val privateKey = EdDSAPrivateKey(privKeySpec)
         sgr.initSign(privateKey)
@@ -46,9 +56,16 @@ class Signer {
         return SignatureWrapper(signature = sgr.sign())
     }
 
-    fun verifyEd25519(message: ByteArray, signature: ByteArray, publicKeyBytes: ByteArray): Boolean {
+    fun verifyEd25519(
+        message: ByteArray,
+        signature: ByteArray,
+        publicKeyBytes: ByteArray
+    ): Boolean {
         val spec: EdDSAParameterSpec = EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519)
-        val sgr: Signature = Signature.getInstance(EdDSAEngine.SIGNATURE_ALGORITHM, EdDSASecurityProvider.PROVIDER_NAME)
+        val sgr: Signature = Signature.getInstance(
+            EdDSAEngine.SIGNATURE_ALGORITHM,
+            EdDSASecurityProvider.PROVIDER_NAME
+        )
 
         val privKeySpec = EdDSAPublicKeySpec(publicKeyBytes, spec)
         val publicKey = EdDSAPublicKey(privKeySpec)
@@ -56,6 +73,14 @@ class Signer {
         sgr.update(message)
 
         return sgr.verify(signature)
+    }
+
+    fun verifySr25519(
+        message: ByteArray,
+        signature: ByteArray,
+        publicKeyBytes: ByteArray
+    ): Boolean {
+        return Sr25519.verify(signature, message, publicKeyBytes)
     }
 
     private fun signEcdca(message: ByteArray, keypair: Keypair): SignatureWrapper {
