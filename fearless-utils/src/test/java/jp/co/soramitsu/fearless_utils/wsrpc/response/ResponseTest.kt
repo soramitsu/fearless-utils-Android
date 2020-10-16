@@ -19,10 +19,28 @@ class ResponseTest {
         }
     """.trimIndent()
 
+    private val ERROR_JSON = """
+        {
+            "jsonrpc":"2.0",
+            "error":{
+                "code":-32602,
+                "message":"Invalid params: invalid type: string \"test\", expected a sequence."
+            },
+            "id":1052566100
+        }
+    """.trimIndent()
+
     @Test
     fun `should deserialize scale json`() {
         val response = mapper.fromJson(SCALE_JSON, RpcResponse::class.java)
 
         assert(response.result == SCALE_ENCODED_RESULT)
+    }
+
+    @Test
+    fun `should deserialize error json`() {
+        val response = mapper.fromJson(ERROR_JSON, RpcResponse::class.java)
+
+        assert(response.error != null)
     }
 }

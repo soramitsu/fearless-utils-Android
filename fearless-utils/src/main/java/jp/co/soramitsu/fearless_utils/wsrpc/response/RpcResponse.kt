@@ -8,5 +8,8 @@ class RpcResponse(
     @SerializedName("result")
     val result: Any?,
     @SerializedName("id")
-    val id: Int
+    val id: Int,
+    val error: RpcError?
 )
+
+class RpcError(val code: Int, val message: String)
