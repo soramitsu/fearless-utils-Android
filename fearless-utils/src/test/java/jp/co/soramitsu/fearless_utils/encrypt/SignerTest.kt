@@ -1,6 +1,5 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -18,11 +17,10 @@ class SignerTest {
 
         val result = signer.sign(EncryptionType.ED25519, messageHex.toByteArray(), keypair)
 
-        assert(signer.verifyEd25519(messageHex.toByteArray(), result.signature, keypair.publicKey))
+        assert(signer.verifyEd25519(messageHex.toByteArray(), result.signature!!, keypair.publicKey))
     }
 
     @Test
-    @Ignore("To be fixed in next version") // TODO
     fun `should sign message ECDSA`() {
         val messageHex = "this is a message"
 
@@ -32,6 +30,6 @@ class SignerTest {
 
         val result = signer.sign(EncryptionType.ECDSA, messageHex.toByteArray(), keypair)
 
-        assert(signer.verifyEd25519(messageHex.toByteArray(), result.signature, keypair.publicKey))
+        assert(signer.verifyECDSA(messageHex.toByteArray(), result, keypair.publicKey))
     }
 }
