@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
-import org.spongycastle.jce.ECNamedCurveTable
+import org.bouncycastle.jce.ECNamedCurveTable
 import org.spongycastle.util.encoders.Hex
 import java.math.BigInteger
 

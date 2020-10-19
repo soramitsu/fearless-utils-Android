@@ -9,6 +9,7 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Sign
@@ -20,7 +21,7 @@ class Signer {
 
     init {
         Security.addProvider(EdDSASecurityProvider())
-        Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
+        Security.addProvider(BouncyCastleProvider())
     }
 
     fun sign(

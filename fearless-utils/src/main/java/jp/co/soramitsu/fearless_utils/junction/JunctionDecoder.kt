@@ -1,7 +1,7 @@
 package jp.co.soramitsu.fearless_utils.junction
 
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import org.spongycastle.jcajce.provider.digest.Blake2b
+import org.bouncycastle.jcajce.provider.digest.Blake2b
 import org.spongycastle.util.encoders.Hex
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer

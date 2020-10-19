@@ -11,6 +11,7 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
 import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import org.bouncycastle.jcajce.provider.digest.Blake2b
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.Sign
 import java.io.ByteArrayOutputStream
@@ -27,7 +28,7 @@ class KeypairFactory {
 
     init {
         Security.addProvider(EdDSASecurityProvider())
-        Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
+        Security.addProvider(BouncyCastleProvider())
     }
 
     private val junctionDecoder = JunctionDecoder()

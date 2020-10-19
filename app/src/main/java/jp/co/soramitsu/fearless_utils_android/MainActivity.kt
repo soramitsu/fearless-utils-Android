@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.KeypairFactory
 import jp.co.soramitsu.fearless_utils.encrypt.Signer
-import org.spongycastle.util.encoders.Hex
+import org.bouncycastle.util.encoders.Hex
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

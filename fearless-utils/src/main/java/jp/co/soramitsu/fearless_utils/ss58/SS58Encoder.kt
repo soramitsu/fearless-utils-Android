@@ -2,7 +2,7 @@ package jp.co.soramitsu.fearless_utils.ss58
 
 import jp.co.soramitsu.fearless_utils.exceptions.AddressTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.Base58
-import org.spongycastle.jcajce.provider.digest.Blake2b
+import org.bouncycastle.jcajce.provider.digest.Blake2b
 
 class SS58Encoder {
 

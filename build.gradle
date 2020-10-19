@@ -30,7 +30,7 @@ buildscript {
 
         navControllerVersion = '2.0.0-rc02'
 
-        spoungyCastleVersion = '1.58.0.0'
+        bouncyCastleVersion = '1.60'
         ed25519Version = '0.3.0'
         bip39version = '2019.01.27'
         web3jVersion = '4.6.0-android'
@@ -72,8 +72,8 @@ buildscript {
         gsonConvertedDep = "com.squareup.retrofit2:converter-gson:$retrofitVersion"
         gsonDep = "com.google.code.gson:gson:$gsonVersion"
 
-        spoungyCastleBcPixDep = "com.madgag.spongycastle:bcpkix-jdk15on:$spoungyCastleVersion"
-        spoungyCastleBcPgDep = "com.madgag.spongycastle:bcpg-jdk15on:$spoungyCastleVersion"
+        bouncyCastleDep = "org.bouncycastle:bcprov-jdk15on:$bouncyCastleVersion"
+
         ed25519Dep = "net.i2p.crypto:eddsa:$ed25519Version"
         web3jDep = "org.web3j:crypto:$web3jVersion"
         apacheXercesDep = "org.eclipse.birt.runtime.3_7_1:org.apache.xerces:$apacheXercesVersion"
