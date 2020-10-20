@@ -3,7 +3,7 @@ package jp.co.soramitsu.fearless_utils.runtime
 typealias AccountId = ByteArray
 
 abstract class Service<STORAGE_ARGS>(val module: Module, val id: String) {
-    abstract fun storageKey(storageArgs: STORAGE_ARGS) : String
+    abstract fun storageKey(storageArgs: STORAGE_ARGS): String
 }
 
 fun Service<Unit>.storageKey() = storageKey(Unit)
@@ -42,7 +42,8 @@ abstract class Module(val id: String) {
         )
 
         object ActiveEra : Service<Unit>(
-            Staking, "ActiveEra") {
+            Staking, "ActiveEra"
+        ) {
 
             override fun storageKey(storageArgs: Unit): String {
                 return StorageUtils.createStorageKey(
