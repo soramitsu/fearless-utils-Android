@@ -1,8 +1,6 @@
 package jp.co.soramitsu.fearless_utils.wsrpc.request
 
 import com.google.gson.Gson
-import jp.co.soramitsu.fearless_utils.wsrpc.WebSocketResponseListener
-import jp.co.soramitsu.fearless_utils.wsrpc.WebSocketWrapper
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.account.AccountInfoRequest
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert.assertEquals
