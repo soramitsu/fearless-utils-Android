@@ -23,7 +23,7 @@ class Identifier(
 object StorageUtils {
     val blake2b128 = Blake2b128()
 
-    val xxHash64 = XXHashFactory.fastestInstance().hash64()
+    val xxHash64 = XXHashFactory.safeInstance().hash64()
     val xxHash128 = XXHash128(xxHash64)
 
     fun createStorageKey(
