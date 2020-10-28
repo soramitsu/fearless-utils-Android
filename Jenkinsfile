@@ -23,6 +23,9 @@ node(jenkinsAgent) {
                         stage('Lint') {
                             sh "./gradlew ktlint"
                         }
+                        stage('Tests') {
+                            sh "./gradlew testDebugUnitTest"
+                        }
                         stage('Build library') {
                             sh "./gradlew clean build"
                         }

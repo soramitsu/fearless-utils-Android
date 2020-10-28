@@ -89,6 +89,7 @@ class JsonSeedDecoder(
                     val privateKeyCompressed = secret.copyOfRange(16, 80)
                     val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
                     val publicKey = secret.copyOfRange(85, 117)
+
                     ImportAccountData(
                         Keypair(
                             privateAndNonce.copyOfRange(0, 32),
@@ -100,14 +101,16 @@ class JsonSeedDecoder(
 
                 ED25519.rawName -> {
                     val seed = secret.copyOfRange(16, 48)
-                    val keys = keypairFactory.generate(ED25519, seed, "")
-                    ImportAccountData(keys, ED25519, networkType, username, address)
+                    val keys = keypairFactory.generate(ED25519, seed)
+
+                    ImportAccountData(keys, ED25519, networkType, username, address, seed)
                 }
 
                 ECDSA.rawName -> {
                     val seed = secret.copyOfRange(16, 48)
-                    val keys = keypairFactory.generate(ECDSA, seed, "")
-                    ImportAccountData(keys, ECDSA, networkType, username, address)
+                    val keys = keypairFactory.generate(ECDSA, seed)
+
+                    ImportAccountData(keys, ECDSA, networkType, username, address, seed)
                 }
 
                 else -> throw UnsupportedEncryptionTypeException()
