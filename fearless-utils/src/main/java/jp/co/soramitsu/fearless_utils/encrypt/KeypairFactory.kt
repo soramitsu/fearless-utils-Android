@@ -32,7 +32,7 @@ class KeypairFactory {
 
     private val junctionDecoder = JunctionDecoder()
 
-    fun generate(encryptionType: EncryptionType, seed: ByteArray, derivationPath: String): Keypair {
+    fun generate(encryptionType: EncryptionType, seed: ByteArray, derivationPath: String = ""): Keypair {
         var previousKeypair = when (encryptionType) {
             EncryptionType.SR25519 -> deriveSr25519MasterKeypair(seed)
             EncryptionType.ED25519 -> deriveEd25519MasterKeypair(seed)

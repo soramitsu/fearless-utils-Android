@@ -3,12 +3,13 @@ package jp.co.soramitsu.fearless_utils.encrypt.model
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.ss58.AddressType
 
-data class ImportAccountData(
+class ImportAccountData(
     val keypair: Keypair,
     val encryptionType: EncryptionType,
     val networType: AddressType,
     val username: String,
-    val address: String
+    val address: String,
+    val seed: ByteArray? = null
 )
 
 class ImportAccountMeta(
