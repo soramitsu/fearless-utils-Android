@@ -7,13 +7,13 @@ class ImportAccountData(
     val keypair: Keypair,
     val encryptionType: EncryptionType,
     val networType: AddressType,
-    val username: String,
+    val username: String?,
     val address: String,
     val seed: ByteArray? = null
 )
 
 class ImportAccountMeta(
-    val name: String,
+    val name: String?,
     val networkType: AddressType,
     val encryptionType: EncryptionType
 )

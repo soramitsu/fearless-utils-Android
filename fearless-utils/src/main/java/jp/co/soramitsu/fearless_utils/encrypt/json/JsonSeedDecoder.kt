@@ -1,12 +1,15 @@
-package jp.co.soramitsu.fearless_utils.encrypt
+package jp.co.soramitsu.fearless_utils.encrypt.json
 
 import com.google.gson.Gson
+import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.ECDSA
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.ED25519
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.SR25519
-import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.IncorrectPasswordException
-import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.InvalidJsonException
-import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.UnsupportedEncryptionTypeException
+import jp.co.soramitsu.fearless_utils.encrypt.KeypairFactory
+import jp.co.soramitsu.fearless_utils.encrypt.Sr25519
+import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.IncorrectPasswordException
+import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.InvalidJsonException
+import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.UnsupportedEncryptionTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountMeta
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
@@ -15,8 +18,6 @@ import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.spongycastle.crypto.generators.SCrypt
 import org.spongycastle.util.encoders.Base64
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 sealed class JsonSeedDecodingException : Exception() {
     class InvalidJsonException : JsonSeedDecodingException()
@@ -37,7 +38,10 @@ class JsonSeedDecoder(
             val networkType = sS58Encoder.getNetworkType(address)
 
             val encryptionTypeRaw = jsonData.encoding.content[1]
-            val encryptionType = EncryptionType.fromString(encryptionTypeRaw)
+            val encryptionType =
+                EncryptionType.fromString(
+                    encryptionTypeRaw
+                )
 
             val name = jsonData.meta.name
 
@@ -60,7 +64,7 @@ class JsonSeedDecoder(
     }
 
     private fun decode(jsonData: JsonAccountData, password: String): ImportAccountData {
-        if (jsonData.encoding.type.size < 2 && jsonData.encoding.type[0] != "scrypt" && jsonData.encoding.type[1] != "xsalsa20-poly1305") {
+        if (jsonData.encoding.type.size < 2 && jsonData.encoding.type[0] != ENCODING_SCRYPT && jsonData.encoding.type[1] != ENCODING_SALSA) {
             throw InvalidJsonException()
         }
 
@@ -70,24 +74,26 @@ class JsonSeedDecoder(
 
         val byteData = Base64.decode(jsonData.encoded)
 
-        val salt = byteData.copyOfRange(0, 32)
-        val N = ByteBuffer.wrap(byteData.copyOfRange(32, 36)).order(ByteOrder.LITTLE_ENDIAN).int
-        val p = ByteBuffer.wrap(byteData.copyOfRange(36, 40)).order(ByteOrder.LITTLE_ENDIAN).int
-        val r = ByteBuffer.wrap(byteData.copyOfRange(40, 44)).order(ByteOrder.LITTLE_ENDIAN).int
+        val salt = byteData.copyBytes(SALT_OFFSET, SALT_SIZE)
+        val N = byteData.copyBytes(N_OFFSET, N_SIZE).asLittleEndianInt()
+        val p = byteData.copyBytes(P_OFFSET, P_SIZE).asLittleEndianInt()
+        val r = byteData.copyBytes(R_OFFSET, R_SIZE).asLittleEndianInt()
 
-        val nonce = byteData.copyOfRange(44, 68)
-        val encrData = byteData.copyOfRange(68, byteData.size)
+        val nonce = byteData.copyBytes(NONCE_OFFSET, NONCE_SIZE)
+        val encryptedData = byteData.copyOfRange(DATA_OFFSET, byteData.size)
 
-        val encryptionSecret =
-            SCrypt.generate(password.toByteArray(Charsets.UTF_8), salt, N, r, p, 64)
-                .copyOfRange(0, 32)
-        val secret = SecretBox(encryptionSecret).open(nonce, encrData)
+        val encryptionSecret = SCrypt.generate(password.toByteArray(), salt, N, r, p, SCRYPT_KEY_SIZE)
+
+        val secret = SecretBox(encryptionSecret).open(nonce, encryptedData)
 
         val importData = try {
             when (jsonData.encoding.content[1]) {
                 SR25519.rawName -> {
                     val privateKeyCompressed = secret.copyOfRange(16, 80)
-                    val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
+                    val privateAndNonce =
+                        Sr25519.fromEd25519Bytes(
+                            privateKeyCompressed
+                        )
                     val publicKey = secret.copyOfRange(85, 117)
 
                     ImportAccountData(

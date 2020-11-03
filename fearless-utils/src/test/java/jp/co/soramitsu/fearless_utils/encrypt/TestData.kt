@@ -10,5 +10,5 @@ object TestData {
     val PRIVATE_KEY_BYTES = Hex.decode(PRIVATE_KEY)
 
     const val SEED = "3132333435363738393031323334353637383930313233343536373839303132"
-    val SEED_BYTES = Hex.decode(SEED)
+    val SEED_BYTES: ByteArray = Hex.decode(SEED)
 }

@@ -1,5 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
+import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException
+
 enum class EncryptionType(val rawName: String, val signatureVersion: Int) {
     ED25519("ed25519", 0),
     SR25519("sr25519", 1),
