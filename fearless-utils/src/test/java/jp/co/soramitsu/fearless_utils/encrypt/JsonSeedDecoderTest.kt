@@ -1,8 +1,9 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
-import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.IncorrectPasswordException
-import jp.co.soramitsu.fearless_utils.encrypt.JsonSeedDecodingException.InvalidJsonException
+import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecoder
+import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.IncorrectPasswordException
+import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.InvalidJsonException
 import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.junit.Assert.assertEquals
@@ -44,7 +45,11 @@ class JsonSeedDecoderTest {
     private val ss58 = SS58Encoder()
     private val keypairFactory = KeypairFactory()
 
-    private var decoder = JsonSeedDecoder(gson, ss58, keypairFactory)
+    private val decoder = JsonSeedDecoder(
+        gson,
+        ss58,
+        keypairFactory
+    )
 
     @Test
     fun `should decode valid json with correct password`() {
@@ -57,7 +62,7 @@ class JsonSeedDecoderTest {
         }
     }
 
-    @Test()
+    @Test
     fun `should handle valid json with incorrect password`() {
         JSONS.forEach {
             assertThrows<IncorrectPasswordException> {
