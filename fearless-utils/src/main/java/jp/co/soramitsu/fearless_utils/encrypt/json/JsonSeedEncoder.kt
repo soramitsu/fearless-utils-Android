@@ -40,7 +40,8 @@ class JsonSeedEncoder(
             encoding = JsonAccountData.Encoding.default(encryptionType),
             meta = JsonAccountData.Meta(
                 name = name,
-                createdOn = System.currentTimeMillis()
+                whenCreated = System.currentTimeMillis(),
+                genesisHash = addressType.genesisHash
             )
         )
 
