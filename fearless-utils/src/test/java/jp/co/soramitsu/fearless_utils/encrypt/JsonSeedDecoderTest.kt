@@ -17,6 +17,7 @@ private const val VALID_JSON_EDWARDS = "{\"address\":\"GnSs2bd76KkrcvN7prrFfkbu9
 private const val VALID_JSON_ECDSA = "{\"address\":\"0x02f3d42516c317757748b073f5221455e31035286ea7417b827d8eb8ad1a6c49d6\",\"encoded\":\"VsYSlEzIMvgk2lpGigHs8fR6kqyTZAgnz+QkoAwxy/0AgAAAAQAAAAgAAADtvqAkZhcSD94AaYzzDFLgMDgz0U3+ZD6p0eaWqlWXgPJZrTLe6Go6bXgiT0nklIHMipQ4CxDsnJwIO98NY7RJwWDqnH9+72huUq7VODaN7LUyChBLT58AwN0xXvx1cEksMlBZoCZ9W0qU0o98kfhPuLA+goplCb/XLp5PEdE=\",\"encoding\":{\"content\":[\"pkcs8\",\"ecdsa\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"meta\":{\"genesisHash\":\"0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe\",\"name\":\"test\",\"tags\":[],\"whenCreated\":1600433095690}}"
 
 private const val JSON_NO_GENESIS = "{\"address\":\"GnSs2bd76KkrcvN7prrFfkbu939mkZHyBzVKnjS8ikg3CZ8\",\"encoded\":\"fPeWwZNEDSNKM+k+Vjv7HFGr/r7LSev6DHmX+5TwvqYAgAAAAQAAAAgAAAAzuSqaguZBu/q23iphXVSsn3GP70l4Pn/bTw6TdYltaMZDJRADWz+T7FUfZ460FkI70yczt9O1HSAEEj5QLMJEvxa4+wNQWA+hXeQoVxKf+1iUIr+RW9wL9JGpZw61HWhpr0t4b+TEBQwbf7hDT/P0dFmYLDa3RfxVg07GTrzYe2uBQt9MCYLUcctBNk7W7r8CI3FuqbAA/oP07GB/\",\"encoding\":{\"content\":[\"pkcs8\",\"ed25519\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"meta\":{\"name\":\"test\",\"tags\":[],\"whenCreated\":1600432656361,\"whenEdited\":1600433019129}}"
+private const val JSON_NO_NETWORK_INFO = "{\"address\":\"0x02f3d42516c317757748b073f5221455e31035286ea7417b827d8eb8ad1a6c49d6\",\"encoded\":\"VsYSlEzIMvgk2lpGigHs8fR6kqyTZAgnz+QkoAwxy/0AgAAAAQAAAAgAAADtvqAkZhcSD94AaYzzDFLgMDgz0U3+ZD6p0eaWqlWXgPJZrTLe6Go6bXgiT0nklIHMipQ4CxDsnJwIO98NY7RJwWDqnH9+72huUq7VODaN7LUyChBLT58AwN0xXvx1cEksMlBZoCZ9W0qU0o98kfhPuLA+goplCb/XLp5PEdE=\",\"encoding\":{\"content\":[\"pkcs8\",\"ecdsa\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"meta\":{\"name\":\"test\",\"tags\":[],\"whenCreated\":1600433095690}}"
 
 // TODO not possible to use sr25519 library in unit tests for now
 val JSONS = listOf(VALID_JSON_EDWARDS, VALID_JSON_ECDSA)
@@ -34,6 +35,7 @@ private val VALID_ADDRESSES = listOf(
 private val VALID_NETWORK = AddressType.KUSAMA
 
 private const val INVALID_JSON = "{\"some_field\": 123}"
+private const val NOT_JSON = "not json"
 
 @RunWith(MockitoJUnitRunner::class)
 class JsonSeedDecoderTest {
@@ -73,6 +75,11 @@ class JsonSeedDecoderTest {
     }
 
     @Test(expected = InvalidJsonException::class)
+    fun `should handle not json with valid password`() {
+        decoder.decode(NOT_JSON, VALID_PASSWORD)
+    }
+
+    @Test(expected = InvalidJsonException::class)
     fun `should handle invalid json with incorrect password`() {
         decoder.decode(INVALID_JSON, INVALID_PASSWORD)
     }
@@ -102,9 +109,9 @@ class JsonSeedDecoderTest {
 
     @Test
     fun `should handle json with no network info`() {
-        val result = decoder.decode(JSON_NO_GENESIS, VALID_PASSWORD)
+        val result = decoder.decode(JSON_NO_NETWORK_INFO, VALID_PASSWORD)
 
-        assertEquals(VALID_NETWORK, result.networkType)
+        assertEquals(null, result.networkType)
     }
 
     @Test
