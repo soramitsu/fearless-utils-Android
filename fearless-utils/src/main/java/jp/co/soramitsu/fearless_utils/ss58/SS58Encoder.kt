@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.ss58
 import jp.co.soramitsu.fearless_utils.exceptions.AddressTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.Base58
 import org.spongycastle.jcajce.provider.digest.Blake2b
+import java.lang.IllegalArgumentException
 
 class SS58Encoder {
 
@@ -48,7 +49,7 @@ class SS58Encoder {
             AddressType.KUSAMA.addressByte -> AddressType.KUSAMA
             AddressType.POLKADOT.addressByte -> AddressType.POLKADOT
             AddressType.WESTEND.addressByte -> AddressType.WESTEND
-            else -> AddressType.KUSAMA
+            else -> throw IllegalArgumentException("Unknown address byte: ${decodedByteArray.first()}")
         }
     }
 }

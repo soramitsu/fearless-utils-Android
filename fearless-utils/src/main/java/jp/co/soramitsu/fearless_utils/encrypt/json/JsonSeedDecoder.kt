@@ -2,19 +2,16 @@ package jp.co.soramitsu.fearless_utils.encrypt.json
 
 import com.google.gson.Gson
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
-import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.ECDSA
-import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.ED25519
-import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType.SR25519
 import jp.co.soramitsu.fearless_utils.encrypt.KeypairFactory
 import jp.co.soramitsu.fearless_utils.encrypt.Sr25519
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.IncorrectPasswordException
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.InvalidJsonException
-import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.UnsupportedEncryptionTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountMeta
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
+import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.spongycastle.crypto.generators.SCrypt
 import org.spongycastle.util.encoders.Base64
@@ -35,7 +32,7 @@ class JsonSeedDecoder(
 
         try {
             val address = jsonData.address
-            val networkType = sS58Encoder.getNetworkType(address)
+            val networkType = getNetworkType(address, jsonData.meta.genesisHash)
 
             val encryptionTypeRaw = jsonData.encoding.content[1]
             val encryptionType =
@@ -69,8 +66,8 @@ class JsonSeedDecoder(
         }
 
         val username = jsonData.meta.name
-        val address = jsonData.address
-        val networkType = sS58Encoder.getNetworkType(jsonData.address)
+
+        val networkType = getNetworkType(jsonData.address, jsonData.meta.genesisHash)
 
         val byteData = Base64.decode(jsonData.encoded)
 
@@ -86,52 +83,66 @@ class JsonSeedDecoder(
 
         val secret = SecretBox(encryptionSecret).open(nonce, encryptedData)
 
-        val importData = try {
-            when (jsonData.encoding.content[1]) {
-                SR25519.rawName -> {
-                    val privateKeyCompressed = secret.copyOfRange(16, 80)
-                    val privateAndNonce =
-                        Sr25519.fromEd25519Bytes(
-                            privateKeyCompressed
-                        )
-                    val publicKey = secret.copyOfRange(85, 117)
+        validatePassword(secret)
 
-                    ImportAccountData(
-                        Keypair(
-                            privateAndNonce.copyOfRange(0, 32),
-                            publicKey,
-                            privateAndNonce.copyOfRange(32, 64)
-                        ), SR25519, networkType, username, address
+        val cryptoType = EncryptionType.fromString(jsonData.encoding.content[1])
+
+        val (keypair, seed) = when (cryptoType) {
+            EncryptionType.SR25519 -> {
+                val privateKeyCompressed = secret.copyOfRange(16, 80)
+                val privateAndNonce =
+                    Sr25519.fromEd25519Bytes(
+                        privateKeyCompressed
                     )
-                }
+                val publicKey = secret.copyOfRange(85, 117)
 
-                ED25519.rawName -> {
-                    val seed = secret.copyOfRange(16, 48)
-                    val keys = keypairFactory.generate(ED25519, seed)
+                val keypair = Keypair(
+                    privateAndNonce.copyOfRange(0, 32),
+                    publicKey,
+                    privateAndNonce.copyOfRange(32, 64)
+                )
 
-                    ImportAccountData(keys, ED25519, networkType, username, address, seed)
-                }
-
-                ECDSA.rawName -> {
-                    val seed = secret.copyOfRange(16, 48)
-                    val keys = keypairFactory.generate(ECDSA, seed)
-
-                    ImportAccountData(keys, ECDSA, networkType, username, address, seed)
-                }
-
-                else -> throw UnsupportedEncryptionTypeException()
+                keypair to null
             }
-        } catch (_: Exception) {
-            throw IncorrectPasswordException()
+
+            EncryptionType.ED25519 -> {
+                val seed = secret.copyOfRange(16, 48)
+                val keypair = keypairFactory.generate(cryptoType, seed)
+
+                keypair to seed
+            }
+
+            EncryptionType.ECDSA -> {
+                val seed = secret.copyOfRange(16, 48)
+                val keys = keypairFactory.generate(cryptoType, seed)
+
+                keys to seed
+            }
         }
 
-        val extractedAddress = sS58Encoder.encode(importData.keypair.publicKey, networkType)
-
-        if (extractedAddress != address) {
-            throw IncorrectPasswordException()
+        val address = if (networkType != null) {
+            sS58Encoder.encode(keypair.publicKey, networkType)
+        } else {
+            jsonData.address
         }
 
-        return importData
+        return ImportAccountData(keypair, cryptoType, networkType, username, address, seed)
+    }
+
+    private fun validatePassword(secret: ByteArray) {
+        if (secret.isEmpty()) throw IncorrectPasswordException()
+    }
+
+    private fun getNetworkType(address: String, genesisHash: String?): AddressType? {
+        return if (genesisHash != null) {
+            AddressType.fromGenesis(genesisHash)
+        } else {
+            try {
+                sS58Encoder.getNetworkType(address)
+            } catch (_: Exception) {
+                null
+            }
+        }
     }
 
     private fun decodeJson(json: String): JsonAccountData {
