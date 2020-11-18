@@ -55,8 +55,8 @@ class JsonSeedDecoderTest {
             val result = decoder.decode(json, VALID_PASSWORD)
 
             assertEquals(VALID_NAME, result.username)
-            assertEquals(VALID_NETWORK, result.networkType)
-            assertEquals(VALID_ADDRESSES[index], result.address)
+            assertEquals(VALID_NETWORK, result.networkInformation!!.addressType)
+            assertEquals(VALID_ADDRESSES[index], result.networkInformation!!.address)
         }
     }
 
@@ -104,14 +104,15 @@ class JsonSeedDecoderTest {
     fun `should handle json with no genesis`() {
         val result = decoder.decode(JSON_NO_GENESIS, VALID_PASSWORD)
 
-        assertEquals(VALID_NETWORK, result.networkType)
+        assertEquals(VALID_NETWORK, result.networkInformation!!.addressType)
+        assertEquals(VALID_ADDRESSES[0], result.networkInformation!!.address)
     }
 
     @Test
     fun `should handle json with no network info`() {
         val result = decoder.decode(JSON_NO_NETWORK_INFO, VALID_PASSWORD)
 
-        assertEquals(null, result.networkType)
+        assertEquals(null, result.networkInformation)
     }
 
     @Test

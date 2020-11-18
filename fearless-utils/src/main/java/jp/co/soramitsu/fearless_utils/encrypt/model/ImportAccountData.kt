@@ -6,11 +6,15 @@ import jp.co.soramitsu.fearless_utils.ss58.AddressType
 class ImportAccountData(
     val keypair: Keypair,
     val encryptionType: EncryptionType,
-    val networkType: AddressType?,
     val username: String?,
-    val address: String,
+    val networkInformation: NetworkSensitiveInformation?,
     val seed: ByteArray? = null
-)
+) {
+    class NetworkSensitiveInformation(
+        val addressType: AddressType,
+        val address: String
+    )
+}
 
 class ImportAccountMeta(
     val name: String?,
