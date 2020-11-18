@@ -6,6 +6,7 @@ import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.Inc
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.InvalidJsonException
 import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
+import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
@@ -29,7 +30,7 @@ private const val VALID_NAME = "test"
 
 private val VALID_ADDRESSES = listOf(
     "GnSs2bd76KkrcvN7prrFfkbu939mkZHyBzVKnjS8ikg3CZ8",
-    "D3PX7p2qee3P6CfhZNDUXhrD6YtPcprqPTXe4CdPfYzWAtr"
+    "5CXmroUADHd7dSPDvrZAaaLr4WGeax1gP1cnFPvfusLVmDiw"
 )
 
 private val VALID_NETWORK = AddressType.KUSAMA
@@ -130,6 +131,20 @@ class JsonSeedDecoderTest {
         val result = decoder.decode(VALID_JSON_SR25519, VALID_PASSWORD)
 
         assertNull(result.seed)
+    }
+
+    @Test
+    fun `should decode ecdsa json`() {
+        val json = "{\"address\":\"0x020cddfb851af41912813cc47cb5f57b170beb8dfce1fe605ab4555143d2771cfc\",\"encoded\":\"YJYD6Gl+UXnrXuEFHka671J3b0LDQFcNraUjzC9fBdwAgAAAAQAAAAgAAAAiGaLl7nU8rDPrYuY8yYnOGr8SHqm9W6jDUmneYEIc5wRIJfsPPmTSnEZ5Z5DPJznZr4mVjdPrcwl17VeXsIg7MARhfRyC9vLZaZPyt4W1vSSsLijUDEyhV1KUzL3hQsevwshTGjDOIRzGWFerRqwl/0JrxtcXzgqulEqt3ZQ=\",\"encoding\":{\"content\":[\"pkcs8\",\"ecdsa\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"meta\":{\"genesisHash\":\"0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe\",\"name\":\"njnjd\",\"tags\":[],\"whenCreated\":1600428913336}}"
+
+        val result = decoder.decode(json, "1")
+        val expectedPublicKey = "020cddfb851af41912813cc47cb5f57b170beb8dfce1fe605ab4555143d2771cfc"
+        val expectedPublicKeyBytes = Hex.decode(expectedPublicKey)
+
+        val expectedAddress = "H23DVNHqLwgReySYdQDiFGhNtL6dc2idafkgqpZmkQsSQ2c"
+
+        assertArrayEquals(result.keypair.publicKey, expectedPublicKeyBytes)
+        assertEquals(expectedAddress, ss58.encode(expectedPublicKeyBytes, AddressType.KUSAMA))
     }
 
     private inline fun <reified T : Throwable> assertThrows(block: () -> Unit) {
