@@ -120,13 +120,19 @@ class JsonSeedDecoder(
             }
         }
 
-        val address = if (networkType != null) {
-            sS58Encoder.encode(keypair.publicKey, networkType)
-        } else {
-            jsonData.address
+        val networkInformation = networkType?.let {
+            ImportAccountData.NetworkSensitiveInformation(
+                it, sS58Encoder.encode(keypair.publicKey, it)
+            )
         }
 
-        return ImportAccountData(keypair, cryptoType, networkType, username, address, seed)
+        return ImportAccountData(
+            keypair,
+            cryptoType,
+            username,
+            networkInformation,
+            seed
+        )
     }
 
     private fun validatePassword(secret: ByteArray) {
