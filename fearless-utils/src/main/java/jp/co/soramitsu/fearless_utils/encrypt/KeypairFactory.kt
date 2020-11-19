@@ -12,7 +12,6 @@ import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import org.bouncycastle.jcajce.provider.digest.Blake2b
 import org.spongycastle.util.encoders.Hex
-import org.web3j.crypto.Sign
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.security.KeyFactory
