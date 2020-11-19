@@ -113,11 +113,10 @@ class KeypairFactory {
 
     private fun deriveECDSAMasterKeypair(seed: ByteArray): Keypair {
         val privateKey = BigInteger(Hex.toHexString(seed), 16)
-        val publicKey = Sign.publicKeyFromPrivate(privateKey)
-        val compressed = ECDSAUtils.compressPubKey(publicKey)
+        val compressed = ECDSAUtils.compressedPublicKeyFromPrivate(privateKey)
         return Keypair(
             seed,
-            Hex.decode(compressed)
+            compressed
         )
     }
 
