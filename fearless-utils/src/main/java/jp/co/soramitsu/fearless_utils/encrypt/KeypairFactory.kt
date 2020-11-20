@@ -12,7 +12,6 @@ import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec
 import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec
 import org.bouncycastle.jcajce.provider.digest.Blake2b
 import org.spongycastle.util.encoders.Hex
-import org.web3j.crypto.Sign
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.security.KeyFactory
@@ -113,11 +112,10 @@ class KeypairFactory {
 
     private fun deriveECDSAMasterKeypair(seed: ByteArray): Keypair {
         val privateKey = BigInteger(Hex.toHexString(seed), 16)
-        val publicKey = Sign.publicKeyFromPrivate(privateKey)
-        val compressed = ECDSAUtils.compressPubKey(publicKey)
+        val compressed = ECDSAUtils.compressedPublicKeyFromPrivate(privateKey)
         return Keypair(
             seed,
-            Hex.decode(compressed)
+            compressed
         )
     }
 
