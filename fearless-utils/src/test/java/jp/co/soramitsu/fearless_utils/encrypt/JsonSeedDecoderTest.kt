@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
+import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecoder
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.IncorrectPasswordException
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.InvalidJsonException
@@ -134,7 +135,7 @@ class JsonSeedDecoderTest {
     }
 
     @Test
-    fun `should decode ecdsa jsonz`() {
+    fun `should decode ecdsa json`() {
         val json = "{\"address\":\"0x020cddfb851af41912813cc47cb5f57b170beb8dfce1fe605ab4555143d2771cfc\",\"encoded\":\"YJYD6Gl+UXnrXuEFHka671J3b0LDQFcNraUjzC9fBdwAgAAAAQAAAAgAAAAiGaLl7nU8rDPrYuY8yYnOGr8SHqm9W6jDUmneYEIc5wRIJfsPPmTSnEZ5Z5DPJznZr4mVjdPrcwl17VeXsIg7MARhfRyC9vLZaZPyt4W1vSSsLijUDEyhV1KUzL3hQsevwshTGjDOIRzGWFerRqwl/0JrxtcXzgqulEqt3ZQ=\",\"encoding\":{\"content\":[\"pkcs8\",\"ecdsa\"],\"type\":[\"scrypt\",\"xsalsa20-poly1305\"],\"version\":\"3\"},\"meta\":{\"genesisHash\":\"0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe\",\"name\":\"njnjd\",\"tags\":[],\"whenCreated\":1600428913336}}"
 
         val result = decoder.decode(json, "1")

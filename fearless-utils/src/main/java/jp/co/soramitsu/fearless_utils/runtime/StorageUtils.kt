@@ -1,10 +1,10 @@
 package jp.co.soramitsu.fearless_utils.runtime
 
+import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.hash.Blake2b128
 import jp.co.soramitsu.fearless_utils.hash.XXHash128
 import jp.co.soramitsu.fearless_utils.hash.hashConcat
 import net.jpountz.xxhash.XXHashFactory
-import org.bouncycastle.util.encoders.Hex
 
 typealias Hasher = (ByteArray) -> ByteArray
 
@@ -37,12 +37,8 @@ object StorageUtils {
 
         identifier?.let { keyBytes += it.id }
 
-        return toHexWithPrefix(
-            keyBytes
-        )
+        return toHexString(keyBytes, withPrefix = true)
     }
 
     private fun ByteArray.xxHash128() = xxHash128.hash(this)
-
-    private fun toHexWithPrefix(bytes: ByteArray) = "0x${Hex.toHexString(bytes)}"
 }
