@@ -1,16 +1,15 @@
 package jp.co.soramitsu.fearless_utils.runtime
 
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
-import jp.co.soramitsu.fearless_utils.hash.Blake2b128
-import jp.co.soramitsu.fearless_utils.hash.XXHash128
+import jp.co.soramitsu.fearless_utils.hash.Hasher
+import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.hash.hashConcat
-import net.jpountz.xxhash.XXHashFactory
 
-typealias Hasher = (ByteArray) -> ByteArray
+typealias HashFunction = (ByteArray) -> ByteArray
 
-enum class IdentifierHasher(val hasher: Hasher) {
-    Blake2b128concat(StorageUtils.blake2b128::hashConcat),
-    TwoX64Concat(StorageUtils.xxHash64::hashConcat)
+enum class IdentifierHasher(val hasher: HashFunction) {
+    Blake2b128concat(Hasher.blake2b128::hashConcat),
+    TwoX64Concat(Hasher.xxHash64::hashConcat)
 }
 
 class Identifier(
@@ -21,11 +20,6 @@ class Identifier(
 }
 
 object StorageUtils {
-    val blake2b128 = Blake2b128()
-
-    val xxHash64 = XXHashFactory.safeInstance().hash64()
-    val xxHash128 = XXHash128(xxHash64)
-
     fun createStorageKey(
         service: Service<*>,
         identifier: Identifier?
@@ -39,6 +33,4 @@ object StorageUtils {
 
         return toHexString(keyBytes, withPrefix = true)
     }
-
-    private fun ByteArray.xxHash128() = xxHash128.hash(this)
 }

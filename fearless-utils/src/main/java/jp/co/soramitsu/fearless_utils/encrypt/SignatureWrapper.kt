@@ -1,12 +1,16 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
-/**
- * Pararams v, r, s refer to the corresponding components of ECDSA signature
- * Fore more information, see {@link Signer.signEcdca}
- **/
-data class SignatureWrapper(
-    val signature: ByteArray? = null,
-    val v: ByteArray? = null,
-    val r: ByteArray? = null,
-    val s: ByteArray? = null
-)
+sealed class SignatureWrapper {
+    abstract val signature: ByteArray
+
+    class Ecdsa(
+        val v: ByteArray,
+        val r: ByteArray,
+        val s: ByteArray
+    ) : SignatureWrapper() {
+
+        override val signature: ByteArray = r + s + v
+    }
+
+    class Other(override val signature: ByteArray) : SignatureWrapper()
+}
