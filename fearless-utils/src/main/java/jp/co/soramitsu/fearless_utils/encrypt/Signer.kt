@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
+import jp.co.soramitsu.fearless_utils.hash.Hasher
 import net.i2p.crypto.eddsa.EdDSAEngine
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
@@ -31,7 +32,7 @@ class Signer {
         return when (encryptionType) {
             EncryptionType.SR25519 -> signSr25519(message, keypair)
             EncryptionType.ED25519 -> signEd25519(message, keypair)
-            EncryptionType.ECDSA -> signEcdca(message, keypair)
+            EncryptionType.ECDSA -> signEcdsa(message, keypair)
         }
     }
 
@@ -40,7 +41,7 @@ class Signer {
 
         val sign = Sr25519.sign(keypair.publicKey, keypair.privateKey + keypair.nonce, message)
 
-        return SignatureWrapper(signature = sign)
+        return SignatureWrapper.Other(signature = sign)
     }
 
     fun verifySr25519(message: ByteArray, signature: ByteArray, publicKeyBytes: ByteArray): Boolean {
@@ -57,7 +58,7 @@ class Signer {
         val privateKey = EdDSAPrivateKey(privKeySpec)
         sgr.initSign(privateKey)
         sgr.update(message)
-        return SignatureWrapper(signature = sgr.sign())
+        return SignatureWrapper.Other(signature = sgr.sign())
     }
 
     fun verifyEd25519(
@@ -79,18 +80,14 @@ class Signer {
         return sgr.verify(signature)
     }
 
-    private fun signEcdca(message: ByteArray, keypair: Keypair): SignatureWrapper {
+    private fun signEcdsa(message: ByteArray, keypair: Keypair): SignatureWrapper {
         val privateKey = BigInteger(Hex.toHexString(keypair.privateKey), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
-        val sign = Sign.signMessage(message, ECKeyPair(privateKey, publicKey))
-        return SignatureWrapper(v = sign.v, r = sign.r, s = sign.s)
-    }
 
-    fun verifyECDSA(message: ByteArray, signature: SignatureWrapper, publicKeyBytes: ByteArray): Boolean {
-        val uncompressedPubkey = ECDSAUtils.decompressPubKey(publicKeyBytes)
+        val messageHash = Hasher.blake2b256.digest(message)
 
-        val recoveredPubKey = Sign.signedMessageToKey(message, Sign.SignatureData(signature.v, signature.r, signature.s))
+        val sign = Sign.signMessage(messageHash, ECKeyPair(privateKey, publicKey), false)
 
-        return uncompressedPubkey == recoveredPubKey
+        return SignatureWrapper.Ecdsa(v = sign.v, r = sign.r, s = sign.s)
     }
 }

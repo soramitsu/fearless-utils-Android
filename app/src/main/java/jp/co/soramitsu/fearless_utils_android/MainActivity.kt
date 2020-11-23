@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         require(
             signer.verifySr25519(
                 messageHex.toByteArray(),
-                result.signature!!,
+                result.signature,
                 keypair.publicKey
             )
         )

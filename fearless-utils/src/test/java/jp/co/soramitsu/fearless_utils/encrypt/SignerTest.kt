@@ -1,11 +1,21 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
+import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
+import jp.co.soramitsu.fearless_utils.extensions.fromHexString
+import jp.co.soramitsu.fearless_utils.extensions.toHexString
+import org.bouncycastle.jcajce.provider.digest.Blake2b
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
+import org.spongycastle.util.encoders.Hex
+import org.web3j.crypto.ECKeyPair
+import org.web3j.crypto.Sign
+import java.math.BigInteger
 
 @RunWith(MockitoJUnitRunner::class)
 class SignerTest {
+    private val signer = Signer()
 
     @Test
     fun `should sign message ED25519`() {
@@ -13,23 +23,25 @@ class SignerTest {
 
         val keypair = KeypairFactory().generate(EncryptionType.ED25519, TestData.SEED_BYTES, "")
 
-        val signer = Signer()
-
         val result = signer.sign(EncryptionType.ED25519, messageHex.toByteArray(), keypair)
 
-        assert(signer.verifyEd25519(messageHex.toByteArray(), result.signature!!, keypair.publicKey))
+        assert(signer.verifyEd25519(messageHex.toByteArray(), result.signature, keypair.publicKey))
     }
 
     @Test
     fun `should sign message ECDSA`() {
-        val messageHex = "this is a message"
+        val publicKeyHex = "f65a7d560102f2019da9b9d8993f53f51cc38d50cdff3d0b8e71997d7f911ff1"
+        val privateKeyHex = "ae4093af3c40f2ecc32c14d4dada9628a4a42b28ca1a5b200b89321cbc883182"
 
-        val keypair = KeypairFactory().generate(EncryptionType.ECDSA, TestData.SEED_BYTES, "")
+        val keypair = Keypair(fromHexString(privateKeyHex), fromHexString(publicKeyHex))
 
-        val signer = Signer()
+        val message = "0400340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c6302286bee0000002d00000003000000e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423ee143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
+        val messageBytes = fromHexString(message)
 
-        val result = signer.sign(EncryptionType.ECDSA, messageHex.toByteArray(), keypair)
+        val signatureWrapper = signer.sign(EncryptionType.ECDSA, messageBytes, keypair) as SignatureWrapper.Ecdsa
 
-        assert(signer.verifyECDSA(messageHex.toByteArray(), result, keypair.publicKey))
+        val expected = "352e2738b0e361a7c59be05d52e7e7fb860bf79c03bb7858ce3e48748b00040c4dc6eadbfd526d35ba6dff1468bf61198cc5e8570a80ddc63fdebe68dc6016a41b"
+
+        assertEquals(expected, toHexString(signatureWrapper.signature))
     }
 }

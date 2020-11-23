@@ -59,8 +59,6 @@ class JsonSeedEncoderTest {
             addressType = AddressType.WESTEND
         )
 
-        print(json)
-
         val decoded = decoder.decode(json, PASSWORD)
 
         with(decoded) {
