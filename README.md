@@ -18,10 +18,10 @@ object AccountData : Schema<AccountData>() {
 
 ``` kotlin
 val struct = AccountData { data ->
-    data[free] = BigDecimal("1")
-    data[reserved] = BigInteger("0")
-    data[miscFrozen] = BigInteger("0")
-    data[feeFrozen] = BigInteger("0")
+    data[AccountData.free] = BigDecimal("1")
+    data[AccountData.reserved] = BigInteger("0")
+    data[AccountData.miscFrozen] = BigInteger("0")
+    data[AccountData.feeFrozen] = BigInteger("0")
 }
 
 val inHex = struct.toHexString() // encode
