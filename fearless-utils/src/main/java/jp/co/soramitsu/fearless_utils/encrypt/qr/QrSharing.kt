@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.encrypt.qr
 
-import jp.co.soramitsu.fearless_utils.extensions.fromHexString
+import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
 
 private const val PREFIX = "substrate"
@@ -21,7 +21,7 @@ object QrSharing {
 
     fun encode(payload: Payload): String {
         return with(payload) {
-            val publicKeyEncoded = toHexString(publicKey, withPrefix = true)
+            val publicKeyEncoded = publicKey.toHexString(withPrefix = true)
 
             val withoutName = "$PREFIX$DELIMITER$address$DELIMITER$publicKeyEncoded"
 
@@ -44,6 +44,6 @@ object QrSharing {
             null
         }
 
-        return Payload(address, fromHexString(publicKeyEncoded), name)
+        return Payload(address, publicKeyEncoded.fromHex(), name)
     }
 }

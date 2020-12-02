@@ -36,6 +36,7 @@ abstract class Module(val id: String) {
     }
 
     object Staking : Module("Staking") {
+
         object Ledger : AccountIdService(
             Staking, "Ledger",
             IdentifierHasher.Blake2b128concat

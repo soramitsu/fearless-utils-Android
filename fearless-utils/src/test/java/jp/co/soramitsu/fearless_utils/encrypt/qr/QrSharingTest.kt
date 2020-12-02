@@ -1,7 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt.qr
 
 import jp.co.soramitsu.fearless_utils.common.assertThrows
-import jp.co.soramitsu.fearless_utils.extensions.fromHexString
+import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -13,7 +13,7 @@ class QrSharingTest {
     private val publicKeyEncoded = "0x8ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961ac7b2931"
     private val name = "Russel"
 
-    private val publicKeyBytes = fromHexString(publicKeyEncoded)
+    private val publicKeyBytes = publicKeyEncoded.fromHex()
 
     private val qrContentWithName = "substrate:FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf:0x8ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961ac7b2931:Russel"
     private val qrContentWithoutName = "substrate:FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf:0x8ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961ac7b2931"
