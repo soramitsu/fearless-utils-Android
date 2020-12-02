@@ -25,8 +25,6 @@ import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
 import jp.co.soramitsu.fearless_utils.scale.dataType.scalable
 import jp.co.soramitsu.fearless_utils.scale.dataType.string
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint16
-import jp.co.soramitsu.fearless_utils.scale.dataType.uint8 as Uint8
-import jp.co.soramitsu.fearless_utils.scale.dataType.boolean as Bool
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -35,6 +33,8 @@ import org.mockito.junit.MockitoJUnitRunner
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.MathContext
+import jp.co.soramitsu.fearless_utils.scale.dataType.boolean as Bool
+import jp.co.soramitsu.fearless_utils.scale.dataType.uint8 as Uint8
 
 object OnlyCompact : Schema<OnlyCompact>() {
     val compact by compactInt()
@@ -186,7 +186,7 @@ class ScaleStructTest {
         }
 
         val expected = "0x0700f4b028eb"
-        val actual = OnlyCompact.toHexString(struct)
+        val actual = struct.toHexString()
 
         assertEquals(expected, actual)
     }
@@ -221,8 +221,11 @@ class ScaleStructTest {
         assertEquals(struct[bigInteger], BIG_INT_DEFAULT)
     }
 
-    private fun <S : Schema<S>> writeAndRead(schema: S, struct: EncodableStruct<S>): EncodableStruct<S> {
-        val hex = schema.toHexString(struct)
+    private fun <S : Schema<S>> writeAndRead(
+        schema: S,
+        struct: EncodableStruct<S>
+    ): EncodableStruct<S> {
+        val hex = struct.toHexString()
 
         println(hex)
 
@@ -237,7 +240,7 @@ class ScaleStructTest {
             it[numbers] = data
         }
 
-        val encoded = Vector.toHexString(struct)
+        val encoded = struct.toHexString()
         val expected = "0x18040008000f00100017002a00"
 
         assertEquals(expected, encoded)
@@ -257,8 +260,8 @@ class ScaleStructTest {
             it[EnumTest.intOrBool] = 42.toUByte()
         }
 
-        assertEquals(EnumTest.toHexString(enum1), "0x0101")
-        assertEquals(EnumTest.toHexString(enum2), "0x002a")
+        assertEquals(enum1.toHexString(), "0x0101")
+        assertEquals(enum2.toHexString(), "0x002a")
     }
 
     @Test
@@ -274,8 +277,8 @@ class ScaleStructTest {
             }
         }
 
-        assertEquals(EnumTest2.toHexString(enum1), "0x00")
-        assertEquals(EnumTest2.toHexString(enum2), "0x0101000000000000000300000000000000")
+        assertEquals(enum1.toHexString(), "0x00")
+        assertEquals(enum2.toHexString(), "0x0101000000000000000300000000000000")
     }
 
     @Test
@@ -284,7 +287,7 @@ class ScaleStructTest {
 
         val expected = "0x00"
 
-        assertEquals(expected, CustomTypeTest.toHexString(struct))
+        assertEquals(expected, struct.toHexString())
 
         val afterIo = CustomTypeTest.read(expected)
 

@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.integration.chain
 
-import jp.co.soramitsu.fearless_utils.integration.executeRequest
+import jp.co.soramitsu.fearless_utils.integration.BaseIntegrationTest
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.chain.RuntimeVersionRequest
 import org.junit.Ignore
 import org.junit.Test
@@ -9,14 +9,13 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 @Ignore("Manual run only")
-class RuntimeVersionRequestTest {
+class RuntimeVersionRequestTest : BaseIntegrationTest() {
 
     @Test
     fun `should fetch runtime version`() {
-        val url = "wss://kusama-rpc.polkadot.io"
         val request = RuntimeVersionRequest()
 
-        val result = executeRequest(url, request).blockingGet()
+        val result = socketService.executeRequest(request).blockingGet()
 
         print(result)
 

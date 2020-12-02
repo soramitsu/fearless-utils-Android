@@ -27,6 +27,7 @@ class JsonSeedDecoder(
     private val sS58Encoder: SS58Encoder,
     private val keypairFactory: KeypairFactory
 ) {
+
     fun extractImportMetaData(json: String): ImportAccountMeta {
         val jsonData = decodeJson(json)
 

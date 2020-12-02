@@ -4,13 +4,11 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import io.emeraldpay.polkaj.scale.ScaleReader
 import io.emeraldpay.polkaj.scale.ScaleWriter
-import jp.co.soramitsu.fearless_utils.extensions.requireHexPrefix
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.scale.dataType.DataType
 import jp.co.soramitsu.fearless_utils.scale.dataType.optional
 import org.bouncycastle.util.encoders.Hex
 import java.io.ByteArrayOutputStream
-import java.lang.IndexOutOfBoundsException
 
 @Suppress("UNCHECKED_CAST")
 abstract class Schema<S : Schema<S>> : ScaleReader<EncodableStruct<S>>,
@@ -74,7 +72,8 @@ abstract class Schema<S : Schema<S>> : ScaleReader<EncodableStruct<S>>,
         return outputStream.toByteArray()
     }
 
-    fun toHexString(struct: EncodableStruct<S>): String = toByteArray(struct).toHexString(withPrefix = true)
+    fun toHexString(struct: EncodableStruct<S>): String =
+        toByteArray(struct).toHexString(withPrefix = true)
 
     override fun write(writer: ScaleCodecWriter, struct: EncodableStruct<S>) {
         for (field in fields) {

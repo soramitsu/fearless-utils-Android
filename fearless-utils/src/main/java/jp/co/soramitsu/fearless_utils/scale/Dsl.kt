@@ -3,6 +3,7 @@
 package jp.co.soramitsu.fearless_utils.scale
 
 import jp.co.soramitsu.fearless_utils.scale.dataType.DataType
+import jp.co.soramitsu.fearless_utils.scale.dataType.boolean
 import jp.co.soramitsu.fearless_utils.scale.dataType.byteArraySized
 import jp.co.soramitsu.fearless_utils.scale.dataType.list
 import jp.co.soramitsu.fearless_utils.scale.dataType.scalable
@@ -12,6 +13,7 @@ import jp.co.soramitsu.fearless_utils.scale.dataType.byteArray
 import jp.co.soramitsu.fearless_utils.scale.dataType.string
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint32
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint64
+import jp.co.soramitsu.fearless_utils.scale.dataType.uint16
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint8
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint128
 import jp.co.soramitsu.fearless_utils.scale.dataType.byte
@@ -35,7 +37,11 @@ fun <S : Schema<S>> S.uint8(default: UByte? = null) = NonNullFieldDelegate(uint8
 
 fun <S : Schema<S>> S.uint32(default: UInt? = null) = NonNullFieldDelegate(uint32, this, default)
 
+fun <S : Schema<S>> S.uint16(default: Int? = null) = NonNullFieldDelegate(uint16, this, default)
+
 fun <S : Schema<S>> S.uint128(default: BigInteger? = null) = NonNullFieldDelegate(uint128, this, default)
+
+fun <S : Schema<S>> S.bool(default: Boolean? = null) = NonNullFieldDelegate(boolean, this, default)
 
 fun <S : Schema<S>> S.uint64(default: BigInteger? = null) = NonNullFieldDelegate(uint64, this, default)
 

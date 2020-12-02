@@ -38,3 +38,7 @@ class EncodableStruct<S : Schema<S>>(val schema: Schema<S>) {
             .forEach { fieldsWithValues[it] = it.defaultValue }
     }
 }
+
+fun <S : Schema<S>> EncodableStruct<S>.toHexString() = schema.toHexString(this)
+
+fun <S : Schema<S>> EncodableStruct<S>.toByteArray() = schema.toByteArray(this)
