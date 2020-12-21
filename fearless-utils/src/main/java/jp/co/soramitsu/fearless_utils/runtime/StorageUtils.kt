@@ -31,6 +31,6 @@ object StorageUtils {
 
         identifier?.let { keyBytes += it.id }
 
-        return toHexString(keyBytes, withPrefix = true)
+        return keyBytes.toHexString(withPrefix = true)
     }
 }
