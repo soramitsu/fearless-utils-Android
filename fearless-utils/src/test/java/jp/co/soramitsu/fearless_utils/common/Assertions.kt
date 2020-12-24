@@ -1,9 +1,19 @@
 package jp.co.soramitsu.fearless_utils.common
 
-import jp.co.soramitsu.fearless_utils.wsrpc.logging.Logger
 import org.junit.Assert
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
-inline fun <reified T : Throwable> assertThrows(block: () -> Unit) : T {
+@OptIn(ExperimentalContracts::class)
+inline fun <reified T> assertInstance(value: Any) {
+    contract {
+        returns() implies (value is T)
+    }
+
+    Assert.assertTrue("$value is not a ${T::class}", value is T)
+}
+
+inline fun <reified T : Throwable> assertThrows(block: () -> Unit): T {
     var throwable: Throwable? = null
 
     try {

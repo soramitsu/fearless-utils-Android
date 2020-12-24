@@ -6,7 +6,6 @@ import jp.co.soramitsu.fearless_utils.encrypt.Sr25519
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
-import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.spongycastle.crypto.generators.SCrypt
 import org.spongycastle.util.encoders.Base64
@@ -29,10 +28,11 @@ class JsonSeedEncoder(
         password: String,
         name: String,
         encryptionType: EncryptionType,
-        addressType: AddressType
+        genesisHash: String,
+        addressByte: Byte
     ): String {
         val encoded = formEncodedField(keypair, seed, password, encryptionType)
-        val address = sS58Encoder.encode(keypair.publicKey, addressType)
+        val address = sS58Encoder.encode(keypair.publicKey, addressByte)
 
         val importData = JsonAccountData(
             encoded = encoded,
@@ -41,7 +41,7 @@ class JsonSeedEncoder(
             meta = JsonAccountData.Meta(
                 name = name,
                 whenCreated = System.currentTimeMillis(),
-                genesisHash = addressType.genesisHash
+                genesisHash = genesisHash
             )
         )
 
@@ -69,7 +69,7 @@ class JsonSeedEncoder(
         val secret = secretBox.seal(nonce, pkcs8Bytes)
 
         val encodedBytes = salt + N.asLittleEndianBytes() + p.asLittleEndianBytes() +
-                r.asLittleEndianBytes() + nonce + secret
+            r.asLittleEndianBytes() + nonce + secret
 
         return Base64.toBase64String(encodedBytes)
     }

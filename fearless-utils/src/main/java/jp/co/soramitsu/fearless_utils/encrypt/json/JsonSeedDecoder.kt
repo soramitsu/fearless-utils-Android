@@ -10,8 +10,8 @@ import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountMeta
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
+import jp.co.soramitsu.fearless_utils.encrypt.model.NetworkTypeIdentifier
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
-import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.spongycastle.crypto.generators.SCrypt
 import org.spongycastle.util.encoders.Base64
@@ -33,7 +33,7 @@ class JsonSeedDecoder(
 
         try {
             val address = jsonData.address
-            val networkType = getNetworkType(address, jsonData.meta.genesisHash)
+            val networkType = getNetworkTypeIdentifier(address, jsonData.meta.genesisHash)
 
             val encryptionTypeRaw = jsonData.encoding.content[1]
             val encryptionType =
@@ -68,7 +68,7 @@ class JsonSeedDecoder(
 
         val username = jsonData.meta.name
 
-        val networkType = getNetworkType(jsonData.address, jsonData.meta.genesisHash)
+        val networkTypeIdentifier = getNetworkTypeIdentifier(jsonData.address, jsonData.meta.genesisHash)
 
         val byteData = Base64.decode(jsonData.encoded)
 
@@ -91,10 +91,7 @@ class JsonSeedDecoder(
         val (keypair, seed) = when (cryptoType) {
             EncryptionType.SR25519 -> {
                 val privateKeyCompressed = secret.copyOfRange(16, 80)
-                val privateAndNonce =
-                    Sr25519.fromEd25519Bytes(
-                        privateKeyCompressed
-                    )
+                val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
                 val publicKey = secret.copyOfRange(85, 117)
 
                 val keypair = Keypair(
@@ -121,17 +118,11 @@ class JsonSeedDecoder(
             }
         }
 
-        val networkInformation = networkType?.let {
-            ImportAccountData.NetworkSensitiveInformation(
-                it, sS58Encoder.encode(keypair.publicKey, it)
-            )
-        }
-
         return ImportAccountData(
             keypair,
             cryptoType,
             username,
-            networkInformation,
+            networkTypeIdentifier,
             seed
         )
     }
@@ -140,15 +131,13 @@ class JsonSeedDecoder(
         if (secret.isEmpty()) throw IncorrectPasswordException()
     }
 
-    private fun getNetworkType(address: String, genesisHash: String?): AddressType? {
-        return if (genesisHash != null) {
-            AddressType.fromGenesis(genesisHash)
-        } else {
-            try {
-                sS58Encoder.getNetworkType(address)
-            } catch (_: Exception) {
-                null
-            }
+    private fun getNetworkTypeIdentifier(address: String?, genesisHash: String?): NetworkTypeIdentifier {
+        val addressByte = address?.let(sS58Encoder::extractAddressByteOrNull)
+
+        return when {
+            genesisHash != null -> NetworkTypeIdentifier.Genesis(genesisHash)
+            addressByte != null -> NetworkTypeIdentifier.AddressByte(addressByte)
+            else -> NetworkTypeIdentifier.Undefined
         }
     }
 

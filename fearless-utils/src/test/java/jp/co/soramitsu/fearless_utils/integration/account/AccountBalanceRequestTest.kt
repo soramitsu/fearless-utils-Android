@@ -1,19 +1,10 @@
 package jp.co.soramitsu.fearless_utils.integration.account
 
-import com.google.gson.Gson
 import jp.co.soramitsu.fearless_utils.integration.BaseIntegrationTest
-import jp.co.soramitsu.fearless_utils.integration.KUSAMA_URL
 import jp.co.soramitsu.fearless_utils.integration.WESTEND_URL
-import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
-import jp.co.soramitsu.fearless_utils.wsrpc.SocketService
-import jp.co.soramitsu.fearless_utils.wsrpc.StdoutLogger
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.account.AccountInfoRequest
-import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.system.NodeNetworkTypeRequest
-import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 import org.bouncycastle.util.encoders.Hex
-import org.junit.After
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +31,7 @@ class AccountBalanceRequestTest : BaseIntegrationTest(WESTEND_URL) {
     fun `should fetch existing balance`() {
         val address = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
 
-        val publicKey = encoder.decode(address, AddressType.WESTEND)
+        val publicKey = encoder.decode(address)
 
         val single = socketService.executeRequest(AccountInfoRequest(publicKey))
 
