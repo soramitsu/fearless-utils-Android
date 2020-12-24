@@ -8,7 +8,6 @@ import jp.co.soramitsu.fearless_utils.encrypt.KeypairFactory
 import jp.co.soramitsu.fearless_utils.encrypt.Signer
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecoder
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedEncoder
-import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.spongycastle.util.encoders.Hex
 import java.security.SecureRandom
@@ -16,6 +15,9 @@ import java.security.SecureRandom
 private val SEED = Hex.decode("3132333435363738393031323334353637383930313233343536373839303132")
 private val PASSWORD = "12345"
 private val NAME = "name"
+
+private const val ADDRESS_TYPE_WESTEND: Byte = 42
+private const val GENESIS_HASH_WESTEND = "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
 
 private val gson = Gson()
 private val ss58 = SS58Encoder()
@@ -48,7 +50,8 @@ class MainActivity : AppCompatActivity() {
             password = PASSWORD,
             name = NAME,
             encryptionType = EncryptionType.SR25519,
-            addressType = AddressType.WESTEND
+            addressByte = ADDRESS_TYPE_WESTEND,
+            genesisHash = GENESIS_HASH_WESTEND
         )
 
         val decoded = decoder.decode(json, PASSWORD)

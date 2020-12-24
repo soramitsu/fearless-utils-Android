@@ -1,23 +1,25 @@
 package jp.co.soramitsu.fearless_utils.encrypt.model
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
-import jp.co.soramitsu.fearless_utils.ss58.AddressType
 
 class ImportAccountData(
     val keypair: Keypair,
     val encryptionType: EncryptionType,
     val username: String?,
-    val networkInformation: NetworkSensitiveInformation?,
+    val networkTypeIdentifier: NetworkTypeIdentifier,
     val seed: ByteArray? = null
-) {
-    class NetworkSensitiveInformation(
-        val addressType: AddressType,
-        val address: String
-    )
-}
+)
 
 class ImportAccountMeta(
     val name: String?,
-    val networkType: AddressType?,
+    val networkTypeIdentifier: NetworkTypeIdentifier,
     val encryptionType: EncryptionType
 )
+
+sealed class NetworkTypeIdentifier {
+    class Genesis(val genesis: String) : NetworkTypeIdentifier()
+
+    class AddressByte(val addressByte: Byte) : NetworkTypeIdentifier()
+
+    object Undefined : NetworkTypeIdentifier()
+}

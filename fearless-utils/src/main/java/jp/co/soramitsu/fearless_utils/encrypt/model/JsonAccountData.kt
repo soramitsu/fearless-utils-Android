@@ -9,7 +9,7 @@ const val ENCODING_PKCS8 = "pkcs8"
 const val JSON_VERSION = 3
 
 class JsonAccountData(
-    val address: String,
+    val address: String?,
     val encoded: String,
     val encoding: Encoding,
     val meta: Meta
