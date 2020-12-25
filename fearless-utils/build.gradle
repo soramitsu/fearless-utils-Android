@@ -79,6 +79,7 @@ dependencies {
     implementation spoungyCastleBcPgDep
     implementation ed25519Dep
     implementation svgDep
+    implementation jdenticonDep
     implementation bip39Dep
     implementation secureStringDep
     implementation wsDep

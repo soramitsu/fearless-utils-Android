@@ -2,9 +2,8 @@ package jp.co.soramitsu.fearless_utils.icon
 
 import android.graphics.drawable.PictureDrawable
 import com.caverock.androidsvg.SVG
+import jdenticon.Jdenticon
 import org.spongycastle.jcajce.provider.digest.Blake2b
-import java.lang.RuntimeException
-import java.lang.StringBuilder
 import kotlin.math.floor
 import kotlin.math.sqrt
 
@@ -39,6 +38,18 @@ class IconGenerator {
         }
         stringBuilder.append("</svg>")
         val svg = SVG.getFromString(stringBuilder.toString())
+        return PictureDrawable(svg.renderToPicture())
+    }
+
+    /**
+     * get SORA Substrate icon
+     * @param id hexadecimal string
+     * @param sizeInPixels size
+     * @return [PictureDrawable]
+     */
+    fun getSoraSubstrateIcon(id: String, sizeInPixels: Int): PictureDrawable {
+        val icon = Jdenticon.toSvg(id, sizeInPixels)
+        val svg = SVG.getFromString(icon)
         return PictureDrawable(svg.renderToPicture())
     }
 
