@@ -19,7 +19,9 @@ import jp.co.soramitsu.fearless_utils.scale.dataType.uint128
 import jp.co.soramitsu.fearless_utils.scale.dataType.byte
 import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
 import jp.co.soramitsu.fearless_utils.scale.dataType.union
+import jp.co.soramitsu.fearless_utils.scale.dataType.EnumType
 import java.math.BigInteger
+import kotlin.reflect.KClass
 
 typealias StructBuilder<SCHEMA> = (EncodableStruct<SCHEMA>) -> Unit
 
@@ -83,5 +85,7 @@ fun <S : Schema<S>> S.byteArray(default: ByteArray? = null): NonNullFieldDelegat
 fun <S : Schema<S>> S.long(default: Long? = null) = NonNullFieldDelegate(long, this, default)
 
 fun <S : Schema<S>> S.enum(vararg types: DataType<*>, default: Any? = null) = NonNullFieldDelegate(union(types), this, default)
+
+fun <S : Schema<S>, E: Enum<E>> S.enum(enumClass: KClass<E>, default: E? = null) = NonNullFieldDelegate(EnumType(enumClass.java), this, default)
 
 fun <S : Schema<S>, T> S.custom(type: DataType<T>, default: T? = null) = NonNullFieldDelegate(type, this, default)
