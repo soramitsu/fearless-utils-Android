@@ -32,5 +32,4 @@ class EnumTest {
 
         assertEquals(hex, afterIo)
     }
-
 }

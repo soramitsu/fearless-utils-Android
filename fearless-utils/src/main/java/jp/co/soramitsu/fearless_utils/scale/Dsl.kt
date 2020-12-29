@@ -3,23 +3,23 @@
 package jp.co.soramitsu.fearless_utils.scale
 
 import jp.co.soramitsu.fearless_utils.scale.dataType.DataType
+import jp.co.soramitsu.fearless_utils.scale.dataType.EnumType
 import jp.co.soramitsu.fearless_utils.scale.dataType.boolean
-import jp.co.soramitsu.fearless_utils.scale.dataType.byteArraySized
-import jp.co.soramitsu.fearless_utils.scale.dataType.list
-import jp.co.soramitsu.fearless_utils.scale.dataType.scalable
-import jp.co.soramitsu.fearless_utils.scale.dataType.tuple
-import jp.co.soramitsu.fearless_utils.scale.dataType.long
+import jp.co.soramitsu.fearless_utils.scale.dataType.byte
 import jp.co.soramitsu.fearless_utils.scale.dataType.byteArray
+import jp.co.soramitsu.fearless_utils.scale.dataType.byteArraySized
+import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
+import jp.co.soramitsu.fearless_utils.scale.dataType.list
+import jp.co.soramitsu.fearless_utils.scale.dataType.long
+import jp.co.soramitsu.fearless_utils.scale.dataType.scalable
 import jp.co.soramitsu.fearless_utils.scale.dataType.string
+import jp.co.soramitsu.fearless_utils.scale.dataType.tuple
+import jp.co.soramitsu.fearless_utils.scale.dataType.uint128
+import jp.co.soramitsu.fearless_utils.scale.dataType.uint16
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint32
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint64
-import jp.co.soramitsu.fearless_utils.scale.dataType.uint16
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint8
-import jp.co.soramitsu.fearless_utils.scale.dataType.uint128
-import jp.co.soramitsu.fearless_utils.scale.dataType.byte
-import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
 import jp.co.soramitsu.fearless_utils.scale.dataType.union
-import jp.co.soramitsu.fearless_utils.scale.dataType.EnumType
 import java.math.BigInteger
 import kotlin.reflect.KClass
 
@@ -86,6 +86,6 @@ fun <S : Schema<S>> S.long(default: Long? = null) = NonNullFieldDelegate(long, t
 
 fun <S : Schema<S>> S.enum(vararg types: DataType<*>, default: Any? = null) = NonNullFieldDelegate(union(types), this, default)
 
-fun <S : Schema<S>, E: Enum<E>> S.enum(enumClass: KClass<E>, default: E? = null) = NonNullFieldDelegate(EnumType(enumClass.java), this, default)
+fun <S : Schema<S>, E : Enum<E>> S.enum(enumClass: KClass<E>, default: E? = null) = NonNullFieldDelegate(EnumType(enumClass.java), this, default)
 
 fun <S : Schema<S>, T> S.custom(type: DataType<T>, default: T? = null) = NonNullFieldDelegate(type, this, default)
