@@ -98,6 +98,22 @@ class scalable<S : Schema<S>>(private val schema: Schema<S>) : DataType<Encodabl
     }
 }
 
+class EnumType<E : Enum<E>>(private val enumClass: Class<E>) : DataType<E>() {
+    override fun conformsType(value: Any?): Boolean {
+        return value?.javaClass == enumClass
+    }
+
+    override fun read(reader: ScaleCodecReader): E {
+        val index = reader.readByte()
+
+        return enumClass.enumConstants[index.toInt()]
+    }
+
+    override fun write(writer: ScaleCodecWriter, value: E) {
+        writer.writeByte(value.ordinal)
+    }
+}
+
 class union(val dataTypes: Array<out DataType<*>>) : DataType<Any?>() {
     override fun read(reader: ScaleCodecReader): Any? {
         val typeIndex = reader.readByte()
