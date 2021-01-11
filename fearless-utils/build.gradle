@@ -70,11 +70,6 @@ createJar.dependsOn(deleteJar, build)
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation kotlinDep
-    implementation androidDep
-    implementation cardViewDep
-    implementation materialDep
-    implementation constraintDep
     implementation spoungyCastleBcPixDep
     implementation spoungyCastleBcPgDep
     implementation ed25519Dep
