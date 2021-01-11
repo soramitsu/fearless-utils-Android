@@ -20,6 +20,8 @@ fun string() = StringMapper()
 
 inline fun <reified T> pojo() = POJOMapper(T::class.java)
 
+inline fun <reified T> pojoList() = POJOCollectionMapper(T::class.java)
+
 class ScaleMapper<S : Schema<S>>(val schema: S) : NullableMapper<EncodableStruct<S>>() {
     override fun mapNullable(rpcResponse: RpcResponse, jsonMapper: Gson): EncodableStruct<S>? {
         val raw = rpcResponse.result as? String ?: return null
@@ -44,6 +46,16 @@ class ScaleCollectionMapper<S : Schema<S>>(val schema: S) :
 class StringMapper : NullableMapper<String>() {
     override fun mapNullable(rpcResponse: RpcResponse, jsonMapper: Gson): String? {
         return rpcResponse.result as String? ?: return null
+    }
+}
+
+class POJOCollectionMapper<T>(val classRef: Class<T>) : NullableMapper<List<T>>() {
+    override fun mapNullable(rpcResponse: RpcResponse, jsonMapper: Gson): List<T>? {
+        val raw = rpcResponse.result as? List<*> ?: return null
+        return raw.map {
+            val t = jsonMapper.toJsonTree(it)
+            jsonMapper.fromJson(t, classRef)
+        }
     }
 }
 
