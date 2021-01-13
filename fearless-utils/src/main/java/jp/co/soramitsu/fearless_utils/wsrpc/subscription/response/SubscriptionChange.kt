@@ -16,5 +16,7 @@ class SubscriptionChange(
         }
     }
 
+    val subscriptionId = params.subscription
+
     override fun toString() = "SubscriptionChange(${params.subscription})"
 }

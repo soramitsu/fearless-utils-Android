@@ -223,7 +223,7 @@ object SocketStateMachine {
                     is Event.SubscriptionResponse -> {
                         val subscription = findSubscriptionById(
                             state.subscriptions,
-                            event.response.params.subscription
+                            event.response.subscriptionId
                         )
 
                         if (subscription != null) {

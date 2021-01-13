@@ -1,14 +1,18 @@
-package jp.co.soramitsu.fearless_utils.wsrpc
+package jp.co.soramitsu.fearless_utils.wsrpc.state
 
 import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine.Event
 import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine.SideEffect
 import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine.State
 import jp.co.soramitsu.fearless_utils.wsrpc.request.DeliveryType
-import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine
+import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
+import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine.SideEffect.*
+import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
 
 private const val URL = "TEST"
@@ -30,17 +34,25 @@ fun singleTestSendable(deliveryType: DeliveryType) = TestSendable(0, deliveryTyp
 
 fun singleTestSubscription() = TestSubscription("0", 0)
 
-val TEST_EXCEPTION = Exception()
+private val TEST_RESPONSE = RpcResponse("", null, 0, null)
 
-val CONNECT_SIDE_EFFECT = SideEffect.Connect(URL)
+private val TEST_EXCEPTION = Exception()
+private val CONNECT_SIDE_EFFECT = Connect(URL)
+
+private val TEST_RESPONSE_EVENT = Event.SendableResponse(TEST_RESPONSE)
 
 @RunWith(MockitoJUnitRunner::class)
 class SocketStateMachineTest {
 
     private val sideEffectLog = mutableListOf<SideEffect>()
 
+    @Mock
+    private lateinit var testSubscriptionChange: SubscriptionChange
+
     @Before
     fun before() {
+        `when`(testSubscriptionChange.subscriptionId).thenReturn("0")
+
         sideEffectLog.clear()
     }
 
@@ -78,7 +90,7 @@ class SocketStateMachineTest {
 
         assertEquals(state, emptyConnectedState.copy(waitingForResponse = sendables))
 
-        assertEquals(listOf(CONNECT_SIDE_EFFECT, SideEffect.SendSendables(sendables)), sideEffectLog)
+        assertEquals(listOf(CONNECT_SIDE_EFFECT, SendSendables(sendables)), sideEffectLog)
     }
 
     @Test
@@ -90,7 +102,7 @@ class SocketStateMachineTest {
 
         state = transition(state, Event.Send(sendable))
 
-        val sendSideEffect = SideEffect.SendSendables(sendables)
+        val sendSideEffect = SendSendables(sendables)
 
         val expectedConnectedState = emptyConnectedState.copy(
             toResendOnReconnect = sendables,
@@ -119,7 +131,7 @@ class SocketStateMachineTest {
         assertEquals(
             listOf(
                 CONNECT_SIDE_EFFECT, sendSideEffect,
-                SideEffect.ScheduleReconnect(0, URL),
+                ScheduleReconnect(0, URL),
                 CONNECT_SIDE_EFFECT, sendSideEffect
             ), sideEffectLog)
     }
@@ -138,7 +150,7 @@ class SocketStateMachineTest {
         state = transition(state, Event.Connected)
 
         assertEquals(emptyConnectedState.copy(waitingForResponse = sendables), state)
-        assertEquals(listOf(CONNECT_SIDE_EFFECT, SideEffect.SendSendables(sendables)), sideEffectLog)
+        assertEquals(listOf(CONNECT_SIDE_EFFECT, SendSendables(sendables)), sideEffectLog)
     }
 
     @Test
@@ -150,8 +162,94 @@ class SocketStateMachineTest {
         state = transition(state, Event.Send(sendable))
         state = transition(state, Event.Cancel(sendable))
 
-        assertEquals(state, State.Connecting(attempt = 0, pendingSendables = emptySet(), url = URL))
+        assertEquals(State.Connecting(attempt = 0, pendingSendables = emptySet(), url = URL), state)
         assertSideAffectLogWithConnect()
+    }
+
+    @Test
+    fun `should subscribe`() {
+        var state = moveToConnected()
+
+        val sendable = singleTestSendable(DeliveryType.ON_RECONNECT)
+        val sendables = setOf(sendable)
+        val subscription = singleTestSubscription()
+
+        state = transition(state, Event.Send(sendable), TEST_RESPONSE_EVENT, Event.Subscribed(subscription))
+
+        val subscribedLog = listOf(
+            CONNECT_SIDE_EFFECT, SendSendables(sendables),
+            ResponseToSendable(sendable, TEST_RESPONSE)
+        )
+
+        val expectedState = emptyConnectedState.copy(
+            toResendOnReconnect = sendables,
+            subscriptions = setOf(subscription)
+        )
+
+        assertEquals(expectedState, state)
+        assertEquals(subscribedLog, sideEffectLog)
+
+        state = transition(state, Event.SubscriptionResponse(testSubscriptionChange))
+
+        assertEquals(expectedState, state)
+        assertEquals(subscribedLog + RespondToSubscription(subscription, testSubscriptionChange), sideEffectLog)
+    }
+
+    @Test
+    fun `should unsubscribe`() {
+        var state = moveToConnected()
+
+        val sendable = singleTestSendable(DeliveryType.ON_RECONNECT)
+        val sendables = setOf(sendable)
+        val subscription = singleTestSubscription()
+
+        state = transition(state, Event.Send(sendable), TEST_RESPONSE_EVENT, Event.Subscribed(subscription), Event.Cancel(sendable))
+
+        val expectedLog = listOf(
+            CONNECT_SIDE_EFFECT, SendSendables(sendables),
+            ResponseToSendable(sendable, TEST_RESPONSE), Unsubscribe(subscription)
+        )
+
+        assertEquals(emptyConnectedState, state)
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should be able to stop when connected`() {
+        var state = moveToConnected()
+
+        state = transition(state, Event.Stop)
+
+        assertEquals(State.Disconnected, state)
+        assertEquals(sideEffectLog, listOf(CONNECT_SIDE_EFFECT, Disconnect))
+    }
+
+    @Test
+    fun `should delay reconnect when error occurs`() {
+        val state = moveToWaitingForReconnect()
+
+        assertEquals(State.WaitingForReconnect(URL, attempt = 1, pendingSendables = emptySet()), state)
+        assertEquals(sideEffectLog, listOf(CONNECT_SIDE_EFFECT, ScheduleReconnect(1, URL)))
+    }
+
+    @Test
+    fun `should be able to stop when connecting`() {
+        var state = moveToWaitingForReconnect()
+
+        state = transition(state, Event.Stop)
+
+        assertEquals(State.Disconnected, state)
+        assertEquals(sideEffectLog, listOf(CONNECT_SIDE_EFFECT, ScheduleReconnect(1, URL), Disconnect))
+    }
+
+    @Test
+    fun `should be able to stop when waiting for reconnect`() {
+        var state = moveToStart()
+
+        state = transition(state, Event.Stop)
+
+        assertEquals(State.Disconnected, state)
+        assertEquals(sideEffectLog, listOf(CONNECT_SIDE_EFFECT, Disconnect))
     }
 
     private fun moveToConnected(): State {
@@ -166,13 +264,19 @@ class SocketStateMachineTest {
         return transition(initial, Event.Start(URL))
     }
 
+    private fun moveToWaitingForReconnect(): State {
+        val initial = SocketStateMachine.initialState()
+
+        return transition(initial, Event.Start(URL), Event.ConnectionError(TEST_EXCEPTION))
+    }
+
     private fun assertSideAffectLogWithConnect() = assertEquals(listOf(CONNECT_SIDE_EFFECT), sideEffectLog)
 
     private fun transition(state: State, vararg events: Event): State {
         var tempState = state
 
         events.forEach {
-            val (updatedState, sideEffects) = SocketStateMachine.transition(state, it)
+            val (updatedState, sideEffects) = SocketStateMachine.transition(tempState, it)
 
             tempState = updatedState
 
