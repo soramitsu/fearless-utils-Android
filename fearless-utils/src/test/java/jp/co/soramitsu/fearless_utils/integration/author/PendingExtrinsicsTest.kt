@@ -1,7 +1,9 @@
 package jp.co.soramitsu.fearless_utils.integration.author
 
 import jp.co.soramitsu.fearless_utils.integration.BaseIntegrationTest
+import jp.co.soramitsu.fearless_utils.wsrpc.executeAsync
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.author.PendingExtrinsicsRequest
+import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -12,10 +14,10 @@ import org.mockito.junit.MockitoJUnitRunner
 class PendingExtrinsicsTest : BaseIntegrationTest() {
 
     @Test
-    fun `should get pending extrinsics`() {
+    fun `should get pending extrinsics`() = runBlocking {
         val request = PendingExtrinsicsRequest()
 
-        val result = socketService.executeRequest(request).blockingGet()
+        val result = socketService.executeAsync(request)
 
         print(result)
 

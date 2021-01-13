@@ -10,7 +10,7 @@ import com.neovisionaries.ws.client.WebSocketState
 import jp.co.soramitsu.fearless_utils.wsrpc.logging.Logger
 import jp.co.soramitsu.fearless_utils.wsrpc.request.base.RpcRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
-import jp.co.soramitsu.fearless_utils.wsrpc.subscription.SubscriptionChange
+import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
 import java.util.concurrent.TimeUnit
 
 interface RpcSocketListener {
@@ -26,11 +26,11 @@ interface RpcSocketListener {
 private const val PING_INTERVAL_SECONDS = 30L
 
 class RpcSocket(
-    val url: String,
+    private val url: String,
     listener: RpcSocketListener,
-    val logger: Logger? = null,
+    private val logger: Logger? = null,
     factory: WebSocketFactory,
-    val gson: Gson
+    private val gson: Gson
 ) {
     val ws = factory.createSocket(url)
 
@@ -41,7 +41,7 @@ class RpcSocket(
     }
 
     fun connectAsync() {
-        logger?.log("[CONNECTING] $url")
+        log("Connecting", url)
 
         ws.connectAsynchronously()
     }
@@ -53,13 +53,13 @@ class RpcSocket(
     fun disconnect() {
         ws.disconnect()
 
-        logger?.log("[DISCONNECTED] $url")
+        log("Disconnected", url)
     }
 
     fun sendRpcRequest(rpcRequest: RpcRequest) {
         val text = gson.toJson(rpcRequest)
 
-        logger?.log("[SENDING] $text")
+        log("Sending", text)
 
         ws.sendText(text)
     }
@@ -67,7 +67,7 @@ class RpcSocket(
     private fun setupListener(listener: RpcSocketListener) {
         ws.addListener(object : WebSocketAdapter() {
             override fun onTextMessage(websocket: WebSocket, text: String) {
-                logger?.log("[RECEIVED] $text")
+                log("Received", text)
 
                 if (isSubscriptionChange(text)) {
                     listener.onResponse(gson.fromJson(text, SubscriptionChange::class.java))
@@ -77,19 +77,19 @@ class RpcSocket(
             }
 
             override fun onPongFrame(websocket: WebSocket?, frame: WebSocketFrame?) {
-                logger?.log("[RECEIVED] PONG")
+                log("Received", "Pong")
             }
 
             override fun onError(websocket: WebSocket, cause: WebSocketException) {
-                logger?.log("[ERROR] ${cause.message}")
+                log("Error", cause.message)
             }
 
             override fun onConnectError(websocket: WebSocket, exception: WebSocketException) {
-                logger?.log("[FAILED TO CONNECT] ${exception.message}")
+                log("Failed to connect", exception.message)
             }
 
             override fun onStateChanged(websocket: WebSocket, newState: WebSocketState) {
-                logger?.log("[STATE] $newState")
+                log("State", newState)
 
                 listener.onStateChanged(newState)
             }
@@ -98,11 +98,15 @@ class RpcSocket(
                 websocket: WebSocket?,
                 headers: MutableMap<String, MutableList<String>>?
             ) {
-                logger?.log("[CONNECTED] $url")
+                log("Connected", url)
 
                 listener.onConnected()
             }
         })
+    }
+
+    private fun log(topic: String, message: Any?) {
+        logger?.log("\t[SOCKET][${topic.toUpperCase()}] $message")
     }
 
     private fun isSubscriptionChange(string: String): Boolean {

@@ -83,12 +83,10 @@ dependencies {
     implementation apacheXercesDep
     implementation xxHashDep
 
-    implementation rxJavaDep
+    implementation coroutinesDep
 
     testImplementation jUnitDep
     testImplementation mockitoDep
-
-    testImplementation rxJavaDep
 }
 
 def computeVersionName() {
