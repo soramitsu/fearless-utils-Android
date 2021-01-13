@@ -22,7 +22,7 @@ class ObservableState(initialState: State) {
     fun getState() = state
 
     @Synchronized
-    fun addObserver(observer: StateObserver, notifyInitial : Boolean = true) {
+    fun addObserver(observer: StateObserver, notifyInitial: Boolean = true) {
         observers.add(observer)
 
         if (notifyInitial) {
