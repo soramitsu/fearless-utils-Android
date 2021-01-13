@@ -137,7 +137,7 @@ class SocketStateMachineTest {
     }
 
     @Test
-    fun `should delay request until ready to send`() {
+    fun `should delay request when connecting`() {
         var state = moveToStart()
 
         val sendable = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
@@ -151,6 +151,72 @@ class SocketStateMachineTest {
 
         assertEquals(emptyConnectedState.copy(waitingForResponse = sendables), state)
         assertEquals(listOf(CONNECT_SIDE_EFFECT, SendSendables(sendables)), sideEffectLog)
+    }
+
+    @Test
+    fun `should force reconnect after send request`() {
+        var state = moveToWaitingForReconnect()
+
+        val sendable = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
+        val sendables = setOf(sendable)
+
+        state = transition(state, Event.Send(sendable))
+
+        assertEquals(State.Connecting(attempt = 0, pendingSendables = sendables, url = URL), state)
+
+        assertEquals(listOf(
+            CONNECT_SIDE_EFFECT, ScheduleReconnect(attempt = 1, url = URL),
+            Connect(URL)
+        ), sideEffectLog)
+    }
+
+    @Test
+    fun `should cancel when waiting to reconnect`() {
+        var state = moveToWaitingForReconnect()
+
+        val sendable = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
+
+        state = transition(state, Event.Send(sendable))
+        state = transition(state, Event.Cancel(sendable))
+
+        assertEquals(State.Connecting(attempt = 0, pendingSendables = emptySet(), url = URL), state)
+
+        assertEquals(listOf(
+            CONNECT_SIDE_EFFECT, ScheduleReconnect(attempt = 1, url = URL),
+            Connect(URL)
+        ), sideEffectLog)
+    }
+
+    @Test
+    fun `should ignore invalid transition from waiting`() {
+        val state = State.WaitingForReconnect(URL, pendingSendables = emptySet())
+
+        val newState = transition(state, Event.ConnectionError(TEST_EXCEPTION))
+
+        assertEquals(state, newState)
+    }
+
+    @Test
+    fun `should ignore invalid transition from connecting`() {
+        val state = State.Connecting(URL, pendingSendables = emptySet())
+
+        val newState = transition(state, Event.Start(URL))
+
+        assertEquals(state, newState)
+    }
+
+    @Test
+    fun `should ignore invalid transition from connected`() {
+        val newState = transition(emptyConnectedState, Event.Start(URL))
+
+        assertEquals(emptyConnectedState, newState)
+    }
+
+    @Test
+    fun `should ignore invalid transition from disconnected`() {
+        val newState = transition(State.Disconnected, Event.ConnectionError(TEST_EXCEPTION))
+
+        assertEquals(State.Disconnected, newState)
     }
 
     @Test
@@ -229,7 +295,7 @@ class SocketStateMachineTest {
         val state = moveToWaitingForReconnect()
 
         assertEquals(State.WaitingForReconnect(URL, attempt = 1, pendingSendables = emptySet()), state)
-        assertEquals(sideEffectLog, listOf(CONNECT_SIDE_EFFECT, ScheduleReconnect(1, URL)))
+        assertSideAffectLogForReconnect()
     }
 
     @Test
@@ -239,7 +305,7 @@ class SocketStateMachineTest {
         state = transition(state, Event.Stop)
 
         assertEquals(State.Disconnected, state)
-        assertEquals(sideEffectLog, listOf(CONNECT_SIDE_EFFECT, ScheduleReconnect(1, URL), Disconnect))
+        assertEquals(reconnectSideEffectLog() + Disconnect, sideEffectLog)
     }
 
     @Test
@@ -250,6 +316,81 @@ class SocketStateMachineTest {
 
         assertEquals(State.Disconnected, state)
         assertEquals(sideEffectLog, listOf(CONNECT_SIDE_EFFECT, Disconnect))
+    }
+
+    @Test
+    fun `should cancel while waiting for reconnect sent request`() {
+        var state = moveToStart()
+
+        val sendable = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
+
+        state = transition(state, Event.Send(sendable))
+
+        state = transition(state, Event.ConnectionError(TEST_EXCEPTION))
+
+        state = transition(state, Event.Cancel(sendable))
+
+        assertEquals(State.WaitingForReconnect(attempt = 1, pendingSendables = emptySet(), url = URL), state)
+        assertSideAffectLogForReconnect()
+    }
+
+    @Test
+    fun `should cancel request when connected`() {
+        var state = moveToConnected()
+
+        val sendable = singleTestSendable(DeliveryType.ON_RECONNECT)
+        val sendables = setOf(sendable)
+
+        state = transition(state, Event.Send(sendable), Event.Cancel(sendable))
+
+        val expectedLog = listOf(CONNECT_SIDE_EFFECT, SendSendables(sendables))
+
+        assertEquals(emptyConnectedState, state)
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should ignore cancellation of unknown request`() {
+        var state = moveToConnected()
+
+        val sendable = singleTestSendable(DeliveryType.ON_RECONNECT)
+
+        state = transition(state, Event.Cancel(sendable))
+
+        val expectedLog = listOf(CONNECT_SIDE_EFFECT)
+
+        assertEquals(emptyConnectedState, state)
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should ignore response to unknown request`() {
+        var state = moveToConnected()
+
+        state = transition(state, Event.SendableResponse(TEST_RESPONSE))
+
+        val expectedLog = listOf(CONNECT_SIDE_EFFECT)
+
+        assertEquals(emptyConnectedState, state)
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should report error to AT_MOST_ONCE request and forget about it on failure`() {
+        var state = moveToConnected()
+
+        val sendable = singleTestSendable(DeliveryType.AT_MOST_ONCE)
+        val sendables = setOf(sendable)
+
+        state = transition(state, Event.Send(sendable), Event.ConnectionError(TEST_EXCEPTION))
+
+        val expectedLog = listOf(
+            CONNECT_SIDE_EFFECT, SendSendables(sendables),
+            RespondSendablesError(sendables, TEST_EXCEPTION), ScheduleReconnect(attempt = 0, url = URL)
+        )
+
+        assertEquals(State.WaitingForReconnect(URL, attempt = 0, pendingSendables = emptySet()), state)
+        assertEquals(expectedLog, sideEffectLog)
     }
 
     private fun moveToConnected(): State {
@@ -271,6 +412,10 @@ class SocketStateMachineTest {
     }
 
     private fun assertSideAffectLogWithConnect() = assertEquals(listOf(CONNECT_SIDE_EFFECT), sideEffectLog)
+
+    private fun assertSideAffectLogForReconnect() = assertEquals(reconnectSideEffectLog(), sideEffectLog)
+
+    private fun reconnectSideEffectLog() = listOf(CONNECT_SIDE_EFFECT, ScheduleReconnect(1, URL))
 
     private fun transition(state: State, vararg events: Event): State {
         var tempState = state

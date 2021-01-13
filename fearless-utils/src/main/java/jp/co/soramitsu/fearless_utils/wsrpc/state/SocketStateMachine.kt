@@ -120,7 +120,7 @@ object SocketStateMachine {
                         sideEffects += SideEffect.Connect(state.url)
                         State.Connecting(
                             url = state.url,
-                            attempt = state.attempt,
+                            attempt = 0,
                             pendingSendables = state.pendingSendables + event.sendable
                         )
                     }
@@ -237,8 +237,7 @@ object SocketStateMachine {
                     }
 
                     is Event.ConnectionError -> {
-                        val toReportError =
-                            state.waitingForResponse.filterByDeliveryType(DeliveryType.AT_MOST_ONCE)
+                        val toReportError = state.waitingForResponse.filterByDeliveryType(DeliveryType.AT_MOST_ONCE)
 
                         if (toReportError.isNotEmpty()) {
                             sideEffects += SideEffect.RespondSendablesError(
@@ -247,8 +246,7 @@ object SocketStateMachine {
                             )
                         }
 
-                        val toResend =
-                            state.waitingForResponse - toReportError + state.toResendOnReconnect
+                        val toResend = state.waitingForResponse - toReportError + state.toResendOnReconnect
 
                         sideEffects += SideEffect.ScheduleReconnect(attempt = 0, state.url)
                         State.WaitingForReconnect(url = state.url, pendingSendables = toResend)
