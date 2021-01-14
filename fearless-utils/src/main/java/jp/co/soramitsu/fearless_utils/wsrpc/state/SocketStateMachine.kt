@@ -94,7 +94,7 @@ object SocketStateMachine {
 
         data class Connect(val url: String) : SideEffect()
 
-        data class ScheduleReconnect(val attempt: Int, val url: String) : SideEffect()
+        data class ScheduleReconnect(val attempt: Int) : SideEffect()
 
         object Disconnect : SideEffect()
 
@@ -143,7 +143,7 @@ object SocketStateMachine {
                     is Event.ConnectionError -> {
                         val newAttempt = state.attempt + 1
 
-                        sideEffects += SideEffect.ScheduleReconnect(newAttempt, state.url)
+                        sideEffects += SideEffect.ScheduleReconnect(newAttempt)
                         State.WaitingForReconnect(state.url, newAttempt, state.pendingSendables)
                     }
                     is Event.Connected -> {
@@ -248,7 +248,7 @@ object SocketStateMachine {
 
                         val toResend = state.waitingForResponse - toReportError + state.toResendOnReconnect
 
-                        sideEffects += SideEffect.ScheduleReconnect(attempt = 0, state.url)
+                        sideEffects += SideEffect.ScheduleReconnect(attempt = 0)
                         State.WaitingForReconnect(url = state.url, pendingSendables = toResend)
                     }
 

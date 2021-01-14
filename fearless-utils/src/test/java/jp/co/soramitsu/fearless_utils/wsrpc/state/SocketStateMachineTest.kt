@@ -131,7 +131,7 @@ class SocketStateMachineTest {
         assertEquals(
             listOf(
                 CONNECT_SIDE_EFFECT, sendSideEffect,
-                ScheduleReconnect(0, URL),
+                ScheduleReconnect(0),
                 CONNECT_SIDE_EFFECT, sendSideEffect
             ), sideEffectLog)
     }
@@ -165,7 +165,7 @@ class SocketStateMachineTest {
         assertEquals(State.Connecting(attempt = 0, pendingSendables = sendables, url = URL), state)
 
         assertEquals(listOf(
-            CONNECT_SIDE_EFFECT, ScheduleReconnect(attempt = 1, url = URL),
+            CONNECT_SIDE_EFFECT, ScheduleReconnect(attempt = 1),
             Connect(URL)
         ), sideEffectLog)
     }
@@ -182,7 +182,7 @@ class SocketStateMachineTest {
         assertEquals(State.Connecting(attempt = 0, pendingSendables = emptySet(), url = URL), state)
 
         assertEquals(listOf(
-            CONNECT_SIDE_EFFECT, ScheduleReconnect(attempt = 1, url = URL),
+            CONNECT_SIDE_EFFECT, ScheduleReconnect(attempt = 1),
             Connect(URL)
         ), sideEffectLog)
     }
@@ -386,7 +386,7 @@ class SocketStateMachineTest {
 
         val expectedLog = listOf(
             CONNECT_SIDE_EFFECT, SendSendables(sendables),
-            RespondSendablesError(sendables, TEST_EXCEPTION), ScheduleReconnect(attempt = 0, url = URL)
+            RespondSendablesError(sendables, TEST_EXCEPTION), ScheduleReconnect(attempt = 0)
         )
 
         assertEquals(State.WaitingForReconnect(URL, attempt = 0, pendingSendables = emptySet()), state)
@@ -415,7 +415,7 @@ class SocketStateMachineTest {
 
     private fun assertSideAffectLogForReconnect() = assertEquals(reconnectSideEffectLog(), sideEffectLog)
 
-    private fun reconnectSideEffectLog() = listOf(CONNECT_SIDE_EFFECT, ScheduleReconnect(1, URL))
+    private fun reconnectSideEffectLog() = listOf(CONNECT_SIDE_EFFECT, ScheduleReconnect(1))
 
     private fun transition(state: State, vararg events: Event): State {
         var tempState = state

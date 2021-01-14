@@ -8,28 +8,20 @@ import java.util.concurrent.TimeUnit
 private val DEFAULT_RECONNECT_STRATEGY =
     ExponentialReconnectStrategy(initialTime = 300L, base = 2.0)
 
-typealias ReconnectAction = (url: String) -> Unit
-
 class Reconnector(
     private val strategy: ReconnectStrategy = DEFAULT_RECONNECT_STRATEGY,
     private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 ) {
     private var inProgress: Future<*>? = null
 
-    fun scheduleConnect(currentAttempt: Int, url: String, reconnectAction: ReconnectAction) {
+    fun scheduleConnect(currentAttempt: Int, runnable: Runnable) {
         reset()
 
         inProgress = executor.schedule(
-            wrapReconnectAction(url, reconnectAction),
+            wrapReconnectAction(runnable),
             strategy.getTimeForReconnect(currentAttempt),
             TimeUnit.MILLISECONDS
         )
-    }
-
-    fun connect(url: String, reconnectAction: ReconnectAction) {
-        reset()
-
-        reconnectAction(url)
     }
 
     fun reset() {
@@ -37,9 +29,9 @@ class Reconnector(
         inProgress = null
     }
 
-    private fun wrapReconnectAction(url: String, how: ReconnectAction) = Runnable {
+    private fun wrapReconnectAction(how: Runnable) = Runnable {
         inProgress = null
 
-        how(url)
+        how.run()
     }
 }

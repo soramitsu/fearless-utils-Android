@@ -132,8 +132,8 @@ class SocketService(
                 sideEffect.change
             )
             is SideEffect.SendSendables -> sendToSocket(sideEffect.sendables)
-            is SideEffect.Connect -> connect(sideEffect.url)
-            is SideEffect.ScheduleReconnect -> scheduleReconnect(sideEffect.attempt, sideEffect.url)
+            is SideEffect.Connect -> connectToSocket(sideEffect.url)
+            is SideEffect.ScheduleReconnect -> scheduleReconnect(sideEffect.attempt)
             is SideEffect.Disconnect -> disconnect()
             is SideEffect.Unsubscribe -> unsubscribe()
         }
@@ -175,12 +175,16 @@ class SocketService(
         }
     }
 
-    private fun connect(url: String) = reconnector.connect(url, ::connectToSocket)
+    private fun scheduleReconnect(attempt: Int) =
+        reconnector.scheduleConnect(attempt, ::readyForReconnect)
 
-    private fun scheduleReconnect(attempt: Int, url: String) =
-        reconnector.scheduleConnect(attempt, url, ::connectToSocket)
+    private fun readyForReconnect() {
+        updateState(Event.ReadyToReconnect)
+    }
 
     private fun connectToSocket(url: String) {
+        reconnector.reset()
+
         socket = createSocket(url)
         socket!!.connectAsync()
     }
