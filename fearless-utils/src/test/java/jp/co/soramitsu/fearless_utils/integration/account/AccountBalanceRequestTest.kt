@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-//@Ignore("Manual run only")
+@Ignore("Manual run only")
 class AccountBalanceRequestTest : BaseIntegrationTest(WESTEND_URL) {
     private val encoder = SS58Encoder()
 
