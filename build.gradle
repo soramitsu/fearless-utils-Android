@@ -15,20 +15,11 @@ buildscript {
         constraintVersion = '1.1.3'
 
         rxJavaVersion = '2.2.7'
-        rxAndroidVersion = '2.1.0'
+        coroutinesVersion = '1.4.2'
 
-        daggerVersion = '2.25.2'
-        javaxInjectVersion = '1'
-
-        architectureComponentVersion = '2.0.0'
-
-        retrofitVersion = '2.4.0'
-        okhttpVersion = '3.8.0'
         gsonVersion = '2.8.2'
 
         zXingVersion = '3.5.0'
-
-        navControllerVersion = '2.0.0-rc02'
 
         spoungyCastleVersion = '1.58.0.0'
         ed25519Version = '0.3.0'
@@ -38,38 +29,17 @@ buildscript {
 
         junitVersion = '4.12'
         mockitoVersion = '2.23.0'
-        robolectricVersion = '4.1'
         wsVersion = '2.10'
         xxHashVersion = '1.7.1'
         svgVersion = '1.4'
 
-        kotlinDep = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
-
         androidDep = "androidx.appcompat:appcompat:$supportVersion"
-        cardViewDep = "androidx.cardview:cardview:$supportVersion"
-        recyclerViewDep = "androidx.recyclerview:recyclerview:$supportVersion"
         constraintDep = "androidx.constraintlayout:constraintlayout:$constraintVersion"
         materialDep = "com.google.android.material:material:$supportVersion"
 
         rxJavaDep = "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-        rxAndroidDep = "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+        coroutinesDep = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 
-        daggerDep = "com.google.dagger:dagger:$daggerVersion"
-        daggerKapt = "com.google.dagger:dagger-compiler:$daggerVersion"
-
-        lifecycleDep = "androidx.lifecycle:lifecycle-extensions:$architectureComponentVersion"
-        lifecycleKapt = "androidx.lifecycle:lifecycle-compiler:$architectureComponentVersion"
-
-        roomDep = "androidx.room:room-runtime:$architectureComponentVersion"
-        rxRoomDep = "androidx.room:room-rxjava2:$architectureComponentVersion"
-        roomKapt = "androidx.room:room-compiler:$architectureComponentVersion"
-
-        navigationFragmentDep = "androidx.navigation:navigation-fragment:$navControllerVersion"
-        navigationUiDep = "androidx.navigation:navigation-ui:$navControllerVersion"
-
-        retrofitDep = "com.squareup.retrofit2:retrofit:$retrofitVersion"
-        rxCallAdapterDep = "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-        gsonConvertedDep = "com.squareup.retrofit2:converter-gson:$retrofitVersion"
         gsonDep = "com.google.code.gson:gson:$gsonVersion"
 
         spoungyCastleBcPixDep = "com.madgag.spongycastle:bcpkix-jdk15on:$spoungyCastleVersion"
@@ -86,9 +56,6 @@ buildscript {
 
         jUnitDep = "junit:junit:$junitVersion"
         mockitoDep = "org.mockito:mockito-inline:$mockitoVersion"
-        robolectricDep = "org.robolectric:robolectric:$robolectricVersion"
-        robolectricMultidexDep = "org.robolectric:shadows-multidex:$robolectricVersion"
-        archCoreTestDep = "androidx.arch.core:core-testing:$architectureComponentVersion"
     }
     repositories {
         google()

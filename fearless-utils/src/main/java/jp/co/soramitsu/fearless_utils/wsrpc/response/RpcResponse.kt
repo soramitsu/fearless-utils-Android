@@ -10,6 +10,8 @@ class RpcResponse(
     @SerializedName("id")
     val id: Int,
     val error: RpcError?
-)
+) {
+    override fun toString(): String = "RpcResponse($id)"
+}
 
 class RpcError(val code: Int, val message: String)
