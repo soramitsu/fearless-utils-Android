@@ -17,6 +17,8 @@ class RequestExecutor(private val executor: ExecutorService = Executors.newSingl
 
             futures.remove(future)
         }
+
+        futures += future
     }
 
     fun reset() {
