@@ -25,7 +25,7 @@ import jp.co.soramitsu.fearless_utils.wsrpc.subscription.RespondableSubscription
 import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
 
 class SocketService(
-    private val jsonMapper: Gson,
+    val jsonMapper: Gson,
     private val logger: Logger,
     private val webSocketFactory: WebSocketFactory,
     private val reconnector: Reconnector,
