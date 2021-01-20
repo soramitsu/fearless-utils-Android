@@ -67,6 +67,15 @@ fun BCMessageDigest.hashConcat(bytes: ByteArray): ByteArray
 fun XXHash64.hashConcat(bytes: ByteArray): ByteArray
 ```
 
+## Icon generation
+
+There's a support for default Polkadot.js icon generation using `IconGenerator`:
+
+``` kotlin
+val generator = IconGenerator()
+val drawable =  generator.getSvgImage(accountId, sizeInPixels)
+```
+
 ## Junction Decoder
 TODO
 
