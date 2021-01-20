@@ -1,6 +1,23 @@
 # fearless-utils-Android
 fearless-utils-Android (This repository is managed by Terraform!)
 
+## Bip39
+
+Bip39 is the algorithm which provides an opportunity to use a list of words, called mnemonic, instead of raw 32 byte seed. Library provides `Bip39` class to work with mnemonics:
+
+``` kotlin
+val bip39 = Bip39()
+
+val newMnemonic = bip39.generateMnemonic(length = MnemonicLength.TWELVE) // twelve words
+val entropy = bip39.generateEntropy(newMnemonic)
+val theSameMnemonic = bip39.generateMnemonic(entropy) 
+
+val seed = bip39.generateSeed() // 
+```
+To generate seed, passphrase is needed. Techincally, it is a decoded derivation path (see [Junction Decoder](#junction-decoder)
+
+## Junction Decoder
+
 ## Scale
 
 Library provides a convinient dsl to deal with scale encoding/decoding. Orinial codec reference: [Link](https://substrate.dev/docs/en/knowledgebase/advanced/codec).
