@@ -1,6 +1,29 @@
 # fearless-utils-Android
 fearless-utils-Android (This repository is managed by Terraform!)
 
+# Table of contents
+
+* [Bip39](#bip39)
+* [JSON import/export](#json-import-export)
+    + [Import](#import)
+    + [Export](#export)
+* [Extensions](#extensions)
+    + [Hex](#hex)
+    + [Hashing](#hashing)
+* [Icon generation](#icon-generation)
+* [Junction Decoder](#junction-decoder)
+* [Runtime](#runtime)
+* [Scale](#scale)
+    + [Define a schema](#define-a-schema)
+    + [Create and encode structs](#create-and-encode-structs)
+    + [Decode and use structs](#decode-and-use-structs)
+    + [Standart Data Types](#standart-data-types)
+    + [Custom Data Types](#custom-data-types)
+    + [Default values](#default-values)
+    + [Nullable fields](#nullable-fields)
+* [SS58](#ss58)
+* [WSRPC](#wsrpc)
+
 ## Bip39
 
 Bip39 is the algorithm which provides an opportunity to use a list of words, called mnemonic, instead of raw 32 byte seed. Library provides `Bip39` class to work with mnemonics:
@@ -219,4 +242,96 @@ SS58 is an address format using in substate ecosystem. You can encode/decode add
 val encoder = SS58Encoder()
 val address = encoder.encode(publicKey, addressByte)
 val accountId = encoder.decode(address)
+```
+
+## WSRPC
+
+Library provides an implementation of `SocketService`, which simplifies communction with the node: it provides a seamless error recovery, subscription mechanism.
+
+### Ininitialize socket
+To create a socket service, you need to provide several parameters: 
+
+``` kotlin
+val reconnector = Reconnector(..) // to configure reconnect strategy and scheduling executor
+val requestExecutor = RequestExecutor(..) // to configure sending executor
+val socketService = SocketService(gson, logger, websocketFactory, reconnector, requestExecutor)
+```
+
+### Use socket
+
+``` kotlin
+socketService.start(url) // async connect
+socketService.stop() // all subscriptions/pending requests are cancelled
+socketService.switchUrl(newUrl) // stops current connection and start a new one
+
+// execute single request
+socketService.executeRequest(runtimeRequest, deliveryType, object : SocketService.ResponseListener<RpcResponse> {
+            override fun onNext(response: RpcResponse) {
+                // success
+            }
+
+            override fun onError(throwable: Throwable) {
+                // unrecoverable error happened
+            }
+        })
+
+// subscribe to changes
+socketService.subscribe(runtimeRequest, object : SocketService.ResponseListener<SubscriptionChange> {
+                override fun onNext(response: SubscriptionChange) {
+                   // change arrived
+                }
+
+                override fun onError(throwable: Throwable) {
+                   // unrecoverable error happened
+                }
+            })
+```
+
+### Reconnect strategy
+
+During setup of `Reconnector`, you can specify a `ReconnectStrategy`. There are several of them bundled with library:
+* `ConstantReconnectStrategy`
+* `LinearReconnectStrategy` 
+* `ExponentialReconnectStrategy`. This is a default reconnect strategy.
+
+You can create your own strategy by implementing `ReconnectStrategy` interface.
+
+### Delivery type
+
+While sending request, you can specify a `DeliveryType`. Currently, there are 3 of them:
+* `AT_LEAST_ONCE` - attempts to send request until succeeded. This is a default delivery type.
+* `AT_MOST_ONCE` - send request once, reports error if attempt failed.
+* `ON_RECONNECT` - similar to `AT_LEAST_ONCE`, but remembers request and sends it on each reconnect. Currently used for subscription initiation.
+
+### Using with corotuines
+
+Library has a out-of-box support for coroutines:
+
+``` kotlin
+scope.launch {
+    val response = socketService.executeAsync(request, deliveryType) // suspend function
+}
+
+socketService.subscriptionFlow(request).onEach { change ->
+        // do stuff here
+}.launchIn(scope)
+```
+
+### Mappers
+
+The mappers for most common types are provided:
+* `scale` - For scale-encoded values
+* `scaleCollection` - For list of scale-encoded values
+* `pojo` - for json values
+* `pojoList` - for list of json values
+
+All mappers returns a `nullable` result by default. You can add `nonNull()` modifier to change this behavior. In case of null result, the `RpcException` will be thrown.
+
+#### Usage
+
+``` kotlin
+scale().nonNull().map(response, gson)
+
+// or with coroutines adapter
+socketService.executeAsync(request, deliveryType, mapper = scale().nonNull()) 
 ```
