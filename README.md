@@ -12,11 +12,15 @@ val newMnemonic = bip39.generateMnemonic(length = MnemonicLength.TWELVE) // twel
 val entropy = bip39.generateEntropy(newMnemonic)
 val theSameMnemonic = bip39.generateMnemonic(entropy) 
 
-val seed = bip39.generateSeed() // 
 ```
-To generate seed, passphrase is needed. Techincally, it is a decoded derivation path (see [Junction Decoder](#junction-decoder)
+To generate seed, `passphrase` is needed. Techincally, it is a decoded derivation path (see [Junction Decoder](#junction-decoder))
+
+``` kotlin
+val seed = bip39.generateSeed(entropy, passphrase)
+```
 
 ## Junction Decoder
+TODO
 
 ## Scale
 
@@ -64,6 +68,7 @@ Library provides the support for the following data types:
     * `optional<D>` - Nullable container for other data type
     * `pair<D1, D2>`
     * `enum(D1, D2, D3...)` - like union in C, stores only one value at once, but this value can have different data type
+    * `enum<E : Enum>` - for classical kotlin enum 
 
 ### Custom Data Types
 If the decoding/endcoding cannot be done using standart data types, you can create your own by extending `DataType<T>`:
@@ -111,4 +116,3 @@ object Person : Schema<Person>() {
     val friendName by string().optional() // friendName now is Field<String?>
 }
 ```
-
