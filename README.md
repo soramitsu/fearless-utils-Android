@@ -88,6 +88,34 @@ val passphrase = decoder.getPassword(derivationPath) // retrieve passphrase to u
 val decodedPath = decoder.decodeDerivationPath(derivationPath)
 ```
 
+## Runtime
+
+You can create storage keys easily:
+
+``` kotlin
+val accountId: ByteArray = .. 
+
+val bondedKey = Module.Staking.Bonded.storageKey(bytes)
+val accountInfoKey = Modyle.System.Account.storageKey(bytes)
+```
+
+If you're missing some specific service/module, you can define it by your own:
+
+``` kotlin
+ object Staking : Module("Staking") {
+
+    object ActiveEra : Service<Unit>(Staking, "ActiveEra") {
+
+        override fun storageKey(storageArgs: Unit): String {
+            return StorageUtils.createStorageKey(
+                service = this,
+                identifier = null
+            )
+        }
+    }
+}
+```
+
 ## Scale
 
 Library provides a convinient dsl to deal with scale encoding/decoding. Orinial codec reference: [Link](https://substrate.dev/docs/en/knowledgebase/advanced/codec).
