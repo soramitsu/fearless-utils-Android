@@ -52,7 +52,7 @@ fun String.requirePrefix(prefix: String): String
 fun String.requireHexPrefix(): String
 ```
 
-## Hashing
+### Hashing
 
 ``` kotlin
 fun ByteArray.xxHash128(): ByteArray
