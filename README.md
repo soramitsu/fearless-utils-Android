@@ -77,7 +77,16 @@ val drawable =  generator.getSvgImage(accountId, sizeInPixels)
 ```
 
 ## Junction Decoder
-TODO
+
+`JunctionDecoder` provides support for derivation paths:
+
+``` kotlin
+val derivationPath: String = ...
+val decoder = JunctionDecoder()
+
+val passphrase = decoder.getPassword(derivationPath) // retrieve passphrase to use in enropy -> seed generation
+val decodedPath = decoder.decodeDerivationPath(derivationPath)
+```
 
 ## Scale
 
