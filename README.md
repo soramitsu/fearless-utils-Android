@@ -41,6 +41,31 @@ val encoder = JsonSeedEncoder(..)
 val json = encoder.generate(keypar, seed, password, name, encryptionType, genesis, addressByte)
 ```
 
+## Extensions
+Library provides several extensions, that implement most common operations
+### Hex
+
+``` kotlin
+fun ByteArray.toHexString(withPrefix: Boolean = false): String
+fun String.fromHex(): ByteArray
+fun String.requirePrefix(prefix: String): String
+fun String.requireHexPrefix(): String
+```
+
+## Hashing
+
+``` kotlin
+fun ByteArray.xxHash128(): ByteArray
+fun ByteArray.xxHash64(): ByteArray
+
+fun ByteArray.blake2b512(): ByteArray
+fun ByteArray.blake2b256(): ByteArray
+fun ByteArray.blake2b128(): ByteArray
+
+fun XXHash64.hash(bytes: ByteArray, seed: Long = 0): ByteArray
+fun BCMessageDigest.hashConcat(bytes: ByteArray): ByteArray
+fun XXHash64.hashConcat(bytes: ByteArray): ByteArray
+```
 
 ## Junction Decoder
 TODO
