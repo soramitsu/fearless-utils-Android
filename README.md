@@ -2,8 +2,6 @@
 
 Fearless Wallet utils Android is a native Android library to help developers built native mobile apps for Substrate-based networks, e.g. Polkadot, Kusama, and Westend.
 
-(This repository is managed by Terraform!)
-
 # Table of contents
 
 * [Bip39](#bip39)
