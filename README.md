@@ -210,3 +210,13 @@ object Person : Schema<Person>() {
     val friendName by string().optional() // friendName now is Field<String?>
 }
 ```
+
+## SS58
+
+SS58 is an address format using in substate ecosystem. You can encode/decode address using `SS58Encoder`:
+
+``` kotlin
+val encoder = SS58Encoder()
+val address = encoder.encode(publicKey, addressByte)
+val accountId = encoder.decode(address)
+```
