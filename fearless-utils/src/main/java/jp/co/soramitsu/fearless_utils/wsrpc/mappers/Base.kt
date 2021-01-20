@@ -7,6 +7,7 @@ import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 class NullableContainer<R>(val result: R?)
 
 interface ResponseMapper<R> {
+
     fun map(rpcResponse: RpcResponse, jsonMapper: Gson): R
 }
 
@@ -22,6 +23,7 @@ abstract class NullableMapper<R> : ResponseMapper<NullableContainer<R>> {
 }
 
 object ErrorMapper : ResponseMapper<RpcException> {
+
     override fun map(rpcResponse: RpcResponse, jsonMapper: Gson): RpcException {
         val error = rpcResponse.error?.message
 
@@ -32,6 +34,7 @@ object ErrorMapper : ResponseMapper<RpcException> {
 class NonNullMapper<R>(
     private val nullable: ResponseMapper<NullableContainer<R>>
 ) : ResponseMapper<R> {
+
     override fun map(rpcResponse: RpcResponse, jsonMapper: Gson): R {
         return nullable.map(rpcResponse, jsonMapper).result ?: throw ErrorMapper.map(rpcResponse, jsonMapper)
     }

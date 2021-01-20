@@ -1,14 +1,20 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
+import jp.co.soramitsu.fearless_utils.common.TestAddressBytes
+import jp.co.soramitsu.fearless_utils.common.TestGeneses
+import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecoder
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.IncorrectPasswordException
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.InvalidJsonException
-import jp.co.soramitsu.fearless_utils.ss58.AddressType
+import jp.co.soramitsu.fearless_utils.encrypt.model.NetworkTypeIdentifier
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.bouncycastle.util.encoders.Hex
-import org.junit.Assert.*
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,12 +35,8 @@ private const val INVALID_PASSWORD = "123456"
 
 private const val VALID_NAME = "test"
 
-private val VALID_ADDRESSES = listOf(
-    "GnSs2bd76KkrcvN7prrFfkbu939mkZHyBzVKnjS8ikg3CZ8",
-    "D3PX7p2qee3P6CfhZNDUXhrD6YtPcprqPTXe4CdPfYzWAtr"
-)
-
-private val VALID_NETWORK = AddressType.KUSAMA
+private val VALID_ADDRESS_BYTE = TestAddressBytes.KUSAMA
+private val VALID_GENESIS = TestGeneses.KUSAMA
 
 private const val INVALID_JSON = "{\"some_field\": 123}"
 private const val NOT_JSON = "not json"
@@ -55,10 +57,11 @@ class JsonSeedDecoderTest {
     fun `should decode valid json with correct password`() {
         JSONS.forEachIndexed { index, json ->
             val result = decoder.decode(json, VALID_PASSWORD)
+            val networkTypeIdentifier = result.networkTypeIdentifier
 
             assertEquals(VALID_NAME, result.username)
-            assertEquals(VALID_NETWORK, result.networkInformation!!.addressType)
-            assertEquals(VALID_ADDRESSES[index], result.networkInformation!!.address)
+            assertInstance<NetworkTypeIdentifier.Genesis>(networkTypeIdentifier)
+            assertEquals(VALID_GENESIS, networkTypeIdentifier.genesis)
         }
     }
 
@@ -89,9 +92,11 @@ class JsonSeedDecoderTest {
     @Test
     fun `should extract meta from valid json`() {
         val data = decoder.extractImportMetaData(VALID_JSON_SR25519)
+        val networkTypeIdentifier = data.networkTypeIdentifier
 
         assertEquals(EncryptionType.SR25519, data.encryptionType)
-        assertEquals(VALID_NETWORK, data.networkType)
+        assertInstance<NetworkTypeIdentifier.Genesis>(networkTypeIdentifier)
+        assertEquals(VALID_GENESIS, networkTypeIdentifier.genesis)
         assertEquals(VALID_NAME, data.name)
     }
 
@@ -105,16 +110,17 @@ class JsonSeedDecoderTest {
     @Test
     fun `should handle json with no genesis`() {
         val result = decoder.decode(JSON_NO_GENESIS, VALID_PASSWORD)
+        val networkTypeIdentifier = result.networkTypeIdentifier
 
-        assertEquals(VALID_NETWORK, result.networkInformation!!.addressType)
-        assertEquals(VALID_ADDRESSES[0], result.networkInformation!!.address)
+        assertInstance<NetworkTypeIdentifier.AddressByte>(networkTypeIdentifier)
+        assertEquals(VALID_ADDRESS_BYTE, networkTypeIdentifier.addressByte)
     }
 
     @Test
     fun `should handle json with no network info`() {
         val result = decoder.decode(JSON_NO_NETWORK_INFO, VALID_PASSWORD)
 
-        assertEquals(null, result.networkInformation)
+        assertInstance<NetworkTypeIdentifier.Undefined>(result.networkTypeIdentifier)
     }
 
     @Test
@@ -142,22 +148,6 @@ class JsonSeedDecoderTest {
         val expectedPublicKey = "020cddfb851af41912813cc47cb5f57b170beb8dfce1fe605ab4555143d2771cfc"
         val expectedPublicKeyBytes = Hex.decode(expectedPublicKey)
 
-        val expectedAddress = "H23DVNHqLwgReySYdQDiFGhNtL6dc2idafkgqpZmkQsSQ2c"
-
         assertArrayEquals(result.keypair.publicKey, expectedPublicKeyBytes)
-        assertEquals(expectedAddress, ss58.encode(expectedPublicKeyBytes, AddressType.KUSAMA))
-    }
-
-    private inline fun <reified T : Throwable> assertThrows(block: () -> Unit) {
-        var throwable: Throwable? = null
-
-        try {
-            block()
-        } catch (t: Throwable) {
-            throwable = t
-        }
-
-        assertNotNull("No error was thrown", throwable)
-        assertTrue("${T::class} expected, but ${throwable!!::class} thrown", throwable is T)
     }
 }

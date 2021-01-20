@@ -1,6 +1,5 @@
 package jp.co.soramitsu.fearless_utils.runtime
 
-import jp.co.soramitsu.fearless_utils.ss58.AddressType
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert.assertEquals
@@ -18,7 +17,7 @@ class ModulesTest {
     fun `should create stacking-bonded key`() {
         val expected = "0x5f3e4907f716ac89b6347d15ececedca3ed14b45ed20d054f05e37e2542cfe70102af806668257c706c60aeddcff7ecdf122d0299e915f63815cdc06a5fbabaa639588b4b9283d50"
 
-        val bytes = sS58Encoder.decode(ADDRESS, AddressType.WESTEND)
+        val bytes = sS58Encoder.decode(ADDRESS)
 
         val key = Module.Staking.Bonded.storageKey(bytes)
 

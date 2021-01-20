@@ -1,9 +1,10 @@
 package jp.co.soramitsu.fearless_utils.ss58
 
-import jp.co.soramitsu.fearless_utils.exceptions.AddressTypeException
 import jp.co.soramitsu.fearless_utils.encrypt.Base58
-import org.spongycastle.jcajce.provider.digest.Blake2b
-import java.lang.IllegalArgumentException
+import jp.co.soramitsu.fearless_utils.encrypt.json.copyBytes
+import jp.co.soramitsu.fearless_utils.exceptions.AddressFormatException
+import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
+import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b512
 
 class SS58Encoder {
 
@@ -17,39 +18,39 @@ class SS58Encoder {
 
     private val base58 = Base58()
 
-    fun encode(publicKey: ByteArray, networkType: AddressType): String {
-        val pubKey = if (publicKey.size > 32) {
-            Blake2b.Blake2b256().digest(publicKey)
+    fun encode(publicKey: ByteArray, addressByte: Byte): String {
+        val normalizedKey = if (publicKey.size > 32) {
+            publicKey.blake2b256()
         } else {
             publicKey
         }
 
-        val addressTypeByteArray = byteArrayOf(networkType.addressByte)
-        val blake2b = Blake2b.Blake2b512().digest(PREFIX + addressTypeByteArray + pubKey)
+        val addressTypeByteArray = byteArrayOf(addressByte)
 
-        val resultByteArray = addressTypeByteArray + pubKey + blake2b.copyOfRange(0, PREFIX_SIZE)
+        val hash = (PREFIX + addressTypeByteArray + normalizedKey).blake2b512()
+        val checksum = hash.copyOfRange(0, PREFIX_SIZE)
+
+        val resultByteArray = addressTypeByteArray + normalizedKey + checksum
 
         return base58.encode(resultByteArray)
     }
 
-    fun decode(ss58String: String, networkType: AddressType): ByteArray {
+    fun decode(ss58String: String): ByteArray {
         val decodedByteArray = base58.decode(ss58String)
 
-        if (decodedByteArray.first() != networkType.addressByte) {
-            throw AddressTypeException()
-        }
-
-        return decodedByteArray.copyOfRange(ADDRESS_TYPE_SIZE, PUBLIC_KEY_SIZE + ADDRESS_TYPE_SIZE)
+        return decodedByteArray.copyBytes(ADDRESS_TYPE_SIZE, PUBLIC_KEY_SIZE)
     }
 
-    fun getNetworkType(address: String): AddressType {
+    @Throws(AddressFormatException::class)
+    fun extractAddressByte(address: String): Byte {
         val decodedByteArray = base58.decode(address)
 
-        return when (decodedByteArray.first()) {
-            AddressType.KUSAMA.addressByte -> AddressType.KUSAMA
-            AddressType.POLKADOT.addressByte -> AddressType.POLKADOT
-            AddressType.WESTEND.addressByte -> AddressType.WESTEND
-            else -> throw IllegalArgumentException("Unknown address byte: ${decodedByteArray.first()}")
-        }
+        return decodedByteArray.first()
+    }
+
+    fun extractAddressByteOrNull(address: String): Byte? = try {
+        extractAddressByte(address)
+    } catch (e: AddressFormatException) {
+        null
     }
 }

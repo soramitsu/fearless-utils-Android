@@ -3,105 +3,38 @@ package jp.co.soramitsu.fearless_utils.wsrpc
 import com.google.gson.Gson
 import com.neovisionaries.ws.client.WebSocketFactory
 import com.neovisionaries.ws.client.WebSocketState
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
-import io.reactivex.Single
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
-import jp.co.soramitsu.fearless_utils.extensions.concurrentHashSet
+import jp.co.soramitsu.fearless_utils.wsrpc.exception.ConnectionClosedException
 import jp.co.soramitsu.fearless_utils.wsrpc.logging.Logger
-import jp.co.soramitsu.fearless_utils.wsrpc.mappers.ResponseMapper
 import jp.co.soramitsu.fearless_utils.wsrpc.mappers.nonNull
 import jp.co.soramitsu.fearless_utils.wsrpc.mappers.string
-import jp.co.soramitsu.fearless_utils.wsrpc.recovery.ExponentialReconnectStrategy
-import jp.co.soramitsu.fearless_utils.wsrpc.recovery.ReconnectStrategy
+import jp.co.soramitsu.fearless_utils.wsrpc.recovery.Reconnector
+import jp.co.soramitsu.fearless_utils.wsrpc.request.DeliveryType
+import jp.co.soramitsu.fearless_utils.wsrpc.request.RequestExecutor
+import jp.co.soramitsu.fearless_utils.wsrpc.request.RespondableSendable
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.RuntimeRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
+import jp.co.soramitsu.fearless_utils.wsrpc.socket.ObservableState
 import jp.co.soramitsu.fearless_utils.wsrpc.socket.RpcSocket
 import jp.co.soramitsu.fearless_utils.wsrpc.socket.RpcSocketListener
-import jp.co.soramitsu.fearless_utils.wsrpc.subscription.SubscriptionChange
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
-
-sealed class State {
-    abstract class Attempting(val attempt: Int) : State()
-
-    object Connected : State()
-
-    class Waiting(attempt: Int) : Attempting(attempt)
-    class Connecting(attempt: Int) : Attempting(attempt)
-
-    object Disconnected : State()
-}
-
-class ConnectionClosedException : Exception()
-
-enum class DeliveryType {
-    /**
-     * For idempotent requests will not produce error and try to to deliver after reconnect
-     */
-    AT_LEAST_ONCE,
-
-    /**
-     * For non-idempotent requests, will produce an error if fails to deliver/get response
-     */
-    AT_MOST_ONCE,
-
-    /**
-     * Similar to AT_LEAST_ONCE, but resend request on each reconnect regardless of success
-     */
-    ON_RECONNECT
-}
-
-class RequestMapEntry(
-    val request: RuntimeRequest,
-    val deliveryType: DeliveryType,
-    val emitter: ObservableEmitter<RpcResponse>
-)
-
-class SubscriptionMapEntry(
-    val request: RuntimeRequest,
-    val emitter: ObservableEmitter<SubscriptionChange>
-)
-
-private val WAITING_EXECUTOR = ThreadPoolExecutor(1, 1, 5, TimeUnit.SECONDS, ArrayBlockingQueue(10))
-private val WAITING_SCHEDULER = Schedulers.from(WAITING_EXECUTOR)
-
-private val DEFAULT_RECONNECT_STRATEGY =
-    ExponentialReconnectStrategy(initialTime = 300L, base = 2.0)
+import jp.co.soramitsu.fearless_utils.wsrpc.socket.StateObserver
+import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine
+import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine.Event
+import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine.SideEffect
+import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine.State
+import jp.co.soramitsu.fearless_utils.wsrpc.subscription.RespondableSubscription
+import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
 
 class SocketService(
-    private val jsonMapper: Gson,
+    val jsonMapper: Gson,
     private val logger: Logger,
     private val webSocketFactory: WebSocketFactory,
-    private val reconnectStrategy: ReconnectStrategy = DEFAULT_RECONNECT_STRATEGY
+    private val reconnector: Reconnector,
+    private val requestExecutor: RequestExecutor
 ) : RpcSocketListener {
+
     private var socket: RpcSocket? = null
 
-    private val requestsMap = ConcurrentHashMap<Int, RequestMapEntry>()
-
-    private val pendingRequests = concurrentHashSet<RuntimeRequest>()
-    private val waitingForResponseRequests = concurrentHashSet<RuntimeRequest>()
-
-    private val subscriptions = ConcurrentHashMap<String, SubscriptionMapEntry>()
-
-    private val stateSubject = BehaviorSubject.createDefault<State>(State.Disconnected)
-
-    @Volatile
-    private var currentReconnectAttempt = 0
-
-    @Volatile
-    private var reconnectWaitDisposable: Disposable? = null
-
-    @Volatile
-    private var resendPendingDisposable: Disposable? = null
-
-    @Volatile
-    private var state: State = State.Disconnected
+    private val stateContainer = ObservableState(initialState = State.Disconnected)
 
     fun switchUrl(url: String) {
         stop()
@@ -109,241 +42,209 @@ class SocketService(
         start(url)
     }
 
-    fun started() = state !is State.Disconnected
+    fun started() = stateContainer.getState() !is State.Disconnected
 
     @Synchronized
     fun start(url: String) {
-        if (state !is State.Disconnected) return
-
-        currentReconnectAttempt = 0
-        updateState(State.Connecting(currentReconnectAttempt))
-
-        socket = createSocket(url)
-
-        socket!!.connectAsync()
+        updateState(Event.Start(url))
     }
 
     @Synchronized
     fun stop() {
-        if (state is State.Disconnected) return
-
-        resendPendingDisposable?.dispose()
-
-        pendingRequests.clear()
-        waitingForResponseRequests.clear()
-
-        requestsMap.values.forEach { entry -> entry.emitter.onComplete() }
-        requestsMap.clear()
-
-        socket!!.clearListeners()
-        socket!!.disconnect()
-
-        reconnectWaitDisposable?.dispose()
-        reconnectWaitDisposable = null
-
-        subscriptions.values.forEach { entry -> entry.emitter.onComplete() }
-        subscriptions.clear()
-
-        socket = null
-
-        currentReconnectAttempt = 0
-        updateState(State.Disconnected)
+        updateState(Event.Stop)
     }
 
-    fun observeNetworkState() = stateSubject
+    fun addStateObserver(observer: StateObserver) = stateContainer.addObserver(observer)
 
-    fun subscribe(request: RuntimeRequest): Observable<SubscriptionChange> {
-        return executeRequestMultiResponse(request, DeliveryType.ON_RECONNECT)
-            .map { string().nonNull().map(it, jsonMapper) }
-            .switchMap { subscriptionId ->
-                Observable.create<SubscriptionChange> { emitter ->
-                    subscriptions[subscriptionId] = SubscriptionMapEntry(request, emitter)
-                }.doOnComplete {
-                    subscriptions.remove(subscriptionId)
-                }
-            }
-    }
+    fun removeStateObserver(observer: StateObserver) = stateContainer.removeObserver(observer)
 
-    fun <R> executeRequest(
+    @Synchronized
+    fun subscribe(
         request: RuntimeRequest,
-        responseType: ResponseMapper<R>,
-        deliveryType: DeliveryType = DeliveryType.AT_LEAST_ONCE
-    ): Single<R> {
-        return executeRequest(request, deliveryType)
-            .map { responseType.map(it, jsonMapper) }
+        callback: ResponseListener<SubscriptionChange>
+    ): Cancellable {
+        return executeRequest(
+            request,
+            DeliveryType.ON_RECONNECT,
+            SubscribedCallback(request.id, callback)
+        )
     }
 
+    @Synchronized
     fun executeRequest(
         runtimeRequest: RuntimeRequest,
-        deliveryType: DeliveryType = DeliveryType.AT_LEAST_ONCE
-    ): Single<RpcResponse> {
-        return executeRequestMultiResponse(runtimeRequest, deliveryType)
-            .firstOrError()
-    }
+        deliveryType: DeliveryType = DeliveryType.AT_LEAST_ONCE,
+        callback: ResponseListener<RpcResponse>
+    ): Cancellable {
+        val sendable = RespondableSendable(runtimeRequest, deliveryType, callback)
 
-    private fun executeRequestMultiResponse(
-        runtimeRequest: RuntimeRequest,
-        deliveryType: DeliveryType = DeliveryType.AT_LEAST_ONCE
-    ): Observable<RpcResponse> {
-        return Observable.create<RpcResponse> {
-            synchronized<Unit>(this) {
-                requestsMap[runtimeRequest.id] = RequestMapEntry(runtimeRequest, deliveryType, it)
+        updateState(Event.Send(sendable))
 
-                if (state is State.Connected) {
-                    socket!!.sendRpcRequest(runtimeRequest)
-                    waitingForResponseRequests.add(runtimeRequest)
-                } else {
-                    if (deliveryType == DeliveryType.AT_MOST_ONCE) {
-                        it.tryOnError(ConnectionClosedException())
-                        requestsMap.remove(runtimeRequest.id)
-                        return@create
-                    }
-
-                    logger.log("[PENDING REQUEST] ${runtimeRequest.method}")
-
-                    pendingRequests.add(runtimeRequest)
-
-                    if (state is State.Waiting) forceReconnect()
-                }
-            }
-        }.doOnDispose { cancelRequest(runtimeRequest) }
+        return RequestCancellable(sendable)
     }
 
     @Synchronized
     override fun onResponse(rpcResponse: RpcResponse) {
-        val requestMapEntry = requestsMap[rpcResponse.id]
-
-        requestMapEntry?.let {
-            if (it.deliveryType != DeliveryType.ON_RECONNECT) requestsMap.remove(rpcResponse.id)
-
-            waitingForResponseRequests.remove(it.request)
-
-            it.emitter.onNext(rpcResponse)
-        }
+        updateState(Event.SendableResponse(rpcResponse))
     }
 
     override fun onResponse(subscriptionChange: SubscriptionChange) {
-        val subscriptionEntry = subscriptions[subscriptionChange.params.subscription]
+        updateState(Event.SubscriptionResponse(subscriptionChange))
+    }
 
-        subscriptionEntry?.emitter?.onNext(subscriptionChange)
+    @Synchronized
+    override fun onConnected() {
+        updateState(Event.Connected)
     }
 
     @Synchronized
     override fun onStateChanged(newState: WebSocketState) {
         if (newState == WebSocketState.CLOSED) {
-            reconnectDelayed()
-
-            reportErrorToAtMostOnceAndForget()
-
-            moveWaitingResponseToPending()
-
-            addOnReconnectToPending()
-
-            subscriptions.clear()
+            updateState(Event.ConnectionError(ConnectionClosedException()))
         }
     }
 
-    private fun addOnReconnectToPending() {
-        val requests = requestsMap.values.filter { it.deliveryType == DeliveryType.ON_RECONNECT }
-            .map { it.request }
-
-        pendingRequests.addAll(requests)
-    }
-
-    override fun onConnected() {
-        connectionEstablished()
-    }
-
-    private fun cancelRequest(runtimeRequest: RuntimeRequest) = synchronized<Unit>(this) {
-        requestsMap.remove(runtimeRequest.id)
-        waitingForResponseRequests.remove(runtimeRequest)
-        pendingRequests.remove(runtimeRequest)
-    }
-
-    private fun moveWaitingResponseToPending() {
-        pendingRequests.addAll(waitingForResponseRequests)
-        waitingForResponseRequests.clear()
-    }
-
-    private fun reportErrorToAtMostOnceAndForget() {
-        requestsMap.values.filter { it.deliveryType == DeliveryType.AT_MOST_ONCE }
-            .forEach {
-                it.emitter.tryOnError(ConnectionClosedException())
-
-                waitingForResponseRequests.remove(it.request)
-                requestsMap.remove(it.request.id)
-            }
-    }
-
     @Synchronized
-    private fun connectionEstablished() {
-        currentReconnectAttempt = 0
-        updateState(State.Connected)
+    private fun updateState(event: Event) {
+        val state = stateContainer.getState()
+        val (newState, sideEffects) = SocketStateMachine.transition(state, event)
+        stateContainer.setState(newState)
 
-        resendPendingDisposable = Completable.fromAction {
-            pendingRequests.forEach {
-                socket!!.sendRpcRequest(it)
-                waitingForResponseRequests.add(it)
+        logger.log("[STATE MACHINE][TRANSITION] $event : $state -> $newState")
 
-                pendingRequests.remove(it)
+        sideEffects.forEach(::consumeSideEffect)
+    }
+
+    private fun consumeSideEffect(sideEffect: SideEffect) {
+        logger.log("[STATE MACHINE][SIDE EFFECT] $sideEffect")
+
+        when (sideEffect) {
+            is SideEffect.ResponseToSendable -> respondToRequest(
+                sideEffect.sendable,
+                sideEffect.response
+            )
+            is SideEffect.RespondSendablesError -> respondError(
+                sideEffect.sendables,
+                sideEffect.error
+            )
+            is SideEffect.RespondToSubscription -> respondToSubscription(
+                sideEffect.subscription,
+                sideEffect.change
+            )
+            is SideEffect.SendSendables -> sendToSocket(sideEffect.sendables)
+            is SideEffect.Connect -> connectToSocket(sideEffect.url)
+            is SideEffect.ScheduleReconnect -> scheduleReconnect(sideEffect.attempt)
+            is SideEffect.Disconnect -> disconnect()
+            is SideEffect.Unsubscribe -> unsubscribe()
+        }
+    }
+
+    private fun respondToRequest(
+        sendable: SocketStateMachine.Sendable,
+        response: RpcResponse
+    ) {
+        require(sendable is RespondableSendable)
+
+        sendable.callback.onNext(response)
+    }
+
+    private fun respondError(sendables: Set<SocketStateMachine.Sendable>, throwable: Throwable) {
+        sendables.forEach {
+            require(it is RespondableSendable)
+
+            it.callback.onError(throwable)
+        }
+    }
+
+    private fun respondToSubscription(
+        subscription: SocketStateMachine.Subscription,
+        response: SubscriptionChange
+    ) {
+        require(subscription is RespondableSubscription)
+
+        subscription.callback.onNext(response)
+    }
+
+    private fun sendToSocket(sendables: Set<SocketStateMachine.Sendable>) {
+        requestExecutor.execute {
+            sendables.forEach {
+                require(it is RespondableSendable)
+
+                socket!!.sendRpcRequest(it.request)
             }
         }
-            .subscribeOn(Schedulers.io())
-            .doFinally { resendPendingDisposable = null }
-            .onErrorComplete()
-            .subscribe()
     }
 
-    @Synchronized
-    private fun reconnectDelayed() {
-        if (reconnectWaitDisposable != null) return
+    private fun scheduleReconnect(attempt: Int) =
+        reconnector.scheduleConnect(attempt, ::readyForReconnect)
 
-        socket!!.clearListeners()
-
-        currentReconnectAttempt++
-        updateState(State.Waiting(currentReconnectAttempt))
-
-        val waitTime = reconnectStrategy.getTimeForReconnect(currentReconnectAttempt)
-
-        logger.log("[WAITING FOR RECONNECT] $waitTime ms")
-
-        reconnectWaitDisposable =
-            Completable.timer(waitTime, TimeUnit.MILLISECONDS, WAITING_SCHEDULER)
-                .subscribe {
-                    reconnectNow()
-                }
+    private fun readyForReconnect() {
+        updateState(Event.ReadyToReconnect)
     }
 
-    @Synchronized
-    private fun reconnectNow() {
-        if (state is State.Connecting) return
+    private fun connectToSocket(url: String) {
+        reconnector.reset()
 
-        clearCurrentWaitingTask()
-
-        socket = createSocket(socket!!.url)
-
+        socket = createSocket(url)
         socket!!.connectAsync()
-
-        updateState(State.Connecting(currentReconnectAttempt))
     }
 
-    private fun clearCurrentWaitingTask() {
-        if (reconnectWaitDisposable != null && !reconnectWaitDisposable!!.isDisposed) reconnectWaitDisposable!!.dispose()
+    private fun createSocket(url: String) =
+        RpcSocket(url, this, logger, webSocketFactory, jsonMapper)
 
-        reconnectWaitDisposable = null
+    private fun disconnect() {
+        socket!!.clearListeners()
+        socket!!.disconnect()
+        socket = null
+
+        requestExecutor.reset()
+        reconnector.reset()
     }
 
-    private fun forceReconnect() {
-        currentReconnectAttempt = 0
-
-        reconnectNow()
+    private fun unsubscribe() {
+        // TODO
     }
 
-    private fun createSocket(url: String) = RpcSocket(url, this, logger, webSocketFactory, jsonMapper)
+    interface ResponseListener<R> {
+        fun onNext(response: R)
 
-    private fun updateState(newState: State) {
-        state = newState
+        fun onError(throwable: Throwable)
+    }
 
-        stateSubject.onNext(newState)
+    interface Cancellable {
+        fun cancel()
+    }
+
+    inner class SubscribedCallback(
+        private val initiatorId: Int,
+        private val subscriptionCallback: ResponseListener<SubscriptionChange>
+    ) : ResponseListener<RpcResponse> {
+
+        override fun onNext(response: RpcResponse) {
+            val id = try {
+                string().nonNull().map(response, jsonMapper)
+            } catch (e: Exception) {
+                subscriptionCallback.onError(e)
+
+                return
+            }
+
+            val subscription = RespondableSubscription(id, initiatorId, subscriptionCallback)
+
+            updateState(Event.Subscribed(subscription))
+        }
+
+        override fun onError(throwable: Throwable) {
+            subscriptionCallback.onError(throwable)
+        }
+    }
+
+    inner class RequestCancellable(
+        private val sendable: SocketStateMachine.Sendable
+    ) : Cancellable {
+
+        override fun cancel() {
+            updateState(Event.Cancel(sendable))
+        }
     }
 }
