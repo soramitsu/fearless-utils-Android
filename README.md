@@ -1,5 +1,8 @@
-# fearless-utils-Android
-fearless-utils-Android (This repository is managed by Terraform!)
+# Fearless Wallet native Android (Kotlin/Java) library
+
+Fearless Wallet utils Android is a native Android library to help developers built native mobile apps for Substrate-based networks, e.g. Polkadot, Kusama, and Westend.
+
+(This repository is managed by Terraform!)
 
 # Table of contents
 
