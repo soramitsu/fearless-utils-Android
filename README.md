@@ -19,6 +19,29 @@ To generate seed, `passphrase` is needed. Techincally, it is a decoded derivatio
 val seed = bip39.generateSeed(entropy, passphrase)
 ```
 
+## JSON import/export
+Library provides support for decoding/encoding account information using JSON format, compatible with Polkadot.js
+
+### Import
+Using `JsonSeedDecoder` you can perform decoding of the imported json:
+
+``` kotlin
+val decoder = JsonSeedDecoder(..)
+
+decoder.extractImportMetaData(myJson) // does not perform full decoding (skips secret decrypting). Faster
+decoder.decode(myJson, password) // performs full decoding. Slower
+```
+
+### Export
+Using `JsonSeedEncoder` you can generate json out of account information:
+
+``` kotlin
+val encoder = JsonSeedEncoder(..)
+
+val json = encoder.generate(keypar, seed, password, name, encryptionType, genesis, addressByte)
+```
+
+
 ## Junction Decoder
 TODO
 
