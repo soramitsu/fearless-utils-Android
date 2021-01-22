@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
@@ -62,13 +63,14 @@ fun prepopulatedTypeRegistry() : TypeRegistry {
 
         registerAlias("u64", "U64")
 
+        registerType(GenericAccountId)
+
         registerFakeType("Null")
         registerFakeType("GenericBlock")
         registerFakeType("GenericCall")
         registerFakeType("H160")
         registerFakeType("H256")
         registerFakeType("H512")
-        registerFakeType("GenericAccountId")
         registerFakeType("GenericVote")
         registerFakeType("Bytes")
         registerFakeType("BitVec")

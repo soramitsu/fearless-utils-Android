@@ -10,7 +10,9 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Compact
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.NumberType
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.Stub
 import java.math.BigInteger
 import java.util.Locale
@@ -202,7 +204,7 @@ class TypeDefinitionParser {
 
     private fun isFixedArray(definition: String) = definition.startsWith("[")
 
-    private fun parseFixedArray(name: String, definition: String): FixedArray? {
+    private fun parseFixedArray(name: String, definition: String): Type<*>? {
         val withoutBrackets = definition.removeSurrounding("[", "]").replace(" ", "")
         val (typeName, lengthRaw) = withoutBrackets.split(";")
 
@@ -210,7 +212,11 @@ class TypeDefinitionParser {
 
         val type = retrieveOrParse(typeName) ?: return null
 
-        return FixedArray(name, length, type)
+        return if (type == u8) {
+            FixedByteArray(name, length)
+        } else {
+            FixedArray(name, length, type)
+        }
     }
 
     private fun isVector(definition: String) = definition.startsWith("Vec<")

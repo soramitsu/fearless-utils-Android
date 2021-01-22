@@ -43,9 +43,10 @@ fun <I, T: Type<I>> T.fromByteArray(byteArray: ByteArray): I {
     return decode(reader)
 }
 
-fun <I, T: Type<I>> T.fromHex(hex: String): I {
-   return fromByteArray(hex.fromHex())
+fun <I> Type<I>.fromHex(hex: String): I {
+    return fromByteArray(hex.fromHex())
 }
+
 
 fun <I, T: Type<I>> T.toByteArray(value: I) : ByteArray {
     val stream = ByteArrayOutputStream()
