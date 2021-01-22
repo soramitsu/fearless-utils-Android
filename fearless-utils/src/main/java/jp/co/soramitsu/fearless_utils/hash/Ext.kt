@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.hash
 
 import net.jpountz.xxhash.XXHash64
 import org.bouncycastle.jcajce.provider.digest.BCMessageDigest
+import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -18,3 +19,5 @@ fun XXHash64.hashConcat(bytes: ByteArray): ByteArray {
 
     return hashBytes.array()
 }
+
+fun BigInteger.isPositive() = signum() == 1
