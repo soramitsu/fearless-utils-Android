@@ -31,6 +31,6 @@ class FixedArray(name: String, val length: Int, val type: Type<*>) : Type<List<*
     }
 
     override fun isValidInstance(instance: Any?): Boolean {
-        return instance is List<*> && instance.all { type.isValidInstance(instance) }
+        return instance is List<*> && instance.size == length && instance.all(type::isValidInstance)
     }
 }
