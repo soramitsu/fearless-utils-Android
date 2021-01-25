@@ -37,7 +37,6 @@ interface Binding<T, V> {
 
 internal fun incompatible(): Nothing = throw Binding.IncompatibleException()
 
-
 object BalanceBinding : Binding<String, BigInteger> {
 
     override fun formRequest(runtime: Runtime, address: String): RpcRequest {

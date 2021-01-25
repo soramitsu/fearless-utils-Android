@@ -3,7 +3,6 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u16
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u256
@@ -19,7 +18,7 @@ class TypeRegistry {
 
     inline operator fun <reified R> get(key: String): R? = get(key) as? R
 
-    operator fun set(definition: String, type: Type<*>){
+    operator fun set(definition: String, type: Type<*>) {
         types[definition] = type
     }
 
@@ -32,7 +31,8 @@ class TypeRegistry {
     }
 
     fun registerAlias(original: String, alias: String) {
-        val type = types[original] ?: throw IllegalArgumentException("$original was not found in the registry")
+        val type = types[original]
+            ?: throw IllegalArgumentException("$original was not found in the registry")
 
         types[alias] = type
     }
@@ -47,10 +47,10 @@ class TypeRegistry {
         }
     }
 
-    fun all() : List<Pair<String, Type<*>>> = types.toList()
+    fun all(): List<Pair<String, Type<*>>> = types.toList()
 }
 
-fun prepopulatedTypeRegistry() : TypeRegistry {
+fun prepopulatedTypeRegistry(): TypeRegistry {
     return TypeRegistry().apply {
         registerType(BooleanType)
 

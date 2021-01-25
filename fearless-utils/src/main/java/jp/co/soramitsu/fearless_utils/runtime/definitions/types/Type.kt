@@ -36,8 +36,7 @@ abstract class Type<InstanceType>(val name: String) {
     }
 }
 
-
-fun <I, T: Type<I>> T.fromByteArray(byteArray: ByteArray): I {
+fun <I, T : Type<I>> T.fromByteArray(byteArray: ByteArray): I {
     val reader = ScaleCodecReader(byteArray)
 
     return decode(reader)
@@ -47,8 +46,7 @@ fun <I> Type<I>.fromHex(hex: String): I {
     return fromByteArray(hex.fromHex())
 }
 
-
-fun <I, T: Type<I>> T.toByteArray(value: I) : ByteArray {
+fun <I, T : Type<I>> T.toByteArray(value: I): ByteArray {
     val stream = ByteArrayOutputStream()
     val writer = ScaleCodecWriter(stream)
 
@@ -57,4 +55,4 @@ fun <I, T: Type<I>> T.toByteArray(value: I) : ByteArray {
     return stream.toByteArray()
 }
 
-fun <I, T: Type<I>> T.toHex(value: I) = toByteArray(value).toHexString(withPrefix = true)
+fun <I, T : Type<I>> T.toHex(value: I) = toByteArray(value).toHexString(withPrefix = true)

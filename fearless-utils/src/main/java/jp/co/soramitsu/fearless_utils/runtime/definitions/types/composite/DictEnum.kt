@@ -2,8 +2,8 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 
 class DictEnum(name: String, val elements: List<Entry<Type<*>>>) :
     Type<DictEnum.Entry<Any?>>(name) {
@@ -37,7 +37,7 @@ class DictEnum(name: String, val elements: List<Entry<Type<*>>>) :
         val index = elements.indexOfFirst { it.name == value.name }
 
         if (index == -1) {
-            throw  IllegalArgumentException("No ${value.name} in ${elements.map(Entry<*>::name)}")
+            throw IllegalArgumentException("No ${value.name} in ${elements.map(Entry<*>::name)}")
         }
 
         val type = elements[index].value
