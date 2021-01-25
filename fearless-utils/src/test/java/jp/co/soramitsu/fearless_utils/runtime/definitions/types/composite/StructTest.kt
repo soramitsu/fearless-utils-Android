@@ -15,7 +15,7 @@ class StructTest : BaseTypeTest() {
 
     private val type = Struct(
         "test",
-        children = linkedMapOf(
+        mapping = linkedMapOf(
             "bool" to BooleanType,
             "u8" to u8,
         )
@@ -23,7 +23,7 @@ class StructTest : BaseTypeTest() {
 
     private val typeWithStub = Struct(
         "test",
-        children = linkedMapOf(
+        mapping = linkedMapOf(
             "stub" to Stub("bool"),
             "u8" to u8,
         )
@@ -48,14 +48,14 @@ class StructTest : BaseTypeTest() {
         val newType = typeWithStub.replaceStubs(typeRegistry)
 
         assert(newType !== type)
-        assertEquals(BooleanType, newType.children["stub"])
+        assertEquals(BooleanType, newType.mapping["stub"])
     }
 
     @Test
     fun `should decode instance`() {
         val decoded = type.fromHex(expectedInHex)
 
-        assertEquals(expectedInstance, decoded.values)
+        assertEquals(expectedInstance, decoded.mapping)
     }
 
     @Test

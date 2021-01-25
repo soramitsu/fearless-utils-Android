@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
-fun String.splitTuple(): List<String> {
+internal fun String.splitTuple(): List<String> {
     val innerPart = removeSurrounding("(", ")").replace(" ", "")
 
     val result = mutableListOf<String>()

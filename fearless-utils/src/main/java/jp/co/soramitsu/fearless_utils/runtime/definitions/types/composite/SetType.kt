@@ -45,4 +45,6 @@ class SetType(
     override fun isValidInstance(instance: Any?): Boolean {
         return instance is Set<*> && instance.all { item -> item in valueList }
     }
+
+    operator fun get(key: String) = valueList[key]
 }

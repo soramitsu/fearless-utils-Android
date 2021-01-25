@@ -5,8 +5,10 @@ import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 
-class DictEnum(name: String, val elements: List<Entry<Type<*>>>) :
-    Type<DictEnum.Entry<Any?>>(name) {
+class DictEnum(
+    name: String,
+    val elements: List<Entry<Type<*>>>
+) : Type<DictEnum.Entry<Any?>>(name) {
 
     class Entry<out T>(val name: String, val value: T)
 
@@ -52,5 +54,13 @@ class DictEnum(name: String, val elements: List<Entry<Type<*>>>) :
         val elementEntry = elements.find { it.name == instance.name } ?: return false
 
         return elementEntry.value.isValidInstance(instance.value)
+    }
+
+    operator fun get(index: Int): Entry<Type<*>>? {
+        return elements[index]
+    }
+
+    operator fun get(name: String): Type<*>? {
+        return elements.find { it.name == name }?.value
     }
 }

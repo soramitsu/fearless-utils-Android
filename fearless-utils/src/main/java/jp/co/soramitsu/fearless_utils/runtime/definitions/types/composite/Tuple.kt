@@ -2,8 +2,8 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.replaceStubsWithChildren
 
 class Tuple(name: String, val types: List<Type<*>>) : Type<List<*>>(name) {
@@ -33,4 +33,6 @@ class Tuple(name: String, val types: List<Type<*>>) : Type<List<*>>(name) {
             type.isValidInstance(possibleValue)
         }
     }
+
+    operator fun get(index: Int): Type<*> = types[index]
 }

@@ -8,7 +8,7 @@ import jp.co.soramitsu.fearless_utils.scale.dataType.CollectionEnumType
 
 class CollectionEnum(
     name: String,
-    private val elements: List<String>
+    val elements: List<String>
 ) : Type<String>(name) {
 
     // no stubs possible
@@ -25,4 +25,6 @@ class CollectionEnum(
     override fun isValidInstance(instance: Any?): Boolean {
         return instance in elements
     }
+
+    operator fun get(key: Int): String = elements[key]
 }
