@@ -15,7 +15,7 @@ class Struct(name: String, val children: LinkedHashMap<String, Type<*>>) :
         inline operator fun <reified R> get(key: String): R? = values[key] as? R
     }
 
-    override fun replaceStubs(registry: TypeRegistry): Type<Instance> {
+    override fun replaceStubs(registry: TypeRegistry): Struct {
         return replaceStubsWithChildren(registry, children) { newChildren ->
             Struct(name, newChildren)
         }
@@ -36,7 +36,7 @@ class Struct(name: String, val children: LinkedHashMap<String, Type<*>>) :
     }
 
     override fun isValidInstance(instance: Any?): Boolean {
-        if (instance !is Map<*, *>) return false
+        if (instance !is Instance) return false
 
         return children.all { (key, child) ->
             child.isValidInstance(instance[key])

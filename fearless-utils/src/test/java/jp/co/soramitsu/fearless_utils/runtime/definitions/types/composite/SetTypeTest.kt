@@ -14,13 +14,11 @@ class SetTypeTest : BaseTypeTest() {
     private val type = SetType(
         "test",
         u8,
-        LinkedHashMap(
-            mapOf(
-                "A" to 1.toBigInteger(),
-                "B" to 2.toBigInteger(),
-                "C" to 4.toBigInteger(),
-                "D" to 8.toBigInteger()
-            )
+        linkedMapOf(
+            "A" to 1.toBigInteger(),
+            "B" to 2.toBigInteger(),
+            "C" to 4.toBigInteger(),
+            "D" to 8.toBigInteger()
         )
     )
 

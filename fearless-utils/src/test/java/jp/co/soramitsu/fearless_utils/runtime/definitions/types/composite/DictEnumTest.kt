@@ -52,7 +52,7 @@ class DictEnumTest : BaseTypeTest() {
 
         assert(newType !== typeWithStubs)
         assertInstance<UIntType>(newType.elements[0].value)
-        assertInstance<BooleanType>(newType.elements[1].value)
+        assertEquals(BooleanType, newType.elements[1].value)
     }
 
     @Test
