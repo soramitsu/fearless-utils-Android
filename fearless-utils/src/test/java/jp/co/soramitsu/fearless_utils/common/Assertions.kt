@@ -5,7 +5,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
-inline fun <reified T> assertInstance(value: Any) {
+inline fun <reified T> assertInstance(value: Any?) {
     contract {
         returns() implies (value is T)
     }

@@ -114,6 +114,31 @@ class EnumType<E : Enum<E>>(private val enumClass: Class<E>) : DataType<E>() {
     }
 }
 
+class CollectionEnumType(
+    val values: List<String>
+) : DataType<String>() {
+
+    override fun conformsType(value: Any?): Boolean {
+        return value is String
+    }
+
+    override fun read(reader: ScaleCodecReader): String {
+        val index = reader.readByte()
+
+        return values[index.toInt()]
+    }
+
+    override fun write(writer: ScaleCodecWriter, value: String) {
+        val index = values.indexOf(value)
+
+        if (index == -1) {
+            throw java.lang.IllegalArgumentException("No $value in $values")
+        }
+
+        writer.writeByte(index)
+    }
+}
+
 class union(val dataTypes: Array<out DataType<*>>) : DataType<Any?>() {
     override fun read(reader: ScaleCodecReader): Any? {
         val typeIndex = reader.readByte()
@@ -126,7 +151,13 @@ class union(val dataTypes: Array<out DataType<*>>) : DataType<Any?>() {
         val typeIndex = dataTypes.indexOfFirst { it.conformsType(value) }
 
         if (typeIndex == -1) {
-            throw java.lang.IllegalArgumentException("Unknown type ${value?.javaClass} for this enum. Supported: ${dataTypes.joinToString(", ")}")
+            throw java.lang.IllegalArgumentException(
+                "Unknown type ${value?.javaClass} for this enum. Supported: ${
+                    dataTypes.joinToString(
+                        ", "
+                    )
+                }"
+            )
         }
 
         val type = dataTypes[typeIndex] as DataType<Any?>
