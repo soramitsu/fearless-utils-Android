@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.prepopulatedTypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import org.junit.Assert.assertEquals
@@ -13,7 +14,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class EnumTest {
+class EnumTest : BaseTypeTest() {
     private val enumValues = listOf("A", "B", "C")
     private val type = CollectionEnum("test", enumValues)
 

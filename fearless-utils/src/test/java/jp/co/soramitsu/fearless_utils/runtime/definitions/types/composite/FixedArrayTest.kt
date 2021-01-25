@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.prepopulatedTypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
@@ -15,13 +16,11 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class FixedArrayTest {
+class FixedArrayTest : BaseTypeTest() {
 
     private val typeInstance = listOf(
         true, false, true, true
     )
-
-    private val typeRegistry = prepopulatedTypeRegistry()
 
     private val type = FixedArray(
         "test",

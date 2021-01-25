@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.prepopulatedTypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
@@ -17,15 +18,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class DictEnumTest {
+class DictEnumTest : BaseTypeTest() {
 
     private val enumValues = listOf(
         DictEnum.Entry("A", u8),
         DictEnum.Entry("B", BooleanType),
         DictEnum.Entry("C", u128),
     )
-
-    private val typeRegistry = prepopulatedTypeRegistry()
 
     private val type = DictEnum(
         "test",

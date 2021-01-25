@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.runtime.definitions.prepopulatedTypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
@@ -15,9 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 
-class OptionTest {
-
-    private val typeRegistry = prepopulatedTypeRegistry()
+class OptionTest : BaseTypeTest() {
 
     private val optionalBoolean = Option(
         "test",
