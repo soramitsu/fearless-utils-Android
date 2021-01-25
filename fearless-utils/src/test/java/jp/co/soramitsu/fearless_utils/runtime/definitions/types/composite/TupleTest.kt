@@ -6,7 +6,9 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Boole
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.Stub
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TupleTest : BaseTypeTest() {

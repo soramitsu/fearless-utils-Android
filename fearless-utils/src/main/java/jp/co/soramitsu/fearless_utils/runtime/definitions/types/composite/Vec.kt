@@ -37,6 +37,6 @@ class Vec(name: String, val type: Type<*>) : Type<List<*>>(name) {
     }
 
     override fun isValidInstance(instance: Any?): Boolean {
-        return instance is List<*> && instance.all { type.isValidInstance(instance) }
+        return instance is List<*> && instance.all { type.isValidInstance(it) }
     }
 }

@@ -1,7 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
-import jp.co.soramitsu.fearless_utils.runtime.definitions.prepopulatedTypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
@@ -12,23 +11,18 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
-class FixedArrayTest : BaseTypeTest() {
-
+class VecTest : BaseTypeTest() {
     private val typeInstance = listOf(
         true, false, true, true
     )
 
-    private val type = FixedArray(
+    private val type = Vec(
         "test",
-        typeInstance.size,
         BooleanType
     )
 
-    private val inHex = "0x01000101"
+    private val inHex = "0x1001000101"
 
     @Test
     fun `should return self if no stubs found`() {
@@ -39,9 +33,8 @@ class FixedArrayTest : BaseTypeTest() {
 
     @Test
     fun `should return modified copy if stubs were found`() {
-        val typeWithStubs = FixedArray(
+        val typeWithStubs = Vec(
             "test",
-            typeInstance.size,
             Stub("u8")
         )
 
@@ -68,7 +61,8 @@ class FixedArrayTest : BaseTypeTest() {
     @Test
     fun `should validate instance`() {
         assertTrue(type.isValidInstance(typeInstance))
-        assertFalse(type.isValidInstance(listOf(false)))
+        assertTrue(type.isValidInstance(listOf(false)))
+        assertTrue(type.isValidInstance(listOf(false, true)))
 
         assertFalse(type.isValidInstance(listOf(1)))
         assertFalse(type.isValidInstance(1))
