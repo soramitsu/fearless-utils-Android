@@ -8,7 +8,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.replaceStub
 
 class Tuple(name: String, val types: List<Type<*>>) : Type<List<*>>(name) {
 
-    override fun replaceStubs(registry: TypeRegistry): Type<List<*>> {
+    override fun replaceStubs(registry: TypeRegistry): Tuple {
         return replaceStubsWithChildren(registry, types) { newChildren ->
             Tuple(name, newChildren)
         }
@@ -25,7 +25,11 @@ class Tuple(name: String, val types: List<Type<*>>) : Type<List<*>>(name) {
     }
 
     override fun isValidInstance(instance: Any?): Boolean {
-        return instance is List<*> && types.zip(instance).all { (type, possibleValue) ->
+        if (instance !is List<*>) return false
+
+        val zipped = types.zip(instance)
+
+        return zipped.size == types.size && zipped.all { (type, possibleValue) ->
             type.isValidInstance(possibleValue)
         }
     }
