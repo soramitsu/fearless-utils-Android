@@ -21,6 +21,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.FileReader
+import java.io.InputStreamReader
+import java.io.Reader
 
 
 @RunWith(JUnit4::class)
@@ -365,8 +367,7 @@ class TypeDefinitionParserTest {
     @Test
     fun `should parse substrate data`() {
         val gson = Gson()
-        val reader =
-            JsonReader(FileReader(".\\src\\test\\java\\jp\\co\\soramitsu\\fearless_utils\\runtime\\default.json"))
+        val reader = JsonReader(getFileReader("default.json"))
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
 
         val parser = TypeDefinitionParser()
@@ -380,8 +381,8 @@ class TypeDefinitionParserTest {
     fun `should parse network-specific patches`() {
         val gson = Gson()
 
-        val defaultReader = JsonReader(FileReader(".\\src\\test\\java\\jp\\co\\soramitsu\\fearless_utils\\runtime\\default.json"))
-        val kusamaReader = JsonReader(FileReader(".\\src\\test\\java\\jp\\co\\soramitsu\\fearless_utils\\runtime\\kusama.json"))
+        val defaultReader = JsonReader(getFileReader("default.json"))
+        val kusamaReader = JsonReader(getFileReader("kusama.json"))
 
         val defaultTree = gson.fromJson<TypeDefinitionsTree>(defaultReader, TypeDefinitionsTree::class.java)
         val kusamaTree = gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
@@ -403,6 +404,12 @@ class TypeDefinitionParserTest {
         val tree = gson.fromJson(json, TypeDefinitionsTree::class.java)
 
         return parser.parseTypeDefinitions(tree, initialRegistry).typeRegistry
+    }
+
+    private fun getFileReader(name: String): Reader  {
+        val inputStream = javaClass.classLoader!!.getResourceAsStream(name)
+
+        return InputStreamReader(inputStream)
     }
 
     private fun definitions(builder: () -> String): String {
