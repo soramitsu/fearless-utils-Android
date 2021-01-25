@@ -38,9 +38,12 @@ class TypeDefinitionParser {
 
     private val inProgress = mutableSetOf<String>()
 
+    private var forceOverride: Boolean = false
+
     fun parseTypeDefinitions(
         tree: TypeDefinitionsTree,
-        prepopulatedTypeRegistry: TypeRegistry = prepopulatedTypeRegistry()
+        prepopulatedTypeRegistry: TypeRegistry = substrateBaseTypes(),
+        forceOverride: Boolean = false
     ): ParseResult {
 
         parsedTree = tree
@@ -50,6 +53,8 @@ class TypeDefinitionParser {
         typeRegistry = prepopulatedTypeRegistry
 
         inProgress.clear()
+
+        this.forceOverride = forceOverride
 
         for (name in parsedTree.types.keys) {
             retrieveOrParse(name)
@@ -61,9 +66,17 @@ class TypeDefinitionParser {
     }
 
     private fun retrieveOrParse(name: String): Type<*>? {
-        val aliased = typeRegistry[name]
+        val result = if (forceOverride) {
+            parse(name) ?: typeRegistry[name]
+        } else {
+            typeRegistry[name] ?: parse(name)
+        }
 
-        return aliased ?: parse(name)
+        if (result == null) {
+            unknownTypes.plusAssign(name)
+        }
+
+        return result
     }
 
     private fun parse(name: String): Type<*>? {
@@ -84,10 +97,6 @@ class TypeDefinitionParser {
         }
 
         val typeFromName = parseType(name, name)
-
-        if (typeFromName == null) {
-            unknownTypes.add(name)
-        }
 
         inProgress -= name
 
@@ -124,9 +133,7 @@ class TypeDefinitionParser {
             is Map<*, *> -> {
                 val typeValueCasted = typeValue as Map<String, Any?>
 
-                val compoundType = typeValueCasted["type"]
-
-                when (compoundType) {
+                when (typeValueCasted["type"]) {
                     TOKEN_STRUCT -> {
                         val typeMapping = typeValueCasted["type_mapping"] as List<List<String>>
                         val children = parseTypeMapping(typeMapping)

@@ -11,8 +11,9 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u64
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 
-class TypeRegistry {
-    private val types: MutableMap<String, Type<*>> = mutableMapOf()
+class TypeRegistry(initialTypes: Map<String, Type<*>> = mapOf()) {
+
+    private val types: MutableMap<String, Type<*>> = initialTypes.toMutableMap()
 
     operator fun get(definition: String) = types[definition]
 
@@ -20,6 +21,14 @@ class TypeRegistry {
 
     operator fun set(definition: String, type: Type<*>) {
         types[definition] = type
+    }
+
+    operator fun plusAssign(other: TypeRegistry) {
+        types += other.types
+    }
+
+    operator fun plus(other: TypeRegistry): TypeRegistry {
+        return TypeRegistry(types + other.types)
     }
 
     fun registerType(type: Type<*>) {
@@ -50,7 +59,7 @@ class TypeRegistry {
     fun all(): List<Pair<String, Type<*>>> = types.toList()
 }
 
-fun prepopulatedTypeRegistry(): TypeRegistry {
+fun substrateBaseTypes(): TypeRegistry {
     return TypeRegistry().apply {
         registerType(BooleanType)
 
@@ -62,6 +71,7 @@ fun prepopulatedTypeRegistry(): TypeRegistry {
         registerType(u256)
 
         registerAlias("u64", "U64")
+        registerAlias("u32", "U32")
 
         registerType(GenericAccountId)
 
@@ -86,5 +96,11 @@ fun prepopulatedTypeRegistry(): TypeRegistry {
         registerFakeType("GenericAccountIndex") // declared as "OpaqueCall": "OpaqueCall"
         registerFakeType("GenericEvent") // declared as "OpaqueCall": "OpaqueCall"
         registerFakeType("EventRecord") // "EventRecord": "EventRecord"
+    }
+}
+
+fun kusamaBaseTypes(): TypeRegistry {
+    return TypeRegistry().apply {
+        registerFakeType("AccountIdAddress")
     }
 }

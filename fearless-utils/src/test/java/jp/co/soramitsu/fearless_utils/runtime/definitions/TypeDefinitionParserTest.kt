@@ -13,6 +13,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import org.junit.Assert.assertEquals
@@ -365,7 +366,7 @@ class TypeDefinitionParserTest {
     fun `should parse substrate data`() {
         val gson = Gson()
         val reader =
-            JsonReader(FileReader(".\\src\\test\\java\\jp\\co\\soramitsu\\fearless_utils\\runtime\\test.json"))
+            JsonReader(FileReader(".\\src\\test\\java\\jp\\co\\soramitsu\\fearless_utils\\runtime\\default.json"))
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
 
         val parser = TypeDefinitionParser()
@@ -373,6 +374,27 @@ class TypeDefinitionParserTest {
         val result = parser.parseTypeDefinitions(tree)
 
         assertEquals(0, result.unknownTypes.size)
+    }
+
+    @Test
+    fun `should parse network-specific patches`() {
+        val gson = Gson()
+
+        val defaultReader = JsonReader(FileReader(".\\src\\test\\java\\jp\\co\\soramitsu\\fearless_utils\\runtime\\default.json"))
+        val kusamaReader = JsonReader(FileReader(".\\src\\test\\java\\jp\\co\\soramitsu\\fearless_utils\\runtime\\kusama.json"))
+
+        val defaultTree = gson.fromJson<TypeDefinitionsTree>(defaultReader, TypeDefinitionsTree::class.java)
+        val kusamaTree = gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
+
+        val parser = TypeDefinitionParser()
+
+        val defaultParsed = parser.parseTypeDefinitions(defaultTree)
+
+        val kusamaParsed = parser.parseTypeDefinitions(kusamaTree, defaultParsed.typeRegistry + kusamaBaseTypes(), forceOverride = true)
+
+        assertEquals(0, kusamaParsed.unknownTypes.size)
+        assertEquals(kusamaParsed.typeRegistry["RefCount"], u32)
+        assertEquals(kusamaParsed.typeRegistry["Address"]!!.name, "AccountIdAddress")
     }
 
     private fun typeRegistry(builder: TypeRegistry.() -> Unit) = TypeRegistry().apply(builder)
