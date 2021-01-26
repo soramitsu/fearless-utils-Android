@@ -1,5 +1,12 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
+import jp.co.soramitsu.fearless_utils.extensions.tryFindNonNull
+import jp.co.soramitsu.fearless_utils.runtime.definitions.extensions.CompactExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.extensions.FixedArrayExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.extensions.GenericsExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.extensions.OptionExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.extensions.TupleExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.extensions.VectorExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
@@ -11,12 +18,37 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u64
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.Stub
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.TypeAlias
 
-class TypeRegistry(initialTypes: Map<String, Type<*>> = mapOf()) {
+interface TypeConstructorExtension {
+
+    fun createType(typeDef: String, typeResolver: (String) -> Type<*>?) : Type<*>?
+}
+
+interface PostProcessor {
+
+    fun process(type: Type<*>) : Type<*>?
+}
+
+class TypeRegistry(
+    initialTypes: Map<String, Type<*>> = mapOf(),
+    initialExtensions: Set<TypeConstructorExtension> = setOf(),
+    initialPostProcessors: Set<PostProcessor> = setOf(),
+) {
 
     private val types: MutableMap<String, Type<*>> = initialTypes.toMutableMap()
+    private val extensions = initialExtensions.toMutableSet()
 
-    operator fun get(definition: String) = types[definition]
+    private val postProcessors = initialPostProcessors.toMutableSet()
+
+    operator fun get(definition: String): Type<*>? {
+        val fromTypes = types[definition]
+
+        if (fromTypes != null) return fromTypes
+
+        return resolveFromExtensions(definition)
+    }
 
     inline operator fun <reified R> get(key: String): R? = get(key) as? R
 
@@ -26,10 +58,14 @@ class TypeRegistry(initialTypes: Map<String, Type<*>> = mapOf()) {
 
     operator fun plusAssign(other: TypeRegistry) {
         types += other.types
+        extensions += other.extensions
     }
 
     operator fun plus(other: TypeRegistry): TypeRegistry {
-        return TypeRegistry(types + other.types)
+        return TypeRegistry(
+            initialTypes = types + other.types,
+            initialExtensions = extensions + other.extensions
+        )
     }
 
     fun registerType(type: Type<*>) {
@@ -40,11 +76,19 @@ class TypeRegistry(initialTypes: Map<String, Type<*>> = mapOf()) {
         registerType(FakeType(name))
     }
 
-    fun registerAlias(original: String, alias: String) {
-        val type = types[original]
-            ?: throw IllegalArgumentException("$original was not found in the registry")
+    fun registerAlias(alias: String, original: String) {
+        types[alias] = TypeAlias(alias, original)
+    }
 
-        types[alias] = type
+    fun addExtension(extension: TypeConstructorExtension) {
+        extensions += extension
+    }
+
+    fun resolveFromExtensions(
+        typeDef: String,
+        typeResolver: (String) -> Type<*>? = { get(it) }
+    ): Type<*>? {
+        return extensions.tryFindNonNull { it.createType(typeDef, typeResolver) }
     }
 
     fun removeStubs() {
@@ -71,9 +115,6 @@ fun substrateBaseTypes(): TypeRegistry {
         registerType(u128)
         registerType(u256)
 
-        registerAlias("u64", "U64")
-        registerAlias("u32", "U32")
-
         registerType(GenericAccountId)
 
         registerType(Null)
@@ -99,6 +140,17 @@ fun substrateBaseTypes(): TypeRegistry {
         registerFakeType("GenericAccountIndex") // declared as "OpaqueCall": "OpaqueCall"
         registerFakeType("GenericEvent") // declared as "OpaqueCall": "OpaqueCall"
         registerFakeType("EventRecord") // "EventRecord": "EventRecord"
+
+        addExtension(VectorExtension)
+        addExtension(CompactExtension)
+        addExtension(OptionExtension)
+        addExtension(FixedArrayExtension)
+        addExtension(TupleExtension)
+        addExtension(GenericsExtension)
+
+        registerAlias("<T::Lookup as StaticLookup>::Source", "LookupSource")
+        registerAlias("U64", "u64")
+        registerAlias("U32", "u32")
     }
 }
 

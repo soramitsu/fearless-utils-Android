@@ -119,12 +119,10 @@ class TypeDefinitionParser {
 
         val type: Type<*>? = when (typeValue) {
             is String -> {
+                val fromExtensions = typeRegistry.resolveFromExtensions(typeValue, ::retrieveOrParse)
+
                 when {
-                    isFixedArray(typeValue) -> parseFixedArray(name, typeValue)
-                    isVector(typeValue) -> parseVec(name, typeValue)
-                    isOption(typeValue) -> parseOption(name, typeValue)
-                    isCompact(typeValue) -> parseCompact(name, typeValue)
-                    isTuple(typeValue) -> parseTuple(name, typeValue)
+                    fromExtensions != null -> fromExtensions
                     typeValue == name -> null // avoid infinite recursion
                     else -> retrieveOrParse(typeValue)
                 }
@@ -207,66 +205,5 @@ class TypeDefinitionParser {
         } else {
             children
         }
-    }
-
-    private fun isFixedArray(definition: String) = definition.startsWith("[")
-
-    private fun parseFixedArray(name: String, definition: String): Type<*>? {
-        val withoutBrackets = definition.removeSurrounding("[", "]").replace(" ", "")
-        val (typeName, lengthRaw) = withoutBrackets.split(";")
-
-        val length = lengthRaw.toInt()
-
-        val type = retrieveOrParse(typeName) ?: return null
-
-        return if (type == u8) {
-            FixedByteArray(name, length)
-        } else {
-            FixedArray(name, length, type)
-        }
-    }
-
-    private fun isVector(definition: String) = definition.startsWith("Vec<")
-
-    private fun parseVec(name: String, definition: String): Vec? {
-        val innerType = definition.removeSurrounding("Vec<", ">")
-
-        val type = retrieveOrParse(innerType) ?: return null
-
-        return Vec(name, type)
-    }
-
-    private fun isTuple(definition: String) = definition.startsWith("(")
-
-    private fun parseTuple(name: String, definition: String): Tuple? {
-        val innerTypeDefinitions = definition.splitTuple()
-
-        val innerTypes = innerTypeDefinitions.map {
-            val result = retrieveOrParse(it)
-
-            result ?: return null
-        }
-
-        return Tuple(name, innerTypes)
-    }
-
-    private fun isOption(definition: String) = definition.startsWith("Option<")
-
-    private fun parseOption(name: String, definition: String): Option? {
-        val innerType = definition.removeSurrounding("Option<", ">")
-
-        val type = retrieveOrParse(innerType) ?: return null
-
-        return Option(name, type)
-    }
-
-    private fun isCompact(definition: String) = definition.startsWith("Compact<")
-
-    private fun parseCompact(name: String, definition: String): Compact? {
-        val innerType = definition.removeSurrounding("Compact<", ">")
-
-        val type = retrieveOrParse(innerType) as? NumberType ?: return null
-
-        return Compact(name, type)
     }
 }
