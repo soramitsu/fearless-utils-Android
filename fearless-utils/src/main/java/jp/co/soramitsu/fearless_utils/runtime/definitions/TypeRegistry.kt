@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u16
@@ -75,8 +76,10 @@ fun substrateBaseTypes(): TypeRegistry {
 
         registerType(GenericAccountId)
 
-        registerFakeType("Null")
+        registerType(Null)
+
         registerFakeType("GenericBlock")
+
         registerFakeType("GenericCall")
         registerFakeType("H160")
         registerFakeType("H256")
