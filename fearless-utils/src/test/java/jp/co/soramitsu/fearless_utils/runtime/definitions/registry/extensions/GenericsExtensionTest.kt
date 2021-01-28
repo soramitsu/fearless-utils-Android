@@ -8,6 +8,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.anyBoolean
 import org.mockito.Mockito.anyString
 import org.mockito.junit.MockitoJUnitRunner
 
@@ -19,7 +20,8 @@ class GenericsExtensionTest {
 
     @Before
     fun startUp(){
-        `when`(typeRegistry[anyString()]).thenAnswer { FakeType(it.arguments[0] as String) }
+        `when`(typeRegistry.get(anyString(), resolveAliasing = anyBoolean(), storageOnly =  anyBoolean()))
+            .thenAnswer { FakeType(it.arguments[0] as String) }
     }
 
     @Test

@@ -31,19 +31,17 @@ object TypeDefinitionParser {
 
     class Params(
         val tree: TypeDefinitionsTree,
-        val typeRegistry: TypeRegistry,
-        val forceOverrideTypes: Boolean
+        val typeRegistry: TypeRegistry
     )
 
     fun parseTypeDefinitions(
         tree: TypeDefinitionsTree,
-        prepopulatedTypeRegistry: TypeRegistry = substrateRegistryPreset(),
-        forceOverride: Boolean = false
+        prepopulatedTypeRegistry: TypeRegistry = substrateRegistryPreset()
     ): ParseResult {
-        val params = Params(tree, prepopulatedTypeRegistry.copy(), forceOverride)
+        val params = Params(tree, prepopulatedTypeRegistry.copy())
 
         for (name in tree.types.keys) {
-            val type = retrieveOrParse(params, name) ?: continue
+            val type = parse(params, name) ?: continue
 
             params.typeRegistry.registerType(type)
         }
@@ -52,17 +50,6 @@ object TypeDefinitionParser {
             .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
 
         return ParseResult(params.typeRegistry, unknownTypes)
-    }
-
-    private fun retrieveOrParse(
-        parsingParams: Params,
-        name: String
-    ): Type<*>? {
-        return if (parsingParams.forceOverrideTypes) {
-            parse(parsingParams, name) ?: parsingParams.typeRegistry.getForParsing(name).value
-        } else {
-            parsingParams.typeRegistry.getForParsing(name).value ?: parse(parsingParams, name)
-        }
     }
 
     private fun parse(parsingParams: Params, name: String): Type<*>? {
@@ -80,7 +67,7 @@ object TypeDefinitionParser {
 
                 when {
                     dynamicType != null -> dynamicType
-                    typeValue == name -> null // avoid infinite recursion
+                    typeValue == name -> typeRegistry.getForParsing(name).value
                     else -> Alias(
                         name,
                         typeRegistry.getForParsing(typeValue)
@@ -143,6 +130,8 @@ object TypeDefinitionParser {
         val children = LinkedHashMap<String, TypeReference>()
 
         for ((fieldName, fieldType) in typeMapping) {
+
+            // resolveAliasing = false to keep original type structure
             val typeRef = typeRegistry.getTypeReference(fieldType, resolveAliasing = false)
 
             children[fieldName] = typeRef

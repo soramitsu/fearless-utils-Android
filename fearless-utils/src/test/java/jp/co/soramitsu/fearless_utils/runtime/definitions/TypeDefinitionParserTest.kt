@@ -40,7 +40,7 @@ class TypeDefinitionParserTest {
     val gson = Gson()
 
     @Test
-    fun `should resolve typealias`() {
+    fun `should parse typealias`() {
         val A = FakeType("A")
 
         val initialTypeRegistry = typeRegistry {
@@ -57,12 +57,11 @@ class TypeDefinitionParserTest {
 
         val B = resultRegistry["B"]
 
-        assertInstance<Alias>(B)
-        assertEquals(A, B.aliasedReference.value)
+        assertEquals(A, B)
     }
 
     @Test
-    fun `should resolve struct`() {
+    fun `should parse struct`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -100,7 +99,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve dict enum`() {
+    fun `should parse dict enum`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -133,12 +132,12 @@ class TypeDefinitionParserTest {
 
         assertInstance<DictEnum>(C)
 
-        assertEquals(C["A"], A)
-        assertEquals(C["B"], B)
+        assertEquals(C["a"], A)
+        assertEquals(C["b"], B)
     }
 
     @Test
-    fun `should resolve collection enum`() {
+    fun `should parse collection enum`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -170,7 +169,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve set`() {
+    fun `should parse set`() {
 
         val initialTypeRegistry = typeRegistry {
             registerType(u8)
@@ -200,7 +199,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve fixed array`() {
+    fun `should parse fixed array`() {
 
         val initialTypeRegistry = typeRegistry {
             registerType(BooleanType)
@@ -223,7 +222,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve fixed u8 array optimized`() {
+    fun `should parse fixed u8 array optimized`() {
 
         val initialTypeRegistry = typeRegistry {
             registerType(u8)
@@ -245,7 +244,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve vector`() {
+    fun `should parse vector`() {
 
         val initialTypeRegistry = typeRegistry {
             registerType(u8)
@@ -267,7 +266,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve tuple`() {
+    fun `should parse tuple`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -293,7 +292,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve option`() {
+    fun `should parse option`() {
         val A = FakeType("A")
 
         val initialTypeRegistry = typeRegistry {
@@ -316,7 +315,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve complex type`() {
+    fun `should parse complex type`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -383,7 +382,6 @@ class TypeDefinitionParserTest {
 
         val result = TypeDefinitionParser.parseTypeDefinitions(tree)
 
-        print(result.unknownTypes)
         assertEquals(0, result.unknownTypes.size)
     }
 
@@ -399,17 +397,18 @@ class TypeDefinitionParserTest {
 
         val defaultParsed = TypeDefinitionParser.parseTypeDefinitions(defaultTree)
 
-        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(kusamaTree, defaultParsed.typeRegistry + kusamaBaseTypes(), forceOverride = true)
+        val keysDefault = defaultParsed.typeRegistry["Keys"]
+        assertEquals("SessionKeysSubstrate", keysDefault?.name)
 
-        print(kusamaParsed.unknownTypes)
+        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(kusamaTree, defaultParsed.typeRegistry + kusamaBaseTypes())
 
         assertEquals(0, kusamaParsed.unknownTypes.size)
 
-        val refCount = kusamaParsed.typeRegistry.get<NumberType>("RefCount")
-        assertEquals(refCount, u32)
-
-        val address = kusamaParsed.typeRegistry.get<FakeType>("Address")
+        val address = kusamaParsed.typeRegistry["Address"]
         assertEquals("AccountIdAddress", address?.name)
+
+        val keysKusama = kusamaParsed.typeRegistry["Keys"]
+        assertEquals("SessionKeysPolkadot", keysKusama?.name)
     }
 
     private fun typeRegistry(builder: TypeRegistry.() -> Unit) = TypeRegistry().apply {

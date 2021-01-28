@@ -6,21 +6,45 @@ import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParser
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaBaseTypes
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.junit.MockitoJUnitRunner
 
 data class Holder(val module: String, val type: String)
 
+@RunWith(MockitoJUnitRunner::class)
 class MetadataTest {
+
+    @Mock
+    private lateinit var typeRegistry: TypeRegistry
+
+    @Before
+    fun startUp(){
+        Mockito.`when`(
+            typeRegistry.get(
+                Mockito.anyString(),
+                resolveAliasing = Mockito.anyBoolean(),
+                storageOnly = Mockito.anyBoolean()
+            )
+        )
+            .thenAnswer { FakeType(it.arguments[0] as String) }
+    }
 
     @Test
     fun `should decode metadata`() {
         val inHex = getFileContentFromResources("test_runtime_metadata")
 
-        RuntimeMetadataSchema.read(inHex)
+        val metadataRaw = RuntimeMetadataSchema.read(inHex)
+        val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
     }
 
     @Test
