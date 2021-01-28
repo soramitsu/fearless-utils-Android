@@ -4,17 +4,26 @@ import net.jpountz.xxhash.XXHash64
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-class XXHash128(private val xxHash64: XXHash64) {
-    fun hash(byteArray: ByteArray): ByteArray {
-        val hash1 = xxHash64.hash(byteArray, seed = 0)
-        val hash2 = xxHash64.hash(byteArray, seed = 1)
+class XXHash(
+    hashLengthBits: Int,
+    private val xxHash64: XXHash64
+) {
+    init {
+        require(hashLengthBits % 64 == 0)
+    }
 
-        val hashBytes = ByteBuffer.allocate(Long.SIZE_BYTES * 2)
-        hashBytes.order(ByteOrder.LITTLE_ENDIAN)
+    val hashLengthBytes = hashLengthBits / 8
 
-        hashBytes.putLong(hash1)
-        hashBytes.putLong(hash2)
+    private val timesToRepeat = hashLengthBits / 64
 
-        return hashBytes.array()
+    fun hash(byteArray: ByteArray) : ByteArray {
+        val buffer = ByteBuffer.allocate(hashLengthBytes)
+        buffer.order(ByteOrder.LITTLE_ENDIAN)
+
+        (0 until timesToRepeat).map {
+            xxHash64.hash(byteArray, seed = it.toLong())
+        }.onEach(buffer::putLong)
+
+        return buffer.array()
     }
 }

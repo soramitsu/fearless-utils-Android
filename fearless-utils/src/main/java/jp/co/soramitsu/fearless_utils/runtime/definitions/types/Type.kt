@@ -89,7 +89,17 @@ fun <I> Type<I>.fromHex(hex: String): I {
     return fromByteArray(hex.fromHex())
 }
 
-fun <I, T : Type<I>> T.toByteArray(value: I): ByteArray {
+fun Type<*>.bytes(value: Any?): ByteArray? {
+    return runCatching {
+        val stream = ByteArrayOutputStream()
+        val writer = ScaleCodecWriter(stream)
+
+        encodeUnsafe(writer, value)
+        stream.toByteArray()
+    }.getOrNull()
+}
+
+fun <I> Type<I>.toByteArray(value: I): ByteArray {
     val stream = ByteArrayOutputStream()
     val writer = ScaleCodecWriter(stream)
 
@@ -98,4 +108,4 @@ fun <I, T : Type<I>> T.toByteArray(value: I): ByteArray {
     return stream.toByteArray()
 }
 
-fun <I, T : Type<I>> T.toHex(value: I) = toByteArray(value).toHexString(withPrefix = true)
+fun <I> Type<I>.toHex(value: I) = toByteArray(value).toHexString(withPrefix = true)

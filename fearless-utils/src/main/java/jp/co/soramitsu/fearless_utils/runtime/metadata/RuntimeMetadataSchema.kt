@@ -1,5 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
+import jp.co.soramitsu.fearless_utils.hash.Hasher
+import jp.co.soramitsu.fearless_utils.hash.hashConcat
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import jp.co.soramitsu.fearless_utils.scale.Schema
 import jp.co.soramitsu.fearless_utils.scale.bool
@@ -80,14 +82,14 @@ object DoubleMapSchema : Schema<DoubleMapSchema>() {
     val key2Hasher by enum(StorageHasher::class)
 }
 
-enum class StorageHasher {
-    Blake2_128,
-    Blake2_256,
-    Blake2_128Concat,
-    Twox128,
-    Twox256,
-    Twox64Concat,
-    Identity
+enum class StorageHasher(val hashingFunction: (ByteArray) -> ByteArray) {
+    Blake2_128(Hasher.blake2b128::digest),
+    Blake2_256(Hasher.blake2b256::digest),
+    Blake2_128Concat(Hasher.blake2b128::hashConcat),
+    Twox128(Hasher.xxHash128::hash),
+    Twox256(Hasher.xxHash256::hash),
+    Twox64Concat(Hasher.xxHash64::hashConcat),
+    Identity({ it })
 }
 
 object FunctionMetadataSchema : Schema<FunctionMetadataSchema>() {
