@@ -12,6 +12,7 @@ import jp.co.soramitsu.fearless_utils.wsrpc.logging.Logger
 import jp.co.soramitsu.fearless_utils.wsrpc.request.base.RpcRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
+import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 interface RpcSocketListener {
@@ -113,6 +114,6 @@ class RpcSocket(
     }
 
     private fun isSubscriptionChange(string: String): Boolean {
-        return kotlin.runCatching { !jsonParser.parse(string).asJsonObject.has("id") }.getOrDefault(false)
+        return runCatching { !JSONObject(string).has("id") }.getOrDefault(false)
     }
 }
