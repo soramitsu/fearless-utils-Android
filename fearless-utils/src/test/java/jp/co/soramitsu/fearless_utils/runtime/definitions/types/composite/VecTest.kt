@@ -1,11 +1,9 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
-import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.Stub
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -19,30 +17,10 @@ class VecTest : BaseTypeTest() {
 
     private val type = Vec(
         "test",
-        BooleanType
+        TypeReference(BooleanType)
     )
 
     private val inHex = "0x1001000101"
-
-    @Test
-    fun `should return self if no stubs found`() {
-        val newType = type.replaceStubs(typeRegistry)
-
-        assert(newType === type)
-    }
-
-    @Test
-    fun `should return modified copy if stubs were found`() {
-        val typeWithStubs = Vec(
-            "test",
-            Stub("u8")
-        )
-
-        val newType = typeWithStubs.replaceStubs(typeRegistry)
-
-        assert(newType !== typeWithStubs)
-        assertInstance<UIntType>(newType.type)
-    }
 
     @Test
     fun `should decode instance`() {

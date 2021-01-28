@@ -2,35 +2,23 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasing
 
 class DictEnum(
     name: String,
-    val elements: List<Entry<Type<*>>>
+    val elements: List<Entry<TypeReference>>
 ) : Type<DictEnum.Entry<Any?>>(name) {
 
     class Entry<out T>(val name: String, val value: T)
-
-    override fun replaceStubs(registry: TypeRegistry): DictEnum {
-        var changed = 0
-
-        val newChildren = elements.map { entry ->
-            val newType = entry.value.replaceStubs(registry)
-
-            if (newType !== entry.value) changed++
-
-            Entry(entry.name, newType)
-        }
-
-        return if (changed > 0) DictEnum(name, newChildren) else this
-    }
 
     override fun decode(scaleCodecReader: ScaleCodecReader): Entry<Any?> {
         val typeIndex = scaleCodecReader.readByte()
         val entry = elements[typeIndex.toInt()]
 
-        val decoded = entry.value.decode(scaleCodecReader)
+        val decoded = entry.value.requireValue().decode(scaleCodecReader)
 
         return Entry(entry.name, decoded)
     }
@@ -42,7 +30,7 @@ class DictEnum(
             throw IllegalArgumentException("No ${value.name} in ${elements.map(Entry<*>::name)}")
         }
 
-        val type = elements[index].value
+        val type = elements[index].value.requireValue()
 
         scaleCodecWriter.writeByte(index)
         type.encodeUnsafe(scaleCodecWriter, value.value)
@@ -53,14 +41,13 @@ class DictEnum(
 
         val elementEntry = elements.find { it.name == instance.name } ?: return false
 
-        return elementEntry.value.isValidInstance(instance.value)
-    }
-
-    operator fun get(index: Int): Entry<Type<*>>? {
-        return elements[index]
+        return elementEntry.value.requireValue().isValidInstance(instance.value)
     }
 
     operator fun get(name: String): Type<*>? {
-        return elements.find { it.name == name }?.value
+        return elements.find { it.name == name }?.value?.resolveAliasing()?.value
     }
+
+    override val isFullyResolved: Boolean
+        get() = elements.all { it.value.isResolved() }
 }

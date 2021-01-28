@@ -1,6 +1,7 @@
-package jp.co.soramitsu.fearless_utils.runtime.definitions.extensions
+package jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeConstructorExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeConstructorExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 
 private val GENERIC_REGEX = "^([^<]*)<(.+)>\$".toRegex() // PartName<SubType>
@@ -9,10 +10,10 @@ private const val RAW_TYPE_GROUP_INDEX = 1 // first one will be the entire typeD
 
 object GenericsExtension : TypeConstructorExtension {
 
-    override fun createType(typeDef: String, typeResolver: (String) -> Type<*>?): Type<*>? {
+    override fun createType(name: String, typeDef: String, registry: TypeRegistry): Type<*>? {
         val groups = GENERIC_REGEX.find(typeDef)?.groupValues ?: return null
         val rawType = groups.getOrNull(RAW_TYPE_GROUP_INDEX) ?: return null
 
-        return typeResolver(rawType)
+        return registry[rawType]
     }
 }

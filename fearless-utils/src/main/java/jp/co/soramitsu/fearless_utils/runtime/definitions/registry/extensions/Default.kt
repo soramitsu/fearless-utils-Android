@@ -1,59 +1,52 @@
-package jp.co.soramitsu.fearless_utils.runtime.definitions.extensions
+package jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeConstructorExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeConstructorExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.splitTuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Option
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Compact
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.NumberType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 
 object VectorExtension : WrapperExtension() {
     override val wrapperName = "Vec"
 
-    override fun createWrapper(name: String, innerType: Type<*>) = Vec(name, innerType)
+    override fun createWrapper(name: String, innerTypeRef: TypeReference) = Vec(name, innerTypeRef)
 }
 
 object CompactExtension : WrapperExtension() {
     override val wrapperName = "Compact"
 
-    override fun createWrapper(name: String, innerType: Type<*>): Type<*>? {
-        if (innerType !is NumberType) return null
-
-        return Compact(name, innerType)
-    }
+    override fun createWrapper(name: String, innerTypeRef: TypeReference) = Compact(name)
 }
 
 object OptionExtension : WrapperExtension() {
     override val wrapperName = "Option"
 
-    override fun createWrapper(name: String, innerType: Type<*>) = Option(name, innerType)
+    override fun createWrapper(name: String, innerTypeRef: TypeReference) = Option(name, innerTypeRef)
 }
 
 object TupleExtension : TypeConstructorExtension {
 
-    override fun createType(typeDef: String, typeResolver: (String) -> Type<*>?): Type<*>? {
+    override fun createType(name: String, typeDef: String, registry: TypeRegistry): Type<*>? {
         if (!typeDef.startsWith("(")) return null
 
-        val innerTypeDefinitions = typeDef.splitTuple()
+        val innerTypeRefDefinitions = typeDef.splitTuple()
 
-        val innerTypes = innerTypeDefinitions.map {
-            val result = typeResolver(it)
+        val innerTypeRefs = innerTypeRefDefinitions.map(registry::getTypeReference)
 
-            result ?: return null
-        }
-
-        return Tuple(typeDef, innerTypes)
+        return Tuple(name, innerTypeRefs)
     }
 }
 
 object FixedArrayExtension : TypeConstructorExtension {
 
-    override fun createType(typeDef: String, typeResolver: (String) -> Type<*>?): Type<*>? {
+    override fun createType(name: String, typeDef: String, registry: TypeRegistry): Type<*>? {
         if (!typeDef.startsWith("[")) return null
 
         val withoutBrackets = typeDef.removeSurrounding("[", "]").replace(" ", "")
@@ -61,12 +54,12 @@ object FixedArrayExtension : TypeConstructorExtension {
 
         val length = lengthRaw.toInt()
 
-        val type = typeResolver(typeName) ?: return null
+        val typeRef = registry.getTypeReference(typeName)
 
-        return if (type == u8) {
-            FixedByteArray(typeDef, length)
+        return if (typeRef.value == u8) {
+            FixedByteArray(name, length)
         } else {
-            FixedArray(typeDef, length, type)
+            FixedArray(name, length, typeRef)
         }
     }
 }

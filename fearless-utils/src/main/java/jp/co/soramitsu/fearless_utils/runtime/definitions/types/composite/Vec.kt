@@ -2,20 +2,13 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.replaceStubsWithChild
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
 
-class Vec(name: String, val type: Type<*>) : Type<List<*>>(name) {
-
-    override fun replaceStubs(registry: TypeRegistry): Vec {
-        return replaceStubsWithChild(registry, type) { newChild ->
-            Vec(name, newChild)
-        }
-    }
+class Vec(name: String, typeReference: TypeReference) : WrapperType<List<*>>(name, typeReference) {
 
     override fun decode(scaleCodecReader: ScaleCodecReader): List<*> {
+        val type = typeReference.requireValue()
         val size = compactInt.read(scaleCodecReader)
         val result = mutableListOf<Any?>()
 
@@ -28,6 +21,7 @@ class Vec(name: String, val type: Type<*>) : Type<List<*>>(name) {
     }
 
     override fun encode(scaleCodecWriter: ScaleCodecWriter, value: List<*>) {
+        val type = typeReference.requireValue()
         val size = value.size.toBigInteger()
         compactInt.write(scaleCodecWriter, size)
 
@@ -37,6 +31,8 @@ class Vec(name: String, val type: Type<*>) : Type<List<*>>(name) {
     }
 
     override fun isValidInstance(instance: Any?): Boolean {
-        return instance is List<*> && instance.all { type.isValidInstance(it) }
+        return instance is List<*> && instance.all {
+            typeReference.requireValue().isValidInstance(it)
+        }
     }
 }

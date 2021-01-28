@@ -3,8 +3,17 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.assertInstance
-import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.CompactExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.FixedArrayExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.GenericsExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.OptionExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.TupleExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.VectorExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaBaseTypes
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.preprocessors.RemoveGenericNoisePreprocessor
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.CollectionEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedArray
@@ -15,6 +24,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.NumberType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
@@ -22,15 +32,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.InputStreamReader
-import java.io.Reader
 
 
 @RunWith(JUnit4::class)
 class TypeDefinitionParserTest {
 
     val gson = Gson()
-    val parser = TypeDefinitionParser()
 
     @Test
     fun `should resolve typealias`() {
@@ -48,7 +55,10 @@ class TypeDefinitionParserTest {
 
         val resultRegistry = parseFromJson(initialTypeRegistry, definitions)
 
-        assertEquals(resultRegistry["B"], A)
+        val B = resultRegistry["B"]
+
+        assertInstance<Alias>(B)
+        assertEquals(A, B.aliasedReference.value)
     }
 
     @Test
@@ -123,8 +133,8 @@ class TypeDefinitionParserTest {
 
         assertInstance<DictEnum>(C)
 
-        assertEquals(C[0]?.value, A)
-        assertEquals(C[1]?.value, B)
+        assertEquals(C["A"], A)
+        assertEquals(C["B"], B)
     }
 
     @Test
@@ -209,7 +219,7 @@ class TypeDefinitionParserTest {
         assertInstance<FixedArray>(C)
 
         assertEquals(C.length, 5)
-        assertEquals(C.type, BooleanType)
+        assertEquals(C.typeReference.value, BooleanType)
     }
 
     @Test
@@ -253,7 +263,7 @@ class TypeDefinitionParserTest {
 
         assertInstance<Vec>(C)
 
-        assertEquals(C.type, u8)
+        assertEquals(C.typeReference.value, u8)
     }
 
     @Test
@@ -302,7 +312,7 @@ class TypeDefinitionParserTest {
 
         assertInstance<Option>(C)
 
-        assertEquals(C.type, A)
+        assertEquals(C.innerType, A)
     }
 
     @Test
@@ -327,7 +337,7 @@ class TypeDefinitionParserTest {
 
         assertInstance<Vec>(C)
 
-        val innerTuple = C.type
+        val innerTuple = C.innerType
         assertInstance<Tuple>(innerTuple)
 
         assertEquals(A, innerTuple[0])
@@ -335,7 +345,7 @@ class TypeDefinitionParserTest {
         val innerOption = innerTuple[1]
         assertInstance<Option>(innerOption)
 
-        val leafTuple = innerOption.type
+        val leafTuple = innerOption.innerType
         assertInstance<Tuple>(leafTuple)
 
         assertEquals(A, leafTuple[0])
@@ -360,7 +370,7 @@ class TypeDefinitionParserTest {
 
         val tree = gson.fromJson(definitions, TypeDefinitionsTree::class.java)
 
-        val unknown = parser.parseTypeDefinitions(tree, initialTypeRegistry).unknownTypes
+        val unknown = TypeDefinitionParser.parseTypeDefinitions(tree, initialTypeRegistry).unknownTypes
 
         assert("F" in unknown)
     }
@@ -371,10 +381,9 @@ class TypeDefinitionParserTest {
         val reader = JsonReader(getResourceReader("default.json"))
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
 
-        val parser = TypeDefinitionParser()
+        val result = TypeDefinitionParser.parseTypeDefinitions(tree)
 
-        val result = parser.parseTypeDefinitions(tree)
-
+        print(result.unknownTypes)
         assertEquals(0, result.unknownTypes.size)
     }
 
@@ -388,23 +397,38 @@ class TypeDefinitionParserTest {
         val defaultTree = gson.fromJson<TypeDefinitionsTree>(defaultReader, TypeDefinitionsTree::class.java)
         val kusamaTree = gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
-        val parser = TypeDefinitionParser()
+        val defaultParsed = TypeDefinitionParser.parseTypeDefinitions(defaultTree)
 
-        val defaultParsed = parser.parseTypeDefinitions(defaultTree)
+        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(kusamaTree, defaultParsed.typeRegistry + kusamaBaseTypes(), forceOverride = true)
 
-        val kusamaParsed = parser.parseTypeDefinitions(kusamaTree, defaultParsed.typeRegistry + kusamaBaseTypes(), forceOverride = true)
+        print(kusamaParsed.unknownTypes)
 
         assertEquals(0, kusamaParsed.unknownTypes.size)
-        assertEquals(kusamaParsed.typeRegistry["RefCount"], u32)
-        assertEquals(kusamaParsed.typeRegistry["Address"]!!.name, "AccountIdAddress")
+
+        val refCount = kusamaParsed.typeRegistry.get<NumberType>("RefCount")
+        assertEquals(refCount, u32)
+
+        val address = kusamaParsed.typeRegistry.get<FakeType>("Address")
+        assertEquals("AccountIdAddress", address?.name)
     }
 
-    private fun typeRegistry(builder: TypeRegistry.() -> Unit) = TypeRegistry().apply(builder)
+    private fun typeRegistry(builder: TypeRegistry.() -> Unit) = TypeRegistry().apply {
+        addExtension(VectorExtension)
+        addExtension(CompactExtension)
+        addExtension(OptionExtension)
+        addExtension(FixedArrayExtension)
+        addExtension(TupleExtension)
+        addExtension(GenericsExtension)
+
+        addPreprocessor(RemoveGenericNoisePreprocessor)
+
+        builder(this)
+    }
 
     private fun parseFromJson(initialRegistry: TypeRegistry, json: String): TypeRegistry {
         val tree = gson.fromJson(json, TypeDefinitionsTree::class.java)
 
-        return parser.parseTypeDefinitions(tree, initialRegistry).typeRegistry
+        return TypeDefinitionParser.parseTypeDefinitions(tree, initialRegistry).typeRegistry
     }
 
     private fun definitions(builder: () -> String): String {

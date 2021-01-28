@@ -4,20 +4,21 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.hash.isPositive
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.NumberType
 import java.math.BigInteger
 
 class SetType(
     name: String,
-    val valueType: NumberType,
+    valueTypeReference: TypeReference,
     val valueList: LinkedHashMap<String, BigInteger>
-) : Type<Set<String>>(name) {
-
-    // no stubs possible, since valueType is NumberType
-    override fun replaceStubs(registry: TypeRegistry): SetType = this
+) : WrapperType<Set<String>>(name, valueTypeReference) {
 
     override fun decode(scaleCodecReader: ScaleCodecReader): Set<String> {
+        val valueType = typeReference.requireValue()
+        require(valueType is NumberType)
+
         val value = valueType.decode(scaleCodecReader)
 
         return valueList.mapNotNullTo(mutableSetOf()) { (name, mask) ->
@@ -30,6 +31,8 @@ class SetType(
     }
 
     override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Set<String>) {
+        val valueType = typeReference.requireValue()
+        require(valueType is NumberType)
 
         val folded = valueList.entries.fold(BigInteger.ZERO) { acc, (name, mask) ->
             if (name in value) {
@@ -39,7 +42,7 @@ class SetType(
             }
         }
 
-        valueType.encodeNumber(scaleCodecWriter, folded)
+        valueType.encode(scaleCodecWriter, folded)
     }
 
     override fun isValidInstance(instance: Any?): Boolean {

@@ -1,142 +1,242 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromByteArray
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.isFullyResolved
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
-import jp.co.soramitsu.fearless_utils.scale.Schema
-import jp.co.soramitsu.fearless_utils.scale.bool
-import jp.co.soramitsu.fearless_utils.scale.byteArray
-import jp.co.soramitsu.fearless_utils.scale.dataType.scalable
-import jp.co.soramitsu.fearless_utils.scale.enum
-import jp.co.soramitsu.fearless_utils.scale.schema
-import jp.co.soramitsu.fearless_utils.scale.string
-import jp.co.soramitsu.fearless_utils.scale.uint32
-import jp.co.soramitsu.fearless_utils.scale.uint8
-import jp.co.soramitsu.fearless_utils.scale.vector
-import jp.co.soramitsu.fearless_utils.scale.dataType.string as stringType
+import java.lang.IllegalArgumentException
+import java.math.BigInteger
 
-
-object RuntimeMetadata : Schema<RuntimeMetadata>() {
-    val magicNumber by uint32()
-
-    val runtimeVersion by uint8()
-
-    val modules by vector(ModuleMetadata)
-
-    val extrinsic by schema(ExtrinsicMetadata)
+interface WithName {
+    val name: String
 }
 
-object ModuleMetadata : Schema<ModuleMetadata>() {
-    val name by string()
+fun <T: WithName> List<T>.groupByName() = map { it.name to it }.toMap()
 
-    val storage by schema(StorageMetadata).optional()
-
-    val calls by vector(FunctionMetadata).optional()
-
-    val events by vector(EventMetadata).optional()
-
-    val constants by vector(ModuleConstantMetadata)
-
-    val errors by vector(ErrorMetadata)
-
-    val index by uint8()
+class RuntimeMetadata(
+    val runtimeVersion: BigInteger,
+    val modules: Map<String, Module>,
+    val extrinsic: ExtrinsicMetadata
+) {
+    constructor(
+        typeRegistry: TypeRegistry,
+        struct: EncodableStruct<RuntimeMetadataSchema>
+    ) : this(
+        runtimeVersion = struct[RuntimeMetadataSchema.runtimeVersion].toInt().toBigInteger(),
+        modules = struct[RuntimeMetadataSchema.modules].map { Module(typeRegistry, it) }.groupByName(),
+        extrinsic = ExtrinsicMetadata(struct[RuntimeMetadataSchema.extrinsic])
+    )
 }
 
-object StorageMetadata : Schema<StorageMetadata>() {
-    val prefix by string()
-
-    val entries by vector(StorageEntryMetadata)
+class Module(
+    override val name: String,
+    val storage: Storage?,
+    val calls: Map<String, Function>?,
+    val events: Map<String, Event>?,
+    val constants: Map<String, Constant>,
+    val errors: Map<String, Error>,
+    val index: BigInteger
+) : WithName {
+    constructor(
+        typeRegistry: TypeRegistry,
+        struct: EncodableStruct<ModuleMetadataSchema>
+    ) : this(
+        name = struct[ModuleMetadataSchema.name],
+        storage = struct[ModuleMetadataSchema.storage]?.let { Storage(typeRegistry, it) },
+        calls = struct[ModuleMetadataSchema.calls]?.map { Function(typeRegistry, it) }?.groupByName(),
+        events = struct[ModuleMetadataSchema.events]?.map { Event(typeRegistry, it) }?.groupByName(),
+        constants = struct[ModuleMetadataSchema.constants].map { Constant(typeRegistry, it) }.groupByName(),
+        errors = struct[ModuleMetadataSchema.errors].map(::Error).groupByName(),
+        index = struct[ModuleMetadataSchema.index].toInt().toBigInteger()
+    )
 }
 
-object StorageEntryMetadata : Schema<StorageEntryMetadata>() {
-    val name by string()
+class Storage(
+    val prefix: String,
+    val entries: Map<String, StorageEntry>
+) {
+    constructor(
+        typeRegistry: TypeRegistry,
+        struct: EncodableStruct<StorageMetadataSchema>
+    ) : this(
+        prefix = struct[StorageMetadataSchema.prefix],
+        entries = struct[StorageMetadataSchema.entries].map { StorageEntry(typeRegistry, it) }.groupByName()
+    )
+}
 
-    val modifier by enum(StorageEntryModifier::class)
+class StorageEntry(
+    override val name: String,
+    val modifier: StorageEntryModifier,
+    val type: StorageEntryType,
+    val default: ByteArray,
+    val documentation: List<String>
+) : WithName {
+    constructor(
+        typeRegistry: TypeRegistry,
+        struct: EncodableStruct<StorageEntryMetadataSchema>
+    ) : this(
+        name = struct[StorageEntryMetadataSchema.name],
+        modifier = struct[StorageEntryMetadataSchema.modifier],
+        type = StorageEntryType.from(typeRegistry, struct[StorageEntryMetadataSchema.type]),
+        default = struct[StorageEntryMetadataSchema.default],
+        documentation = struct[StorageEntryMetadataSchema.documentation]
+    )
+}
 
-    val type by enum(
-        stringType, // plain
-        scalable(Map),
-        scalable(DoubleMap)
+sealed class StorageEntryType {
+    companion object {
+        fun from(typeRegistry: TypeRegistry, value: Any?) = when(value) {
+            is String -> Plain(typeRegistry, value)
+            is EncodableStruct<*> -> when(value.schema) {
+                MapSchema -> Map(typeRegistry, value)
+                DoubleMapSchema -> DoubleMap(typeRegistry, value)
+                else -> cannotConstruct(value)
+            }
+            else -> cannotConstruct(value)
+        }
+
+        private fun cannotConstruct(from: Any?) : Nothing {
+            throw IllegalArgumentException("Cannot construct StorageEntryType from $from")
+        }
+    }
+
+    class Plain(val value: Type<*>?) : StorageEntryType() {
+
+        constructor(
+            typeRegistry: TypeRegistry,
+            typeDef: String
+        ) : this(
+            typeRegistry[typeDef]
+        )
+    }
+
+    class Map(
+        val hasher: StorageHasher,
+        val key: Type<*>?,
+        val value: Type<*>?,
+        val unused: Boolean
+    ) : StorageEntryType() {
+
+        constructor(
+            typeRegistry: TypeRegistry,
+            struct: EncodableStruct<*>
+        ) : this (
+            hasher = struct[MapSchema.hasher],
+            key = typeRegistry[struct[MapSchema.key]],
+            value = typeRegistry[struct[MapSchema.value]],
+            unused = struct[MapSchema.unused],
+        )
+    }
+
+    class DoubleMap(
+        val key1Hasher: StorageHasher,
+        val key1: Type<*>?,
+        val key2: Type<*>?,
+        val value: Type<*>?,
+        val key2Hasher: StorageHasher
+    ) : StorageEntryType() {
+        constructor(
+            typeRegistry: TypeRegistry,
+            struct: EncodableStruct<*>
+        ) : this (
+            key1Hasher = struct[DoubleMapSchema.key1Hasher],
+            key2Hasher = struct[DoubleMapSchema.key2Hasher],
+            key1 =typeRegistry[struct[DoubleMapSchema.key1]],
+            key2 =typeRegistry[struct[DoubleMapSchema.key2]],
+            value =typeRegistry[struct[DoubleMapSchema.value]]
+        )
+    }
+}
+
+class Function(
+    override val name: String,
+    val arguments: List<FunctionArgument>,
+    val documentation: List<String>
+) : WithName {
+    constructor(
+        typeRegistry: TypeRegistry,
+        struct: EncodableStruct<FunctionMetadataSchema>
+    ) : this(
+        name = struct[FunctionMetadataSchema.name],
+        arguments = struct[FunctionMetadataSchema.arguments].map { FunctionArgument(typeRegistry, it) },
+        documentation = struct[FunctionMetadataSchema.documentation]
+    )
+}
+
+class FunctionArgument(
+    override val name: String,
+    val type: Type<*>?
+) : WithName {
+    constructor(
+        typeRegistry: TypeRegistry,
+        struct: EncodableStruct<FunctionArgumentMetadataSchema>
+    ) : this(
+        name = struct[FunctionArgumentMetadataSchema.name],
+        type = typeRegistry[struct[FunctionArgumentMetadataSchema.type]]
+    )
+}
+
+class Event(
+    override val name: String,
+    val arguments: List<Type<*>?>,
+    val documentation: List<String>
+) : WithName {
+    constructor(
+        typeRegistry: TypeRegistry,
+        struct: EncodableStruct<EventMetadataSchema>
+    ) : this(
+        name = struct[EventMetadataSchema.name],
+        arguments = struct[EventMetadataSchema.arguments].map { typeRegistry[it] },
+        documentation = struct[EventMetadataSchema.documentation]
     )
 
-    val default by byteArray() // vector<u8>
-
-    val documentation by vector(stringType)
 }
 
-enum class StorageEntryModifier {
-    Optional, Default
+class Constant(
+    override val name: String,
+    val type: Type<*>?,
+    val valueRaw: ByteArray,
+    val documentation: List<String>
+) : WithName {
+    constructor(
+        typeRegistry: TypeRegistry,
+        struct: EncodableStruct<ModuleConstantMetadataSchema>
+    ) : this(
+        name = struct[ModuleConstantMetadataSchema.name],
+        type = typeRegistry[struct[ModuleConstantMetadataSchema.type]],
+        valueRaw = struct[ModuleConstantMetadataSchema.value],
+        documentation = struct[ModuleConstantMetadataSchema.documentation],
+    )
+
+    val value: Any?
+        get() = if (type.isFullyResolved()) {
+            type!!.fromByteArray(valueRaw)
+        } else {
+            null
+        }
 }
 
-object Map : Schema<Map>() {
-    val hasher by enum(StorageHasher::class)
-    val key by string()
-    val value by string()
-    val unused by bool()
+class Error(
+    override val name: String,
+    val documentation: List<String>
+) : WithName {
+    constructor(
+        struct: EncodableStruct<ErrorMetadataSchema>
+    ) : this(
+        name = struct[ErrorMetadataSchema.name],
+        documentation = struct[ErrorMetadataSchema.documentation],
+    )
 }
 
-object DoubleMap : Schema<DoubleMap>() {
-    val key1Hasher by enum(StorageHasher::class)
-    val key1 by string()
-    val key2 by string()
-    val value by string()
-    val key2Hasher by enum(StorageHasher::class)
+class ExtrinsicMetadata(
+    val version: BigInteger,
+    val signedExtensions: List<String>
+) {
+    constructor(
+        struct: EncodableStruct<ExtrinsicMetadataSchema>
+    ) : this(
+        version = struct[ExtrinsicMetadataSchema.version].toInt().toBigInteger(),
+        signedExtensions = struct[ExtrinsicMetadataSchema.signedExtensions],
+    )
 }
-
-enum class StorageHasher {
-    Blake2_128,
-    Blake2_256,
-    Blake2_128Concat,
-    Twox128,
-    Twox256,
-    Twox64Concat,
-    Identity
-}
-
-object FunctionMetadata : Schema<FunctionMetadata>() {
-    val name by string()
-
-    val arguments by vector(FunctionArgumentMetadata)
-
-    val documentation by vector(stringType)
-}
-
-object FunctionArgumentMetadata : Schema<FunctionArgumentMetadata>() {
-    val name by string()
-
-    val type by string()
-}
-
-object EventMetadata : Schema<EventMetadata>() {
-    val name by string()
-
-    val arguments by vector(stringType)
-
-    val documentation by vector(stringType)
-}
-
-object ModuleConstantMetadata : Schema<ModuleConstantMetadata>() {
-    val name by string()
-
-    val type by string()
-
-    val value by byteArray() // vector<u8>
-
-    val documentation by vector(stringType)
-}
-
-object ErrorMetadata : Schema<ErrorMetadata>() {
-    val name by string()
-
-    val documentation by vector(stringType)
-}
-
-object ExtrinsicMetadata : Schema<ExtrinsicMetadata>() {
-    val version by uint8()
-
-    val signed_extensions by vector(stringType)
-}
-
-fun EncodableStruct<RuntimeMetadata>.module(name: String) = get(RuntimeMetadata.modules).find { it[ModuleMetadata.name] == name }
-
-fun EncodableStruct<ModuleMetadata>.call(name: String) = get(ModuleMetadata.calls)?.find { it[FunctionMetadata.name] == name }
-
-fun EncodableStruct<ModuleMetadata>.storage(name: String) = get(ModuleMetadata.storage)?.get(StorageMetadata.entries)?.find { it[StorageEntryMetadata.name] == name }

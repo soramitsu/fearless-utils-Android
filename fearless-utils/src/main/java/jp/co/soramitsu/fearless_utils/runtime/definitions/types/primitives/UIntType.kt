@@ -22,8 +22,8 @@ class UIntType(bits: Int) : NumberType("u$bits") {
 
     private val codec = uint(size = bytes)
 
-    override fun encodeNumber(writer: ScaleCodecWriter, number: BigInteger) {
-        codec.write(writer, number)
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: BigInteger) {
+        codec.write(scaleCodecWriter, value)
     }
 
     override fun decode(scaleCodecReader: ScaleCodecReader) = codec.read(scaleCodecReader)

@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
@@ -13,7 +14,7 @@ class SetTypeTest : BaseTypeTest() {
 
     private val type = SetType(
         "test",
-        u8,
+        TypeReference(u8),
         linkedMapOf(
             "A" to 1.toBigInteger(),
             "B" to 2.toBigInteger(),
@@ -21,13 +22,6 @@ class SetTypeTest : BaseTypeTest() {
             "D" to 8.toBigInteger()
         )
     )
-
-    @Test
-    fun `should return self when replace stubs`() {
-        val newType = type.replaceStubs(typeRegistry)
-
-        assert(newType === type)
-    }
 
     @Test
     fun `should decode one flag`() {

@@ -3,13 +3,9 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 
 class FakeType(name: String) : Type<Nothing>(name) {
-
-    override fun replaceStubs(registry: TypeRegistry): Type<*> {
-        return this
-    }
 
     override fun decode(scaleCodecReader: ScaleCodecReader): Nothing {
         throw IllegalArgumentException("Fake")
@@ -22,4 +18,6 @@ class FakeType(name: String) : Type<Nothing>(name) {
     override fun isValidInstance(instance: Any?): Boolean {
         return false
     }
+
+    override val isFullyResolved = true
 }

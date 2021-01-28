@@ -1,10 +1,10 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.Stub
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -16,16 +16,8 @@ class StructTest : BaseTypeTest() {
     private val type = Struct(
         "test",
         mapping = linkedMapOf(
-            "bool" to BooleanType,
-            "u8" to u8,
-        )
-    )
-
-    private val typeWithStub = Struct(
-        "test",
-        mapping = linkedMapOf(
-            "stub" to Stub("bool"),
-            "u8" to u8,
+            "bool" to TypeReference(BooleanType),
+            "u8" to TypeReference(u8),
         )
     )
 
@@ -35,21 +27,6 @@ class StructTest : BaseTypeTest() {
     )
 
     private val expectedInHex = "0x0109"
-
-    @Test
-    fun `should return self when replace stubs`() {
-        val newType = type.replaceStubs(typeRegistry)
-
-        assert(newType === type)
-    }
-
-    @Test
-    fun `should return modified copy when stubs was found`() {
-        val newType = typeWithStub.replaceStubs(typeRegistry)
-
-        assert(newType !== type)
-        assertEquals(BooleanType, newType.mapping["stub"])
-    }
 
     @Test
     fun `should decode instance`() {
