@@ -199,12 +199,12 @@ fun substrateRegistryPreset(): TypeRegistry {
     }
 }
 
-internal fun MutableMap<String, TypeReference>.getTypeReference(key: String): TypeReference {
-    return getOrPut(key) { TypeReference(null) }
-}
-
 fun kusamaBaseTypes(): TypeRegistry {
     return TypeRegistry().apply {
         registerFakeType("AccountIdAddress")
     }
+}
+
+internal fun MutableMap<String, TypeReference>.getTypeReference(key: String): TypeReference {
+    return getOrPut(key) { TypeReference(null) }
 }

@@ -2,18 +2,19 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
+import jp.co.soramitsu.fearless_utils.scale.dataType.byteArray
 
-open class FixedByteArray(name: String, val length: Int) : Primitive<ByteArray>(name) {
+class DynamicByteArray(name: String) : Primitive<ByteArray>(name) {
 
     override fun decode(scaleCodecReader: ScaleCodecReader): ByteArray {
-        return scaleCodecReader.readByteArray(length)
+        return byteArray.read(scaleCodecReader)
     }
 
     override fun encode(scaleCodecWriter: ScaleCodecWriter, value: ByteArray) {
-        return scaleCodecWriter.directWrite(value, 0, length)
+        return byteArray.write(scaleCodecWriter, value)
     }
 
     override fun isValidInstance(instance: Any?): Boolean {
-        return instance is ByteArray && instance.size == length
+        return instance is ByteArray
     }
 }

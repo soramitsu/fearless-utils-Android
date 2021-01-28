@@ -10,13 +10,20 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Option
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Compact
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.DynamicByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 
 object VectorExtension : WrapperExtension() {
     override val wrapperName = "Vec"
 
-    override fun createWrapper(name: String, innerTypeRef: TypeReference) = Vec(name, innerTypeRef)
+    override fun createWrapper(name: String, innerTypeRef: TypeReference): Type<*> {
+        return if (innerTypeRef.value == u8) {
+            DynamicByteArray(name)
+        } else {
+            Vec(name, innerTypeRef)
+        }
+    }
 }
 
 object CompactExtension : WrapperExtension() {
