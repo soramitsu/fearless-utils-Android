@@ -110,6 +110,6 @@ class RpcSocket(
     }
 
     private fun isSubscriptionChange(string: String): Boolean {
-        return string.contains("change")
+        return !string.startsWith("{id:")
     }
 }
