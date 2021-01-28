@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.wsrpc.socket
 
 import com.google.gson.Gson
+import com.google.gson.JsonParser
 import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocketException
@@ -33,6 +34,8 @@ class RpcSocket(
     private val gson: Gson
 ) {
     val ws = factory.createSocket(url)
+
+    private val jsonParser = JsonParser()
 
     init {
         setupListener(listener)
@@ -110,6 +113,6 @@ class RpcSocket(
     }
 
     private fun isSubscriptionChange(string: String): Boolean {
-        return !string.startsWith("{id:")
+        return kotlin.runCatching { !jsonParser.parse(string).asJsonObject.has("id") }.getOrDefault(false)
     }
 }
