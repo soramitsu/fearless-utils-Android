@@ -3,7 +3,6 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 
 class FakeType(name: String) : Type<Nothing>(name) {
 

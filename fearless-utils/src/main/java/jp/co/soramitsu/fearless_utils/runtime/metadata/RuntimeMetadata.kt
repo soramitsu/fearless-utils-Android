@@ -5,14 +5,13 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.isFullyResolved
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
-import java.lang.IllegalArgumentException
 import java.math.BigInteger
 
 interface WithName {
     val name: String
 }
 
-fun <T: WithName> List<T>.groupByName() = map { it.name to it }.toMap()
+fun <T : WithName> List<T>.groupByName() = map { it.name to it }.toMap()
 
 class RuntimeMetadata(
     val runtimeVersion: BigInteger,
@@ -24,7 +23,8 @@ class RuntimeMetadata(
         struct: EncodableStruct<RuntimeMetadataSchema>
     ) : this(
         runtimeVersion = struct[RuntimeMetadataSchema.runtimeVersion].toInt().toBigInteger(),
-        modules = struct[RuntimeMetadataSchema.modules].map { Module(typeRegistry, it) }.groupByName(),
+        modules = struct[RuntimeMetadataSchema.modules].map { Module(typeRegistry, it) }
+            .groupByName(),
         extrinsic = ExtrinsicMetadata(struct[RuntimeMetadataSchema.extrinsic])
     )
 }
@@ -44,9 +44,12 @@ class Module(
     ) : this(
         name = struct[ModuleMetadataSchema.name],
         storage = struct[ModuleMetadataSchema.storage]?.let { Storage(typeRegistry, it) },
-        calls = struct[ModuleMetadataSchema.calls]?.map { Function(typeRegistry, it) }?.groupByName(),
-        events = struct[ModuleMetadataSchema.events]?.map { Event(typeRegistry, it) }?.groupByName(),
-        constants = struct[ModuleMetadataSchema.constants].map { Constant(typeRegistry, it) }.groupByName(),
+        calls = struct[ModuleMetadataSchema.calls]?.map { Function(typeRegistry, it) }
+            ?.groupByName(),
+        events = struct[ModuleMetadataSchema.events]?.map { Event(typeRegistry, it) }
+            ?.groupByName(),
+        constants = struct[ModuleMetadataSchema.constants].map { Constant(typeRegistry, it) }
+            .groupByName(),
         errors = struct[ModuleMetadataSchema.errors].map(::Error).groupByName(),
         index = struct[ModuleMetadataSchema.index].toInt().toBigInteger()
     )
@@ -61,7 +64,8 @@ class Storage(
         struct: EncodableStruct<StorageMetadataSchema>
     ) : this(
         prefix = struct[StorageMetadataSchema.prefix],
-        entries = struct[StorageMetadataSchema.entries].map { StorageEntry(typeRegistry, it) }.groupByName()
+        entries = struct[StorageMetadataSchema.entries].map { StorageEntry(typeRegistry, it) }
+            .groupByName()
     )
 }
 
@@ -86,9 +90,9 @@ class StorageEntry(
 
 sealed class StorageEntryType {
     companion object {
-        fun from(typeRegistry: TypeRegistry, value: Any?) = when(value) {
+        fun from(typeRegistry: TypeRegistry, value: Any?) = when (value) {
             is String -> Plain(typeRegistry, value)
-            is EncodableStruct<*> -> when(value.schema) {
+            is EncodableStruct<*> -> when (value.schema) {
                 MapSchema -> Map(typeRegistry, value)
                 DoubleMapSchema -> DoubleMap(typeRegistry, value)
                 else -> cannotConstruct(value)
@@ -96,7 +100,7 @@ sealed class StorageEntryType {
             else -> cannotConstruct(value)
         }
 
-        private fun cannotConstruct(from: Any?) : Nothing {
+        private fun cannotConstruct(from: Any?): Nothing {
             throw IllegalArgumentException("Cannot construct StorageEntryType from $from")
         }
     }
@@ -121,11 +125,11 @@ sealed class StorageEntryType {
         constructor(
             typeRegistry: TypeRegistry,
             struct: EncodableStruct<*>
-        ) : this (
+        ) : this(
             hasher = struct[MapSchema.hasher],
             key = typeRegistry[struct[MapSchema.key]],
             value = typeRegistry[struct[MapSchema.value]],
-            unused = struct[MapSchema.unused],
+            unused = struct[MapSchema.unused]
         )
     }
 
@@ -139,12 +143,12 @@ sealed class StorageEntryType {
         constructor(
             typeRegistry: TypeRegistry,
             struct: EncodableStruct<*>
-        ) : this (
+        ) : this(
             key1Hasher = struct[DoubleMapSchema.key1Hasher],
             key2Hasher = struct[DoubleMapSchema.key2Hasher],
-            key1 =typeRegistry[struct[DoubleMapSchema.key1]],
-            key2 =typeRegistry[struct[DoubleMapSchema.key2]],
-            value =typeRegistry[struct[DoubleMapSchema.value]]
+            key1 = typeRegistry[struct[DoubleMapSchema.key1]],
+            key2 = typeRegistry[struct[DoubleMapSchema.key2]],
+            value = typeRegistry[struct[DoubleMapSchema.value]]
         )
     }
 }
@@ -159,7 +163,12 @@ class Function(
         struct: EncodableStruct<FunctionMetadataSchema>
     ) : this(
         name = struct[FunctionMetadataSchema.name],
-        arguments = struct[FunctionMetadataSchema.arguments].map { FunctionArgument(typeRegistry, it) },
+        arguments = struct[FunctionMetadataSchema.arguments].map {
+            FunctionArgument(
+                typeRegistry,
+                it
+            )
+        },
         documentation = struct[FunctionMetadataSchema.documentation]
     )
 }
@@ -190,7 +199,6 @@ class Event(
         arguments = struct[EventMetadataSchema.arguments].map { typeRegistry[it] },
         documentation = struct[EventMetadataSchema.documentation]
     )
-
 }
 
 class Constant(
@@ -206,7 +214,7 @@ class Constant(
         name = struct[ModuleConstantMetadataSchema.name],
         type = typeRegistry[struct[ModuleConstantMetadataSchema.type]],
         valueRaw = struct[ModuleConstantMetadataSchema.value],
-        documentation = struct[ModuleConstantMetadataSchema.documentation],
+        documentation = struct[ModuleConstantMetadataSchema.documentation]
     )
 
     val value: Any?
@@ -225,7 +233,7 @@ class Error(
         struct: EncodableStruct<ErrorMetadataSchema>
     ) : this(
         name = struct[ErrorMetadataSchema.name],
-        documentation = struct[ErrorMetadataSchema.documentation],
+        documentation = struct[ErrorMetadataSchema.documentation]
     )
 }
 
@@ -237,6 +245,6 @@ class ExtrinsicMetadata(
         struct: EncodableStruct<ExtrinsicMetadataSchema>
     ) : this(
         version = struct[ExtrinsicMetadataSchema.version].toInt().toBigInteger(),
-        signedExtensions = struct[ExtrinsicMetadataSchema.signedExtensions],
+        signedExtensions = struct[ExtrinsicMetadataSchema.signedExtensions]
     )
 }

@@ -45,7 +45,7 @@ class TypeRegistry(
     operator fun get(
         definition: String,
         resolveAliasing: Boolean = true,
-        storageOnly: Boolean = false,
+        storageOnly: Boolean = false
     ): Type<*>? {
         val typeRef = getTypeReference(definition, resolveAliasing, storageOnly)
 
@@ -55,7 +55,7 @@ class TypeRegistry(
     inline operator fun <reified R> get(
         key: String,
         resolveAliasing: Boolean = true,
-        storageOnly: Boolean = false,
+        storageOnly: Boolean = false
     ): R? {
         val type = get(key, resolveAliasing, storageOnly)
 
@@ -142,7 +142,7 @@ class TypeRegistry(
 
 fun TypeRegistry.copy() = this + TypeRegistry()
 
-private fun TypeReference.maybeResolveAliasing(resolveAliasing: Boolean) : TypeReference {
+private fun TypeReference.maybeResolveAliasing(resolveAliasing: Boolean): TypeReference {
     return if (resolveAliasing) resolveAliasing() else this
 }
 

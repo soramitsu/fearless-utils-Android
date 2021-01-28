@@ -11,7 +11,7 @@ abstract class WrapperType<I>(name: String, val typeReference: TypeReference) : 
     override val isFullyResolved: Boolean
         get() = typeReference.isResolved()
 
-    inline fun <reified R> innerType() : R? {
+    inline fun <reified R> innerType(): R? {
         return typeReference.value as? R?
     }
 }

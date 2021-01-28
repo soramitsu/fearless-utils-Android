@@ -28,7 +28,7 @@ class Tuple(name: String, val typeReferences: List<TypeReference>) : Type<List<*
         }
     }
 
-    operator fun get(index: Int) : Type<*>? = typeReferences[index].resolveAliasing().value
+    operator fun get(index: Int): Type<*>? = typeReferences[index].resolveAliasing().value
 
     inline operator fun <reified R> get(index: Int): R? = get(index) as? R
 

@@ -6,7 +6,6 @@ import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import java.io.ByteArrayOutputStream
-import java.lang.IllegalArgumentException
 
 class InvalidInstanceException : Exception()
 
@@ -36,7 +35,7 @@ class TypeReference(var value: Type<*>?) {
     private fun isInRecursion() = resolutionInProgress
 }
 
-fun TypeReference.resolveAliasing() : TypeReference {
+fun TypeReference.resolveAliasing(): TypeReference {
     var aliased = this
 
     while (true) {
@@ -50,7 +49,7 @@ fun TypeReference.resolveAliasing() : TypeReference {
     return aliased
 }
 
-fun Type<*>.resolveAliasing() : Type<*>? {
+fun Type<*>.resolveAliasing(): Type<*>? {
     if (this !is Alias) return this
 
     return aliasedReference.resolveAliasing().value
@@ -58,10 +57,9 @@ fun Type<*>.resolveAliasing() : Type<*>? {
 
 fun Type<*>?.isFullyResolved() = this?.isFullyResolved ?: false
 
-
 abstract class Type<InstanceType>(val name: String) {
 
-    abstract val isFullyResolved : Boolean
+    abstract val isFullyResolved: Boolean
 
     abstract fun decode(scaleCodecReader: ScaleCodecReader): InstanceType
 
