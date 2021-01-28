@@ -11,6 +11,7 @@ import jp.co.soramitsu.fearless_utils.wsrpc.logging.Logger
 import jp.co.soramitsu.fearless_utils.wsrpc.request.base.RpcRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
+import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 interface RpcSocketListener {
@@ -110,6 +111,6 @@ class RpcSocket(
     }
 
     private fun isSubscriptionChange(string: String): Boolean {
-        return !string.startsWith("{id:")
+        return runCatching { !JSONObject(string).has("id") }.getOrDefault(false)
     }
 }
