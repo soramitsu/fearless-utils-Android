@@ -247,12 +247,12 @@ class TypeDefinitionParserTest {
     fun `should parse vector`() {
 
         val initialTypeRegistry = typeRegistry {
-            registerType(u8)
+            registerType(BooleanType)
         }
 
         val definitions = definitions {
             """
-            "C": "Vec<u8>"
+            "C": "Vec<bool>"
             """
         }
 
@@ -262,7 +262,7 @@ class TypeDefinitionParserTest {
 
         assertInstance<Vec>(C)
 
-        assertEquals(C.typeReference.value, u8)
+        assertEquals(C.typeReference.value, BooleanType)
     }
 
     @Test
