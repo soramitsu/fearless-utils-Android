@@ -4,17 +4,18 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasing
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasingOrNull
 
 class Tuple(name: String, val typeReferences: List<TypeReference>) : Type<List<*>>(name) {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader): List<*> {
-        return typeReferences.map { it.requireValue().decode(scaleCodecReader) }
+    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): List<*> {
+        return typeReferences.map { it.requireValue().decode(scaleCodecReader, runtime) }
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: List<*>) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: List<*>) {
         typeReferences.zip(value).onEach { (type, value) ->
-            type.requireValue().encodeUnsafe(scaleCodecWriter, value)
+            type.requireValue().encodeUnsafe(scaleCodecWriter, runtime, value)
         }
     }
 
@@ -28,7 +29,7 @@ class Tuple(name: String, val typeReferences: List<TypeReference>) : Type<List<*
         }
     }
 
-    operator fun get(index: Int): Type<*>? = typeReferences[index].resolveAliasing().value
+    operator fun get(index: Int): Type<*>? = typeReferences[index].resolveAliasingOrNull()?.value
 
     inline operator fun <reified R> get(index: Int): R? = get(index) as? R
 

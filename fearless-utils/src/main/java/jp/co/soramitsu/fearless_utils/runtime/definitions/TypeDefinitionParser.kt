@@ -2,7 +2,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.copy
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substrateRegistryPreset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
@@ -36,7 +36,7 @@ object TypeDefinitionParser {
 
     fun parseTypeDefinitions(
         tree: TypeDefinitionsTree,
-        prepopulatedTypeRegistry: TypeRegistry = substrateRegistryPreset()
+        prepopulatedTypeRegistry: TypeRegistry = substratePreParsePreset()
     ): ParseResult {
         val params = Params(tree, prepopulatedTypeRegistry.copy())
 

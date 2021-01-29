@@ -4,6 +4,7 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint
 import java.math.BigInteger
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 
 val u8 = UIntType(8)
 val u16 = UIntType(16)
@@ -22,9 +23,9 @@ class UIntType(bits: Int) : NumberType("u$bits") {
 
     private val codec = uint(size = bytes)
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: BigInteger) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: BigInteger) {
         codec.write(scaleCodecWriter, value)
     }
 
-    override fun decode(scaleCodecReader: ScaleCodecReader) = codec.read(scaleCodecReader)
+    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot) = codec.read(scaleCodecReader)
 }

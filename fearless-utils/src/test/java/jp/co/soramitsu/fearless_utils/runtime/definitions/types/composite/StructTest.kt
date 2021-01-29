@@ -30,14 +30,14 @@ class StructTest : BaseTypeTest() {
 
     @Test
     fun `should decode instance`() {
-        val decoded = type.fromHex(expectedInHex)
+        val decoded = type.fromHex(runtime, expectedInHex)
 
         assertEquals(expectedInstance, decoded.mapping)
     }
 
     @Test
     fun `should encode instance`() {
-        val encoded = type.toHex(Struct.Instance(expectedInstance))
+        val encoded = type.toHex(runtime, Struct.Instance(expectedInstance))
 
         assertEquals(expectedInHex, encoded)
     }

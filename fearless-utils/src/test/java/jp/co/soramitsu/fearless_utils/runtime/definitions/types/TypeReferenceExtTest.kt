@@ -56,4 +56,18 @@ class TypeReferenceExtTest {
 
         assertThrows<CyclicAliasingException> { alias1Ref.resolveAliasing() }
     }
+
+    @Test
+    fun `should return null on cycling-aliasing`() {
+        val alias1Ref = TypeReference(null)
+        val alias2Ref = TypeReference(null)
+
+        val alias1 = Alias("A", alias2Ref)
+        val alias2 = Alias("B", alias1Ref)
+
+        alias1Ref.value = alias1
+        alias2Ref.value = alias2
+
+        assertEquals(null, alias1Ref.resolveAliasingOrNull())
+    }
 }

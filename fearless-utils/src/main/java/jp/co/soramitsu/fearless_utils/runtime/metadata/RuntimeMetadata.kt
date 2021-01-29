@@ -4,11 +4,11 @@ import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromByteArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.isFullyResolved
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytesOrNull
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import java.math.BigInteger
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+
 
 interface WithName {
     val name: String
@@ -30,6 +30,14 @@ class RuntimeMetadata(
             .groupByName(),
         extrinsic = ExtrinsicMetadata(struct[RuntimeMetadataSchema.extrinsic])
     )
+
+    fun getModule(index: Int): Module? = modules.values.find { it.index == index.toBigInteger() }
+
+    fun getCall(moduleIndex: Int, callIndex: Int) : Function? {
+        val module = getModule(moduleIndex)
+
+        return module?.calls?.values?.elementAtOrNull(callIndex)
+    }
 }
 
 class Module(
@@ -99,6 +107,7 @@ class StorageEntry(
     val documentation: List<String>,
     private val moduleName: String
 ) : WithName {
+
     constructor(
         typeRegistry: TypeRegistry,
         struct: EncodableStruct<StorageEntryMetadataSchema>,
@@ -118,21 +127,21 @@ class StorageEntry(
         return (moduleHash() + serviceHash()).toHexString(withPrefix = true)
     }
 
-    fun storageKey(key1: Any?): String? {
+    fun storageKey(runtime: RuntimeSnapshot, key1: Any?): String? {
         if (type !is StorageEntryType.Map) return null
 
-        val key1Encoded = type.key?.bytes(key1) ?: return null
+        val key1Encoded = type.key?.bytesOrNull(runtime, key1) ?: return null
 
         val storageKey = moduleHash() + serviceHash() + type.hasher.hashingFunction(key1Encoded)
 
         return storageKey.toHexString(withPrefix = true)
     }
 
-    fun storageKey(key1: Any?, key2: Any?): String? {
+    fun storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): String? {
         if (type !is StorageEntryType.DoubleMap) return null
 
-        val key1Encoded = type.key1?.bytes(key1) ?: return null
-        val key2Encoded = type.key2?.bytes(key2) ?: return null
+        val key1Encoded = type.key1?.bytesOrNull(runtime, key1) ?: return null
+        val key2Encoded = type.key2?.bytesOrNull(runtime, key2) ?: return null
 
         val key1Hashed = type.key1Hasher.hashingFunction(key1Encoded)
         val key2Hashed = type.key2Hasher.hashingFunction(key2Encoded)
@@ -264,7 +273,7 @@ class Event(
 class Constant(
     override val name: String,
     val type: Type<*>?,
-    val valueRaw: ByteArray,
+    val value: ByteArray,
     val documentation: List<String>
 ) : WithName {
     constructor(
@@ -273,16 +282,9 @@ class Constant(
     ) : this(
         name = struct[ModuleConstantMetadataSchema.name],
         type = typeRegistry[struct[ModuleConstantMetadataSchema.type]],
-        valueRaw = struct[ModuleConstantMetadataSchema.value],
+        value = struct[ModuleConstantMetadataSchema.value],
         documentation = struct[ModuleConstantMetadataSchema.documentation]
     )
-
-    val value: Any?
-        get() = if (type.isFullyResolved()) {
-            type!!.fromByteArray(valueRaw)
-        } else {
-            null
-        }
 }
 
 class Error(

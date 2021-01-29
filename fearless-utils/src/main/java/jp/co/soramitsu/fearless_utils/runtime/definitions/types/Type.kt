@@ -2,14 +2,8 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
-import java.io.ByteArrayOutputStream
-
-class InvalidInstanceException : Exception()
-
-typealias TypeMapping = LinkedHashMap<String, TypeReference>
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
 
 class TypeReference(var value: Type<*>?) {
     private var resolutionInProgress: Boolean = false
@@ -35,63 +29,33 @@ class TypeReference(var value: Type<*>?) {
     private fun isInRecursion() = resolutionInProgress
 }
 
-fun Type<*>.resolveAliasing(): Type<*>? {
-    if (this !is Alias) return this
-
-    return aliasedReference.resolveAliasing().value
-}
-
-fun Type<*>?.isFullyResolved() = this?.isFullyResolved ?: false
-
 abstract class Type<InstanceType>(val name: String) {
 
     abstract val isFullyResolved: Boolean
 
-    abstract fun decode(scaleCodecReader: ScaleCodecReader): InstanceType
+    /**
+     * @throws EncodeDecodeException
+     */
+    abstract fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): InstanceType
 
-    abstract fun encode(scaleCodecWriter: ScaleCodecWriter, value: InstanceType)
-
-    @Suppress("UNCHECKED_CAST")
-    fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, value: Any?) {
-        if (!isValidInstance(value)) throw InvalidInstanceException()
-
-        encode(scaleCodecWriter, value as InstanceType)
-    }
+    /**
+     * @throws EncodeDecodeException
+     */
+    abstract fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: InstanceType)
 
     abstract fun isValidInstance(instance: Any?): Boolean
+
+    /**
+     * @throws EncodeDecodeException
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Any?) {
+        if (!isValidInstance(value)) throw EncodeDecodeException("$value is not a valid instance if $this")
+
+        encode(scaleCodecWriter, runtime, value as InstanceType)
+    }
 
     override fun toString(): String {
         return name
     }
 }
-
-fun <I> Type<I>.fromByteArray(byteArray: ByteArray): I {
-    val reader = ScaleCodecReader(byteArray)
-
-    return decode(reader)
-}
-
-fun <I> Type<I>.fromHex(hex: String): I {
-    return fromByteArray(hex.fromHex())
-}
-
-fun Type<*>.bytes(value: Any?): ByteArray? {
-    return runCatching {
-        val stream = ByteArrayOutputStream()
-        val writer = ScaleCodecWriter(stream)
-
-        encodeUnsafe(writer, value)
-        stream.toByteArray()
-    }.getOrNull()
-}
-
-fun <I> Type<I>.toByteArray(value: I): ByteArray {
-    val stream = ByteArrayOutputStream()
-    val writer = ScaleCodecWriter(stream)
-
-    encode(writer, value)
-
-    return stream.toByteArray()
-}
-
-fun <I> Type<I>.toHex(value: I) = toByteArray(value).toHexString(withPrefix = true)

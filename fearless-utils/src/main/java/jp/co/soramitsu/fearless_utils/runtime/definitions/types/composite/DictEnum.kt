@@ -4,7 +4,9 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasing
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasingOrNull
 
 class DictEnum(
     name: String,
@@ -13,26 +15,26 @@ class DictEnum(
 
     class Entry<out T>(val name: String, val value: T)
 
-    override fun decode(scaleCodecReader: ScaleCodecReader): Entry<Any?> {
+    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Entry<Any?> {
         val typeIndex = scaleCodecReader.readByte()
         val entry = elements[typeIndex.toInt()]
 
-        val decoded = entry.value.requireValue().decode(scaleCodecReader)
+        val decoded = entry.value.requireValue().decode(scaleCodecReader, runtime)
 
         return Entry(entry.name, decoded)
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Entry<Any?>) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Entry<Any?>) {
         val index = elements.indexOfFirst { it.name == value.name }
 
         if (index == -1) {
-            throw IllegalArgumentException("No ${value.name} in ${elements.map(Entry<*>::name)}")
+            throw EncodeDecodeException("No ${value.name} in ${elements.map(Entry<*>::name)}")
         }
 
         val type = elements[index].value.requireValue()
 
         scaleCodecWriter.writeByte(index)
-        type.encodeUnsafe(scaleCodecWriter, value.value)
+        type.encodeUnsafe(scaleCodecWriter, runtime, value.value)
     }
 
     override fun isValidInstance(instance: Any?): Boolean {
@@ -44,7 +46,7 @@ class DictEnum(
     }
 
     operator fun get(name: String): Type<*>? {
-        return elements.find { it.name == name }?.value?.resolveAliasing()?.value
+        return elements.find { it.name == name }?.value?.resolveAliasingOrNull()?.value
     }
 
     override val isFullyResolved: Boolean

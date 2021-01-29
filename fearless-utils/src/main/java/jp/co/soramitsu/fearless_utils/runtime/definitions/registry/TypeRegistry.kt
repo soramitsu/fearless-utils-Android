@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.registry
 import jp.co.soramitsu.fearless_utils.extensions.tryFindNonNull
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.CompactExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.FixedArrayExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.OptionExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.TupleExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.VectorExtension
@@ -11,6 +12,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
@@ -146,7 +148,7 @@ private fun TypeReference.maybeResolveAliasing(resolveAliasing: Boolean): TypeRe
     return if (resolveAliasing) resolveAliasing() else this
 }
 
-fun substrateRegistryPreset(): TypeRegistry {
+fun substratePreParsePreset(): TypeRegistry {
     return TypeRegistry().apply {
         registerType(BooleanType)
 
@@ -158,12 +160,11 @@ fun substrateRegistryPreset(): TypeRegistry {
         registerType(u256)
 
         registerType(GenericAccountId)
-
         registerType(Null)
+        registerType(GenericCall)
 
         registerFakeType("GenericBlock")
 
-        registerFakeType("GenericCall")
         registerFakeType("H160")
         registerFakeType("H256")
         registerFakeType("H512")
@@ -189,8 +190,6 @@ fun substrateRegistryPreset(): TypeRegistry {
         addExtension(FixedArrayExtension)
         addExtension(TupleExtension)
 
-        addPreprocessor(RemoveGenericNoisePreprocessor)
-
         registerAlias("<T::Lookup as StaticLookup>::Source", "LookupSource")
         registerAlias("U64", "u64")
         registerAlias("U32", "u32")
@@ -202,6 +201,13 @@ fun substrateRegistryPreset(): TypeRegistry {
 fun kusamaBaseTypes(): TypeRegistry {
     return TypeRegistry().apply {
         registerFakeType("AccountIdAddress")
+    }
+}
+
+fun metadataDynamicResolutionExtras() : TypeRegistry {
+    return TypeRegistry().apply {
+        addExtension(GenericsExtension)
+        addPreprocessor(RemoveGenericNoisePreprocessor)
     }
 }
 

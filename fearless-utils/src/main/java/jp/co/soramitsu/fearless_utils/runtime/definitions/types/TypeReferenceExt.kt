@@ -4,6 +4,9 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 
 class CyclicAliasingException : Exception()
 
+/**
+ * @throws CyclicAliasingException
+ */
 fun TypeReference.resolveAliasing(): TypeReference {
     var aliased = this
 
@@ -24,4 +27,8 @@ fun TypeReference.resolveAliasing(): TypeReference {
     }
 
     return aliased
+}
+
+fun TypeReference.resolveAliasingOrNull() : TypeReference? {
+    return runCatching { resolveAliasing() }.getOrNull()
 }
