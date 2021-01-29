@@ -11,7 +11,7 @@ interface WithName {
     val name: String
 }
 
-fun <T : WithName> List<T>.groupByName() = map { it.name to it }.toMap()
+fun <T : WithName> List<T>.groupByName() = associateBy { it.name }
 
 class RuntimeMetadata(
     val runtimeVersion: BigInteger,

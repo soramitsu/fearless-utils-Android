@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.runtime.metadata
+package jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.state
 
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.RuntimeRequest
 

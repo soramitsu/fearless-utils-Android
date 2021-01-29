@@ -35,24 +35,10 @@ class TypeReference(var value: Type<*>?) {
     private fun isInRecursion() = resolutionInProgress
 }
 
-fun TypeReference.resolveAliasing(): TypeReference {
-    var aliased = this
-
-    while (true) {
-        val aliasedValue = aliased.value
-
-        if (aliasedValue !is Alias) break
-
-        aliased = aliasedValue.aliasedReference
-    }
-
-    return aliased
-}
-
 fun Type<*>.resolveAliasing(): Type<*>? {
     if (this !is Alias) return this
 
-    return aliasedReference.resolveAliasing().value
+    return aliasedReference.resolveAliasing()?.value
 }
 
 fun Type<*>?.isFullyResolved() = this?.isFullyResolved ?: false
