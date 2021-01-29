@@ -1,51 +1,28 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
-import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.Stub
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-
 class OptionTest : BaseTypeTest() {
 
     private val optionalBoolean = Option(
         "test",
-        BooleanType
+        TypeReference(BooleanType)
     )
 
     private val optionalU8 = Option(
         "test",
-        u8
+        TypeReference(u8)
     )
-
-    @Test
-    fun `should return self if no stubs found`() {
-        val newType = optionalBoolean.replaceStubs(typeRegistry)
-
-        assert(newType === optionalBoolean)
-    }
-
-    @Test
-    fun `should return modified copy if stubs were found`() {
-        val typeWithStubs = Option(
-            "test",
-            Stub("u8")
-        )
-
-        val newType = typeWithStubs.replaceStubs(typeRegistry)
-
-        assert(newType !== typeWithStubs)
-        assertInstance<UIntType>(newType.type)
-    }
 
     @Test
     fun `should decode optional true`() {

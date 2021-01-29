@@ -2,29 +2,23 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.replaceStubsWithChildren
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasing
 
 @Suppress("UNCHECKED_CAST")
 class Struct(
     name: String,
-    val mapping: LinkedHashMap<String, Type<*>>
+    val mapping: LinkedHashMap<String, TypeReference>
 ) : Type<Struct.Instance>(name) {
 
     class Instance(val mapping: Map<String, Any?>) {
         inline operator fun <reified R> get(key: String): R? = mapping[key] as? R
     }
 
-    override fun replaceStubs(registry: TypeRegistry): Struct {
-        return replaceStubsWithChildren(registry, mapping) { newChildren ->
-            Struct(name, newChildren)
-        }
-    }
-
     override fun decode(scaleCodecReader: ScaleCodecReader): Instance {
         val values = mapping.mapValues { (_, type) ->
-            type.decode(scaleCodecReader)
+            type.requireValue().decode(scaleCodecReader)
         }
 
         return Instance(values)
@@ -32,7 +26,7 @@ class Struct(
 
     override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Instance) {
         mapping.forEach { (name, type) ->
-            type.encodeUnsafe(scaleCodecWriter, value[name])
+            type.requireValue().encodeUnsafe(scaleCodecWriter, value[name])
         }
     }
 
@@ -40,9 +34,12 @@ class Struct(
         if (instance !is Instance) return false
 
         return mapping.all { (key, child) ->
-            child.isValidInstance(instance[key])
+            child.requireValue().isValidInstance(instance[key])
         }
     }
 
-    inline operator fun <reified R> get(key: String): R? = mapping[key] as? R
+    inline operator fun <reified R : Type<*>> get(key: String): R? = mapping[key]?.value?.resolveAliasing() as? R
+
+    override val isFullyResolved: Boolean
+        get() = mapping.all { (_, ref) -> ref.isResolved() }
 }

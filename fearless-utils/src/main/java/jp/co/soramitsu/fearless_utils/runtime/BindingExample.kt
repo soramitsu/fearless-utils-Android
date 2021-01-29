@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromByteArray
 import jp.co.soramitsu.fearless_utils.wsrpc.request.base.RpcRequest

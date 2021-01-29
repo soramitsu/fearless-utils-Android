@@ -1,132 +1,77 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.copy
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substrateRegistryPreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.CollectionEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Option
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.SetType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Compact
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.NumberType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.Stub
 import java.math.BigInteger
-import java.util.Locale
 
 class TypeDefinitionsTree(val types: Map<String, Any>)
 
 class ParseResult(
     val typeRegistry: TypeRegistry,
-    val unknownTypes: Set<String>
+    val unknownTypes: List<String>
 )
 
 private const val TOKEN_SET = "set"
 private const val TOKEN_STRUCT = "struct"
 private const val TOKEN_ENUM = "enum"
 
-class TypeDefinitionParser {
+// 1. we don't want extensions to process complex types that explicitly defined (storageOnly = true)
+// 2. we want to keep original structure of types while parsing (resolveAliasing = false)
+private fun TypeRegistry.getForParsing(typeDef: String) = getTypeReference(typeDef, resolveAliasing = false, storageOnly = true)
 
-    private lateinit var parsedTree: TypeDefinitionsTree
-    private lateinit var loweCaseTypes: Map<String, Any>
+object TypeDefinitionParser {
 
-    private lateinit var unknownTypes: MutableSet<String>
-    private lateinit var typeRegistry: TypeRegistry
-
-    private val inProgress = mutableSetOf<String>()
-
-    private var forceOverride: Boolean = false
+    class Params(
+        val tree: TypeDefinitionsTree,
+        val typeRegistry: TypeRegistry
+    )
 
     fun parseTypeDefinitions(
         tree: TypeDefinitionsTree,
-        prepopulatedTypeRegistry: TypeRegistry = substrateBaseTypes(),
-        forceOverride: Boolean = false
+        prepopulatedTypeRegistry: TypeRegistry = substrateRegistryPreset()
     ): ParseResult {
+        val params = Params(tree, prepopulatedTypeRegistry.copy())
 
-        parsedTree = tree
-        loweCaseTypes = parsedTree.types.mapKeys { (key, _) -> key.toLowerCase(Locale.ROOT) }
+        for (name in tree.types.keys) {
+            val type = parse(params, name) ?: continue
 
-        unknownTypes = mutableSetOf()
-        typeRegistry = prepopulatedTypeRegistry
-
-        inProgress.clear()
-
-        this.forceOverride = forceOverride
-
-        for (name in parsedTree.types.keys) {
-            retrieveOrParse(name)
+            params.typeRegistry.registerType(type)
         }
 
-        typeRegistry.removeStubs()
+        val unknownTypes = params.typeRegistry.allTypeRefs()
+            .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
 
-        return ParseResult(typeRegistry, unknownTypes)
+        return ParseResult(params.typeRegistry, unknownTypes)
     }
 
-    private fun retrieveOrParse(name: String): Type<*>? {
-        val result = if (forceOverride) {
-            parse(name) ?: typeRegistry[name]
-        } else {
-            typeRegistry[name] ?: parse(name)
-        }
+    private fun parse(parsingParams: Params, name: String): Type<*>? {
+        val typeValue = parsingParams.tree.types[name]
 
-        if (result == null) {
-            unknownTypes.plusAssign(name)
-        }
-
-        return result
+        return parseType(parsingParams, name, typeValue)
     }
 
-    private fun parse(name: String): Type<*>? {
-        if (name in inProgress) {
-            return Stub(name)
-        }
+    private fun parseType(parsingParams: Params, name: String, typeValue: Any?): Type<*>? {
+        val typeRegistry = parsingParams.typeRegistry
 
-        inProgress += name
-
-        val typeValue = getFromTree(name)
-
-        val typeFromValue = parseType(name, typeValue)
-
-        if (typeFromValue != null) {
-            inProgress -= name
-
-            return typeFromValue
-        }
-
-        val typeFromName = parseType(name, name)
-
-        inProgress -= name
-
-        return typeFromName
-    }
-
-    private fun getFromTree(name: String): Any? {
-        val withOriginalName = parsedTree.types[name]
-
-        return if (withOriginalName != null) {
-            withOriginalName
-        } else { // letter case mistake correction
-            val lowerCaseName = name.toLowerCase()
-
-            loweCaseTypes[lowerCaseName]
-        }
-    }
-
-    private fun parseType(name: String, typeValue: Any?): Type<*>? {
-
-        val type: Type<*>? = when (typeValue) {
+        return when (typeValue) {
             is String -> {
+                val dynamicType = typeRegistry.resolveFromExtensions(name, typeValue)
+
                 when {
-                    isFixedArray(typeValue) -> parseFixedArray(name, typeValue)
-                    isVector(typeValue) -> parseVec(name, typeValue)
-                    isOption(typeValue) -> parseOption(name, typeValue)
-                    isCompact(typeValue) -> parseCompact(name, typeValue)
-                    isTuple(typeValue) -> parseTuple(name, typeValue)
-                    typeValue == name -> null // avoid infinite recursion
-                    else -> retrieveOrParse(typeValue)
+                    dynamicType != null -> dynamicType
+                    typeValue == name -> typeRegistry.getForParsing(name).value
+                    else -> Alias(
+                        name,
+                        typeRegistry.getForParsing(typeValue)
+                    )
                 }
             }
 
@@ -136,9 +81,9 @@ class TypeDefinitionParser {
                 when (typeValueCasted["type"]) {
                     TOKEN_STRUCT -> {
                         val typeMapping = typeValueCasted["type_mapping"] as List<List<String>>
-                        val children = parseTypeMapping(typeMapping)
+                        val children = parseTypeMapping(typeRegistry, typeMapping)
 
-                        children?.let { Struct(name, it) }
+                        Struct(name, children)
                     }
 
                     TOKEN_ENUM -> {
@@ -149,11 +94,12 @@ class TypeDefinitionParser {
                             valueList != null -> CollectionEnum(name, valueList)
 
                             typeMapping != null -> {
-                                val children = parseTypeMapping(typeMapping)?.map { (name, type) ->
-                                    DictEnum.Entry(name, type)
-                                }
+                                val children =
+                                    parseTypeMapping(typeRegistry, typeMapping).map { (name, typeRef) ->
+                                        DictEnum.Entry(name, typeRef)
+                                    }
 
-                                children?.let { DictEnum(name, it) }
+                                DictEnum(name, children)
                             }
                             else -> null
                         }
@@ -162,17 +108,14 @@ class TypeDefinitionParser {
                     TOKEN_SET -> {
                         val valueTypeName = typeValueCasted["value_type"] as String
                         val valueListRaw = typeValueCasted["value_list"] as Map<String, Double>
-                        val valueType = retrieveOrParse(valueTypeName) as? NumberType
 
-                        valueType?.let { numberType ->
-                            val valueList = valueListRaw.mapValues { (_, value) ->
-                                BigInteger(
-                                    value.toInt().toString()
-                                )
-                            }
+                        val valueTypeRef = typeRegistry.getTypeReference(valueTypeName, resolveAliasing = false)
 
-                            SetType(name, numberType, LinkedHashMap(valueList))
+                        val valueList = valueListRaw.mapValues { (_, value) ->
+                            BigInteger(value.toInt().toString())
                         }
+
+                        SetType(name, valueTypeRef, LinkedHashMap(valueList))
                     }
 
                     else -> null
@@ -181,92 +124,19 @@ class TypeDefinitionParser {
 
             else -> null
         }
-
-        if (type != null) {
-            typeRegistry[name] = type
-        }
-
-        return type
     }
 
-    private fun parseTypeMapping(typeMapping: List<List<String>>): LinkedHashMap<String, Type<*>>? {
-        val children = LinkedHashMap<String, Type<*>>()
+    private fun parseTypeMapping(typeRegistry: TypeRegistry, typeMapping: List<List<String>>): LinkedHashMap<String, TypeReference> {
+        val children = LinkedHashMap<String, TypeReference>()
 
         for ((fieldName, fieldType) in typeMapping) {
-            val type = retrieveOrParse(fieldType)
 
-            if (type != null) {
-                children[fieldName] = type
-            } else {
-                break
-            }
+            // resolveAliasing = false to keep original type structure
+            val typeRef = typeRegistry.getTypeReference(fieldType, resolveAliasing = false)
+
+            children[fieldName] = typeRef
         }
 
-        return if (children.size < typeMapping.size) {
-            null
-        } else {
-            children
-        }
-    }
-
-    private fun isFixedArray(definition: String) = definition.startsWith("[")
-
-    private fun parseFixedArray(name: String, definition: String): Type<*>? {
-        val withoutBrackets = definition.removeSurrounding("[", "]").replace(" ", "")
-        val (typeName, lengthRaw) = withoutBrackets.split(";")
-
-        val length = lengthRaw.toInt()
-
-        val type = retrieveOrParse(typeName) ?: return null
-
-        return if (type == u8) {
-            FixedByteArray(name, length)
-        } else {
-            FixedArray(name, length, type)
-        }
-    }
-
-    private fun isVector(definition: String) = definition.startsWith("Vec<")
-
-    private fun parseVec(name: String, definition: String): Vec? {
-        val innerType = definition.removeSurrounding("Vec<", ">")
-
-        val type = retrieveOrParse(innerType) ?: return null
-
-        return Vec(name, type)
-    }
-
-    private fun isTuple(definition: String) = definition.startsWith("(")
-
-    private fun parseTuple(name: String, definition: String): Tuple? {
-        val innerTypeDefinitions = definition.splitTuple()
-
-        val innerTypes = innerTypeDefinitions.map {
-            val result = retrieveOrParse(it)
-
-            result ?: return null
-        }
-
-        return Tuple(name, innerTypes)
-    }
-
-    private fun isOption(definition: String) = definition.startsWith("Option<")
-
-    private fun parseOption(name: String, definition: String): Option? {
-        val innerType = definition.removeSurrounding("Option<", ">")
-
-        val type = retrieveOrParse(innerType) ?: return null
-
-        return Option(name, type)
-    }
-
-    private fun isCompact(definition: String) = definition.startsWith("Compact<")
-
-    private fun parseCompact(name: String, definition: String): Compact? {
-        val innerType = definition.removeSurrounding("Compact<", ">")
-
-        val type = retrieveOrParse(innerType) as? NumberType ?: return null
-
-        return Compact(name, type)
+        return children
     }
 }

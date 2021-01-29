@@ -3,6 +3,17 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.assertInstance
+import jp.co.soramitsu.fearless_utils.common.getResourceReader
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.CompactExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.FixedArrayExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.GenericsExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.OptionExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.TupleExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.VectorExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaBaseTypes
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.preprocessors.RemoveGenericNoisePreprocessor
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.CollectionEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedArray
@@ -13,6 +24,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.NumberType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
@@ -20,19 +32,15 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.FileReader
-import java.io.InputStreamReader
-import java.io.Reader
 
 
 @RunWith(JUnit4::class)
 class TypeDefinitionParserTest {
 
     val gson = Gson()
-    val parser = TypeDefinitionParser()
 
     @Test
-    fun `should resolve typealias`() {
+    fun `should parse typealias`() {
         val A = FakeType("A")
 
         val initialTypeRegistry = typeRegistry {
@@ -47,11 +55,13 @@ class TypeDefinitionParserTest {
 
         val resultRegistry = parseFromJson(initialTypeRegistry, definitions)
 
-        assertEquals(resultRegistry["B"], A)
+        val B = resultRegistry["B"]
+
+        assertEquals(A, B)
     }
 
     @Test
-    fun `should resolve struct`() {
+    fun `should parse struct`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -89,7 +99,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve dict enum`() {
+    fun `should parse dict enum`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -122,12 +132,12 @@ class TypeDefinitionParserTest {
 
         assertInstance<DictEnum>(C)
 
-        assertEquals(C[0]?.value, A)
-        assertEquals(C[1]?.value, B)
+        assertEquals(C["a"], A)
+        assertEquals(C["b"], B)
     }
 
     @Test
-    fun `should resolve collection enum`() {
+    fun `should parse collection enum`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -159,7 +169,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve set`() {
+    fun `should parse set`() {
 
         val initialTypeRegistry = typeRegistry {
             registerType(u8)
@@ -189,7 +199,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve fixed array`() {
+    fun `should parse fixed array`() {
 
         val initialTypeRegistry = typeRegistry {
             registerType(BooleanType)
@@ -208,11 +218,11 @@ class TypeDefinitionParserTest {
         assertInstance<FixedArray>(C)
 
         assertEquals(C.length, 5)
-        assertEquals(C.type, BooleanType)
+        assertEquals(C.typeReference.value, BooleanType)
     }
 
     @Test
-    fun `should resolve fixed u8 array optimized`() {
+    fun `should parse fixed u8 array optimized`() {
 
         val initialTypeRegistry = typeRegistry {
             registerType(u8)
@@ -234,15 +244,15 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve vector`() {
+    fun `should parse vector`() {
 
         val initialTypeRegistry = typeRegistry {
-            registerType(u8)
+            registerType(BooleanType)
         }
 
         val definitions = definitions {
             """
-            "C": "Vec<u8>"
+            "C": "Vec<bool>"
             """
         }
 
@@ -252,11 +262,11 @@ class TypeDefinitionParserTest {
 
         assertInstance<Vec>(C)
 
-        assertEquals(C.type, u8)
+        assertEquals(C.typeReference.value, BooleanType)
     }
 
     @Test
-    fun `should resolve tuple`() {
+    fun `should parse tuple`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -282,7 +292,7 @@ class TypeDefinitionParserTest {
     }
 
     @Test
-    fun `should resolve option`() {
+    fun `should parse option`() {
         val A = FakeType("A")
 
         val initialTypeRegistry = typeRegistry {
@@ -301,11 +311,11 @@ class TypeDefinitionParserTest {
 
         assertInstance<Option>(C)
 
-        assertEquals(C.type, A)
+        assertEquals(C.innerType, A)
     }
 
     @Test
-    fun `should resolve complex type`() {
+    fun `should parse complex type`() {
         val A = FakeType("A")
         val B = FakeType("B")
 
@@ -326,7 +336,7 @@ class TypeDefinitionParserTest {
 
         assertInstance<Vec>(C)
 
-        val innerTuple = C.type
+        val innerTuple = C.innerType
         assertInstance<Tuple>(innerTuple)
 
         assertEquals(A, innerTuple[0])
@@ -334,7 +344,7 @@ class TypeDefinitionParserTest {
         val innerOption = innerTuple[1]
         assertInstance<Option>(innerOption)
 
-        val leafTuple = innerOption.type
+        val leafTuple = innerOption.innerType
         assertInstance<Tuple>(leafTuple)
 
         assertEquals(A, leafTuple[0])
@@ -359,7 +369,7 @@ class TypeDefinitionParserTest {
 
         val tree = gson.fromJson(definitions, TypeDefinitionsTree::class.java)
 
-        val unknown = parser.parseTypeDefinitions(tree, initialTypeRegistry).unknownTypes
+        val unknown = TypeDefinitionParser.parseTypeDefinitions(tree, initialTypeRegistry).unknownTypes
 
         assert("F" in unknown)
     }
@@ -367,12 +377,10 @@ class TypeDefinitionParserTest {
     @Test
     fun `should parse substrate data`() {
         val gson = Gson()
-        val reader = JsonReader(getFileReader("default.json"))
+        val reader = JsonReader(getResourceReader("default.json"))
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
 
-        val parser = TypeDefinitionParser()
-
-        val result = parser.parseTypeDefinitions(tree)
+        val result = TypeDefinitionParser.parseTypeDefinitions(tree)
 
         assertEquals(0, result.unknownTypes.size)
     }
@@ -381,35 +389,45 @@ class TypeDefinitionParserTest {
     fun `should parse network-specific patches`() {
         val gson = Gson()
 
-        val defaultReader = JsonReader(getFileReader("default.json"))
-        val kusamaReader = JsonReader(getFileReader("kusama.json"))
+        val defaultReader = JsonReader(getResourceReader("default.json"))
+        val kusamaReader = JsonReader(getResourceReader("kusama.json"))
 
         val defaultTree = gson.fromJson<TypeDefinitionsTree>(defaultReader, TypeDefinitionsTree::class.java)
         val kusamaTree = gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
-        val parser = TypeDefinitionParser()
+        val defaultParsed = TypeDefinitionParser.parseTypeDefinitions(defaultTree)
 
-        val defaultParsed = parser.parseTypeDefinitions(defaultTree)
+        val keysDefault = defaultParsed.typeRegistry["Keys"]
+        assertEquals("SessionKeysSubstrate", keysDefault?.name)
 
-        val kusamaParsed = parser.parseTypeDefinitions(kusamaTree, defaultParsed.typeRegistry + kusamaBaseTypes(), forceOverride = true)
+        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(kusamaTree, defaultParsed.typeRegistry + kusamaBaseTypes())
 
         assertEquals(0, kusamaParsed.unknownTypes.size)
-        assertEquals(kusamaParsed.typeRegistry["RefCount"], u32)
-        assertEquals(kusamaParsed.typeRegistry["Address"]!!.name, "AccountIdAddress")
+
+        val address = kusamaParsed.typeRegistry["Address"]
+        assertEquals("AccountIdAddress", address?.name)
+
+        val keysKusama = kusamaParsed.typeRegistry["Keys"]
+        assertEquals("SessionKeysPolkadot", keysKusama?.name)
     }
 
-    private fun typeRegistry(builder: TypeRegistry.() -> Unit) = TypeRegistry().apply(builder)
+    private fun typeRegistry(builder: TypeRegistry.() -> Unit) = TypeRegistry().apply {
+        addExtension(VectorExtension)
+        addExtension(CompactExtension)
+        addExtension(OptionExtension)
+        addExtension(FixedArrayExtension)
+        addExtension(TupleExtension)
+        addExtension(GenericsExtension)
+
+        addPreprocessor(RemoveGenericNoisePreprocessor)
+
+        builder(this)
+    }
 
     private fun parseFromJson(initialRegistry: TypeRegistry, json: String): TypeRegistry {
         val tree = gson.fromJson(json, TypeDefinitionsTree::class.java)
 
-        return parser.parseTypeDefinitions(tree, initialRegistry).typeRegistry
-    }
-
-    private fun getFileReader(name: String): Reader  {
-        val inputStream = javaClass.classLoader!!.getResourceAsStream(name)
-
-        return InputStreamReader(inputStream)
+        return TypeDefinitionParser.parseTypeDefinitions(tree, initialRegistry).typeRegistry
     }
 
     private fun definitions(builder: () -> String): String {

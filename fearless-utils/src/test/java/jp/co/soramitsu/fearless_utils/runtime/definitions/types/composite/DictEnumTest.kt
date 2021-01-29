@@ -1,13 +1,11 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
-import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.Stub
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -20,39 +18,15 @@ import org.junit.runners.JUnit4
 class DictEnumTest : BaseTypeTest() {
 
     private val enumValues = listOf(
-        DictEnum.Entry("A", u8),
-        DictEnum.Entry("B", BooleanType),
-        DictEnum.Entry("C", u128),
+        DictEnum.Entry("A", TypeReference(u8)),
+        DictEnum.Entry("B", TypeReference(BooleanType)),
+        DictEnum.Entry("C", TypeReference(u128))
     )
 
     private val type = DictEnum(
         "test",
         enumValues,
     )
-
-    @Test
-    fun `should return self if no stubs found`() {
-        val newType = type.replaceStubs(typeRegistry)
-
-        assert(newType === type)
-    }
-
-    @Test
-    fun `should return modified copy if stubs were found`() {
-        val typeWithStubs = DictEnum(
-            "test",
-            listOf(
-                DictEnum.Entry("B", u8),
-                DictEnum.Entry("A", Stub("bool")),
-                )
-        )
-
-        val newType = typeWithStubs.replaceStubs(typeRegistry)
-
-        assert(newType !== typeWithStubs)
-        assertInstance<UIntType>(newType.elements[0].value)
-        assertEquals(BooleanType, newType.elements[1].value)
-    }
 
     @Test
     fun `should decode instance`() {

@@ -1,6 +1,5 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
@@ -8,7 +7,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -16,13 +14,6 @@ import org.junit.runners.JUnit4
 class EnumTest : BaseTypeTest() {
     private val enumValues = listOf("A", "B", "C")
     private val type = CollectionEnum("test", enumValues)
-
-    @Test
-    fun `should not replace stubs`() {
-        val newType = type.replaceStubs(TypeRegistry())
-
-        assert(newType ===  type)
-    }
 
     @Test
     fun `should decode instance`() {

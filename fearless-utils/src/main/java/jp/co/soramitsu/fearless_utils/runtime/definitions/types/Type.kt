@@ -4,19 +4,48 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import java.io.ByteArrayOutputStream
 
 class InvalidInstanceException : Exception()
 
-typealias TypeMapping = LinkedHashMap<String, Type<*>>
+typealias TypeMapping = LinkedHashMap<String, TypeReference>
+
+class TypeReference(var value: Type<*>?) {
+    private var resolutionInProgress: Boolean = false
+
+    fun requireValue() = value ?: throw IllegalArgumentException("TypeReference is null")
+
+    fun isResolved(): Boolean {
+        if (isInRecursion()) {
+            return true
+        }
+
+        resolutionInProgress = true
+
+        val resolutionResult = resolveRecursive()
+
+        resolutionInProgress = false
+
+        return resolutionResult
+    }
+
+    private fun resolveRecursive() = value?.isFullyResolved ?: false
+
+    private fun isInRecursion() = resolutionInProgress
+}
+
+fun Type<*>.resolveAliasing(): Type<*>? {
+    if (this !is Alias) return this
+
+    return aliasedReference.resolveAliasing()?.value
+}
+
+fun Type<*>?.isFullyResolved() = this?.isFullyResolved ?: false
 
 abstract class Type<InstanceType>(val name: String) {
 
-    /**
-     * Contract - if nothing was replaced, the return type should be === current
-     */
-    internal abstract fun replaceStubs(registry: TypeRegistry): Type<*>
+    abstract val isFullyResolved: Boolean
 
     abstract fun decode(scaleCodecReader: ScaleCodecReader): InstanceType
 
@@ -36,7 +65,7 @@ abstract class Type<InstanceType>(val name: String) {
     }
 }
 
-fun <I, T : Type<I>> T.fromByteArray(byteArray: ByteArray): I {
+fun <I> Type<I>.fromByteArray(byteArray: ByteArray): I {
     val reader = ScaleCodecReader(byteArray)
 
     return decode(reader)
