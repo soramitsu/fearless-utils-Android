@@ -6,6 +6,9 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.h160
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.h256
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.h512
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u16
@@ -65,9 +68,10 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     fakeType("GenericBlock")
 
-    fakeType("H160")
-    fakeType("H256")
-    fakeType("H512")
+    type(h160)
+    type(h256)
+    type(h512)
+
     fakeType("GenericVote")
     fakeType("Bytes")
     fakeType("BitVec")
