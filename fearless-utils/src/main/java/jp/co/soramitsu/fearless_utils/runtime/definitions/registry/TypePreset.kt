@@ -72,7 +72,8 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     type(h256)
     type(h512)
 
-    fakeType("GenericVote")
+    alias("GenericVote", "u8")
+
     fakeType("Bytes")
     fakeType("BitVec")
     fakeType("ExtrinsicsDecoder")
