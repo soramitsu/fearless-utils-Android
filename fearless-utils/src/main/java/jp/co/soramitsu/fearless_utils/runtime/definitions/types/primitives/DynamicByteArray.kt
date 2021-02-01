@@ -5,6 +5,8 @@ import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.scale.dataType.byteArray
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 
+val Bytes = DynamicByteArray("Bytes")
+
 class DynamicByteArray(name: String) : Primitive<ByteArray>(name) {
 
     override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): ByteArray {

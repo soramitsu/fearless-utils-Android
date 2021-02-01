@@ -6,10 +6,11 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.h160
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.h256
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.h512
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H160
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H256
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H512
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u16
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u256
@@ -68,13 +69,14 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     fakeType("GenericBlock")
 
-    type(h160)
-    type(h256)
-    type(h512)
+    type(H160)
+    type(H256)
+    type(H512)
 
     alias("GenericVote", "u8")
 
-    fakeType("Bytes")
+    type(Bytes)
+
     fakeType("BitVec")
     fakeType("ExtrinsicsDecoder")
     fakeType("CallBytes")
