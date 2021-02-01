@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.VectorExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType

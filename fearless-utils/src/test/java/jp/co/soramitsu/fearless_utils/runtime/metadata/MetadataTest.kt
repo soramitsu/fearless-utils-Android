@@ -6,15 +6,14 @@ import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParser
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.GenericsExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaBaseTypes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.metadataDynamicResolutionExtras
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.preprocessors.RemoveGenericNoisePreprocessor
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaExtrasPreset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -31,13 +30,7 @@ class MetadataTest {
 
     @Before
     fun startUp() {
-        Mockito.`when`(
-            typeRegistry.get(
-                Mockito.anyString(),
-                resolveAliasing = Mockito.anyBoolean(),
-                storageOnly = Mockito.anyBoolean()
-            )
-        )
+        Mockito.`when`(typeRegistry[Mockito.anyString()])
             .thenAnswer { FakeType(it.arguments[0] as String) }
     }
 
@@ -61,7 +54,7 @@ class MetadataTest {
     }
 
     @Test
-    @Ignore("Manual run")
+//    @Ignore("Manual run")
     fun `find unknown types in metadata`() {
         val metadata = buildRawMetadata()
         val kusamaTypeRegistry = buildKusamaRegistry()
@@ -119,6 +112,8 @@ class MetadataTest {
             toResolve += toResolveInModule.map { Holder(module[ModuleMetadataSchema.name], it) }
         }
 
+        kusamaTypeRegistry["Vec<<T::Lookup as StaticLookup>::Source>"]
+
         val notResolvable =
             toResolve.filter { kusamaTypeRegistry[it.type]?.isFullyResolved?.not() ?: true }
 
@@ -143,12 +138,18 @@ class MetadataTest {
         val kusamaTree =
             gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
-        val defaultTypeRegistry = TypeDefinitionParser.parseTypeDefinitions(tree).typeRegistry
-        val kusamaTypeRegistry = TypeDefinitionParser.parseTypeDefinitions(
+        val defaultTypeRegistry =
+            TypeDefinitionParser.parseTypeDefinitions(tree, substratePreParsePreset()).typePreset
+        val typesPreset = TypeDefinitionParser.parseTypeDefinitions(
             kusamaTree,
-            defaultTypeRegistry + kusamaBaseTypes()
-        ).typeRegistry
+            defaultTypeRegistry + kusamaExtrasPreset()
+        ).typePreset
 
-        return kusamaTypeRegistry + metadataDynamicResolutionExtras()
+        return TypeRegistry(
+            types = typesPreset,
+            dynamicTypeResolver = DynamicTypeResolver(
+                DynamicTypeResolver.DEFAULT_COMPOUND_EXTENSIONS + GenericsExtension
+            )
+        )
     }
 }

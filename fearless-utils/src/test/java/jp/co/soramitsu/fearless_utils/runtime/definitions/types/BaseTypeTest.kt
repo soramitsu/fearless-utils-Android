@@ -1,6 +1,9 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.GenericsExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
@@ -14,7 +17,12 @@ import java.math.BigInteger
 
 abstract class BaseTypeTest {
 
-    protected val typeRegistry = substratePreParsePreset()
+    protected val typeRegistry = TypeRegistry(
+        substratePreParsePreset(),
+        dynamicTypeResolver = DynamicTypeResolver(
+            extensions = DynamicTypeResolver.DEFAULT_COMPOUND_EXTENSIONS + listOf(GenericsExtension)
+        )
+    )
 
     protected val runtime: RuntimeSnapshot = RuntimeSnapshot(
         typeRegistry = typeRegistry,

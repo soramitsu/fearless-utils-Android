@@ -91,6 +91,6 @@ private fun useWriter(use: ScaleCodecWriter.() -> Unit): ByteArray {
     return stream.toByteArray()
 }
 
-private inline fun <R> ensureUnifiedException(block: () -> R) : R {
+private inline fun <R> ensureUnifiedException(block: () -> R): R {
     return ensureExceptionType(::EncodeDecodeException, block)
 }

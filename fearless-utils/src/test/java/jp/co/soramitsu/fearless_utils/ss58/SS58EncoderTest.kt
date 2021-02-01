@@ -3,10 +3,9 @@ package jp.co.soramitsu.fearless_utils.ss58
 import jp.co.soramitsu.fearless_utils.common.TestAddressBytes
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 

@@ -2,13 +2,12 @@ package jp.co.soramitsu.fearless_utils.runtime.metadata
 
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytesOrNull
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import java.math.BigInteger
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-
 
 interface WithName {
     val name: String
@@ -33,7 +32,7 @@ class RuntimeMetadata(
 
     fun getModule(index: Int): Module? = modules.values.find { it.index == index.toBigInteger() }
 
-    fun getCall(moduleIndex: Int, callIndex: Int) : Function? {
+    fun getCall(moduleIndex: Int, callIndex: Int): Function? {
         val module = getModule(moduleIndex)
 
         return module?.calls?.values?.elementAtOrNull(callIndex)
@@ -145,7 +144,6 @@ class StorageEntry(
 
         val key1Hashed = type.key1Hasher.hashingFunction(key1Encoded)
         val key2Hashed = type.key2Hasher.hashingFunction(key2Encoded)
-
 
         val storageKey = moduleHash() + serviceHash() + key1Hashed + key2Hashed
 

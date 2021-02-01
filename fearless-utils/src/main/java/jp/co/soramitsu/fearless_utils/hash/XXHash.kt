@@ -16,7 +16,7 @@ class XXHash(
 
     private val timesToRepeat = hashLengthBits / 64
 
-    fun hash(byteArray: ByteArray) : ByteArray {
+    fun hash(byteArray: ByteArray): ByteArray {
         val buffer = ByteBuffer.allocate(hashLengthBytes)
         buffer.order(ByteOrder.LITTLE_ENDIAN)
 

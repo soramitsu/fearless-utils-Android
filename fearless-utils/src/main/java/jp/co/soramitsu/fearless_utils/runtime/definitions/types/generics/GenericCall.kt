@@ -20,24 +20,31 @@ object GenericCall : Type<GenericCall.Instance>("GenericCall") {
         get() = true
 
     override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Instance {
-        val (moduleIndex, callIndex) = indexCoder.read(scaleCodecReader).run { first.toInt() to second.toInt() }
+        val (moduleIndex, callIndex) = indexCoder.read(scaleCodecReader)
+            .run { first.toInt() to second.toInt() }
 
         val call = getCallOrThrow(runtime, moduleIndex, callIndex)
 
         val arguments = call.arguments.associate { argumentDefinition ->
-            argumentDefinition.name to argumentDefinition.typeOrThrow().decode(scaleCodecReader, runtime)
+            argumentDefinition.name to argumentDefinition.typeOrThrow()
+                .decode(scaleCodecReader, runtime)
         }
 
         return Instance(moduleIndex, callIndex, arguments)
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Instance) = with(value) {
+    override fun encode(
+        scaleCodecWriter: ScaleCodecWriter,
+        runtime: RuntimeSnapshot,
+        value: Instance
+    ) = with(value) {
         val call = getCallOrThrow(runtime, moduleIndex, callIndex)
 
         indexCoder.write(scaleCodecWriter, moduleIndex.toUByte() to callIndex.toUByte())
 
         call.arguments.forEach { argumentDefinition ->
-            argumentDefinition.typeOrThrow().encodeUnsafe(scaleCodecWriter, runtime, arguments[argumentDefinition.name])
+            argumentDefinition.typeOrThrow()
+                .encodeUnsafe(scaleCodecWriter, runtime, arguments[argumentDefinition.name])
         }
     }
 
@@ -45,13 +52,21 @@ object GenericCall : Type<GenericCall.Instance>("GenericCall") {
         return instance is Instance
     }
 
-    private fun FunctionArgument.typeOrThrow() = type ?: throw EncodeDecodeException("Argument $name is not resolved")
+    private fun FunctionArgument.typeOrThrow() =
+        type ?: throw EncodeDecodeException("Argument $name is not resolved")
 
-    private fun getCallOrThrow(runtime: RuntimeSnapshot, moduleIndex: Int, callIndex: Int) : Function {
-        return runtime.metadata.getCall(moduleIndex, callIndex) ?: callNotFound(moduleIndex, callIndex)
+    private fun getCallOrThrow(
+        runtime: RuntimeSnapshot,
+        moduleIndex: Int,
+        callIndex: Int
+    ): Function {
+        return runtime.metadata.getCall(moduleIndex, callIndex) ?: callNotFound(
+            moduleIndex,
+            callIndex
+        )
     }
 
-    private fun callNotFound(moduleIndex: Int, callIndex: Int) : Nothing {
+    private fun callNotFound(moduleIndex: Int, callIndex: Int): Nothing {
         throw EncodeDecodeException("No call for ($moduleIndex, $callIndex) index found")
     }
 }

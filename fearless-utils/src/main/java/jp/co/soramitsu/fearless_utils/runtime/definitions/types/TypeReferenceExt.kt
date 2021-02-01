@@ -29,6 +29,8 @@ fun TypeReference.resolveAliasing(): TypeReference {
     return aliased
 }
 
-fun TypeReference.resolveAliasingOrNull() : TypeReference? {
+fun TypeReference.resolveAliasingOrNull(): TypeReference? {
     return runCatching { resolveAliasing() }.getOrNull()
 }
+
+fun TypeReference.resolvedOrNull(): TypeReference? = if (isResolved()) this else null
