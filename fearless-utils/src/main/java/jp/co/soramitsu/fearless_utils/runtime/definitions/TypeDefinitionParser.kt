@@ -29,20 +29,20 @@ private const val TOKEN_ENUM = "enum"
 
 object TypeDefinitionParser {
 
-    private val dynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
-
-    class Params(
+    private class Params(
         val tree: TypeDefinitionsTree,
+        val dynamicTypeResolver: DynamicTypeResolver,
         val typesBuilder: TypePresetBuilder
     )
 
     fun parseTypeDefinitions(
         tree: TypeDefinitionsTree,
-        typePreset: TypePreset
+        typePreset: TypePreset,
+        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
     ): ParseResult {
         val builder = typePreset.newBuilder()
 
-        val params = Params(tree, builder)
+        val params = Params(tree, dynamicTypeResolver, builder)
 
         for (name in tree.types.keys) {
             val type = parse(params, name) ?: continue
@@ -67,7 +67,7 @@ object TypeDefinitionParser {
 
         return when (typeValue) {
             is String -> {
-                val dynamicType = resolveDynamicType(typesBuilder, name, typeValue)
+                val dynamicType = resolveDynamicType(parsingParams, name, typeValue)
 
                 when {
                     dynamicType != null -> dynamicType
@@ -82,7 +82,7 @@ object TypeDefinitionParser {
                 when (typeValueCasted["type"]) {
                     TOKEN_STRUCT -> {
                         val typeMapping = typeValueCasted["type_mapping"] as List<List<String>>
-                        val children = parseTypeMapping(typesBuilder, typeMapping)
+                        val children = parseTypeMapping(parsingParams, typeMapping)
 
                         Struct(name, children)
                     }
@@ -95,13 +95,8 @@ object TypeDefinitionParser {
                             valueList != null -> CollectionEnum(name, valueList)
 
                             typeMapping != null -> {
-                                val children =
-                                    parseTypeMapping(
-                                        typesBuilder,
-                                        typeMapping
-                                    ).map { (name, typeRef) ->
-                                        DictEnum.Entry(name, typeRef)
-                                    }
+                                val children = parseTypeMapping(parsingParams, typeMapping)
+                                    .map { (name, typeRef) -> DictEnum.Entry(name, typeRef) }
 
                                 DictEnum(name, children)
                             }
@@ -113,7 +108,7 @@ object TypeDefinitionParser {
                         val valueTypeName = typeValueCasted["value_type"] as String
                         val valueListRaw = typeValueCasted["value_list"] as Map<String, Double>
 
-                        val valueTypeRef = resolveTypeAllWaysOrCreate(typesBuilder, valueTypeName)
+                        val valueTypeRef = resolveTypeAllWaysOrCreate(parsingParams, valueTypeName)
 
                         val valueList = valueListRaw.mapValues { (_, value) ->
                             BigInteger(value.toInt().toString())
@@ -131,35 +126,35 @@ object TypeDefinitionParser {
     }
 
     private fun parseTypeMapping(
-        typesBuilder: TypePresetBuilder,
+        parsingParams: Params,
         typeMapping: List<List<String>>
     ): LinkedHashMap<String, TypeReference> {
         val children = LinkedHashMap<String, TypeReference>()
 
         for ((fieldName, fieldType) in typeMapping) {
-            children[fieldName] = resolveTypeAllWaysOrCreate(typesBuilder, fieldType)
+            children[fieldName] = resolveTypeAllWaysOrCreate(parsingParams, fieldType)
         }
 
         return children
     }
 
     private fun resolveDynamicType(
-        typesBuilder: TypePresetBuilder,
+        parsingParams: Params,
         name: String,
         typeDef: String
     ): Type<*>? {
-        return dynamicTypeResolver.createDynamicType(name, typeDef) {
-            resolveTypeAllWaysOrCreate(typesBuilder, it)
+        return parsingParams.dynamicTypeResolver.createDynamicType(name, typeDef) {
+            resolveTypeAllWaysOrCreate(parsingParams, it)
         }
     }
 
     private fun resolveTypeAllWaysOrCreate(
-        typesBuilder: TypePresetBuilder,
+        parsingParams: Params,
         typeDef: String,
         name: String = typeDef
     ): TypeReference {
-        return typesBuilder[name]
-            ?: resolveDynamicType(typesBuilder, name, typeDef)?.let(::TypeReference)
-            ?: typesBuilder.create(name)
+        return parsingParams.typesBuilder[name]
+            ?: resolveDynamicType(parsingParams, name, typeDef)?.let(::TypeReference)
+            ?: parsingParams.typesBuilder.create(name)
     }
 }
