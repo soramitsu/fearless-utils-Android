@@ -17,4 +17,3 @@ fun GenericMultiAddress(typePresetBuilder: TypePresetBuilder) = DictEnum(
         DictEnum.Entry("Address20", typePresetBuilder.getOrCreate("H160"))
     )
 )
-

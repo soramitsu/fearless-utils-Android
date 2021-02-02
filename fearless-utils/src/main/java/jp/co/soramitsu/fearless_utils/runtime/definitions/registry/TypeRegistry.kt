@@ -4,7 +4,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeRes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.preprocessors.RemoveGenericNoisePreprocessor
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasing
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.skipAliases
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolvedOrNull
 
 interface RequestPreprocessor {
@@ -44,7 +44,7 @@ class TypeRegistry(
             ?: resolveDynamicType(preprocessed)?.resolvedOrNull()
             ?: resolveDynamicType(definition)
 
-        return result?.resolveAliasing()
+        return result?.skipAliases()
     }
 
     private fun resolveDynamicType(definition: String): TypeReference? {

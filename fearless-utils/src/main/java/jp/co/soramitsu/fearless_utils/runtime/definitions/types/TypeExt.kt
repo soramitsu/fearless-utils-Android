@@ -13,10 +13,10 @@ import java.io.ByteArrayOutputStream
 /**
  * @throws CyclicAliasingException
  */
-fun Type<*>.resolveAliasing(): Type<*>? {
+fun Type<*>.skipAliases(): Type<*>? {
     if (this !is Alias) return this
 
-    return aliasedReference.resolveAliasingOrNull()?.value
+    return aliasedReference.skipAliasesOrNull()?.value
 }
 
 fun Type<*>?.isFullyResolved() = this?.isFullyResolved ?: false

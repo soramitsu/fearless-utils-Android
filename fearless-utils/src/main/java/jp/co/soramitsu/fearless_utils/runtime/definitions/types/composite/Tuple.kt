@@ -5,7 +5,7 @@ import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasingOrNull
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.skipAliasesOrNull
 
 class Tuple(name: String, val typeReferences: List<TypeReference>) : Type<List<*>>(name) {
 
@@ -29,7 +29,7 @@ class Tuple(name: String, val typeReferences: List<TypeReference>) : Type<List<*
         }
     }
 
-    operator fun get(index: Int): Type<*>? = typeReferences[index].resolveAliasingOrNull()?.value
+    operator fun get(index: Int): Type<*>? = typeReferences[index].skipAliasesOrNull()?.value
 
     inline operator fun <reified R> get(index: Int): R? = get(index) as? R
 

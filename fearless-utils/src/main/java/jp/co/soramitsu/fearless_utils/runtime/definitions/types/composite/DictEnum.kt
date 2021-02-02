@@ -6,7 +6,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasingOrNull
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.skipAliasesOrNull
 
 open class DictEnum(
     name: String,
@@ -44,7 +44,7 @@ open class DictEnum(
     }
 
     operator fun get(name: String): Type<*>? {
-        return elements.find { it.name == name }?.value?.resolveAliasingOrNull()?.value
+        return elements.find { it.name == name }?.value?.skipAliasesOrNull()?.value
     }
 
     override val isFullyResolved: Boolean

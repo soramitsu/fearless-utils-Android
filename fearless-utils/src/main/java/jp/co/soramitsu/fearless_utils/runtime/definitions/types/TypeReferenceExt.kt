@@ -7,7 +7,7 @@ class CyclicAliasingException : Exception()
 /**
  * @throws CyclicAliasingException
  */
-fun TypeReference.resolveAliasing(): TypeReference {
+fun TypeReference.skipAliases(): TypeReference {
     var aliased = this
 
     val alreadySeen = mutableSetOf(this)
@@ -29,8 +29,8 @@ fun TypeReference.resolveAliasing(): TypeReference {
     return aliased
 }
 
-fun TypeReference.resolveAliasingOrNull(): TypeReference? {
-    return runCatching { resolveAliasing() }.getOrNull()
+fun TypeReference.skipAliasesOrNull(): TypeReference? {
+    return runCatching { skipAliases() }.getOrNull()
 }
 
 fun TypeReference.resolvedOrNull(): TypeReference? = if (isResolved()) this else null
