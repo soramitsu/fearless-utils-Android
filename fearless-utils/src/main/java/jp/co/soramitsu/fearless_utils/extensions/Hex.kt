@@ -15,3 +15,7 @@ fun String.fromHex(): ByteArray = Hex.decode(removePrefix(HEX_PREFIX))
 fun String.requirePrefix(prefix: String) = if (startsWith(prefix)) this else prefix + this
 
 fun String.requireHexPrefix() = requirePrefix(HEX_PREFIX)
+
+fun Byte.toHex(withPrefix: Boolean = false): String {
+    return byteArrayOf(this).toHexString(withPrefix)
+}
