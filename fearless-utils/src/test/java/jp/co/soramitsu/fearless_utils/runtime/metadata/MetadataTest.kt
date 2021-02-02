@@ -9,7 +9,6 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaExtrasPreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
@@ -140,13 +139,15 @@ class MetadataTest {
 
         val defaultTypeRegistry =
             TypeDefinitionParser.parseTypeDefinitions(tree, substratePreParsePreset()).typePreset
-        val typesPreset = TypeDefinitionParser.parseTypeDefinitions(
+        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(
             kusamaTree,
-            defaultTypeRegistry + kusamaExtrasPreset()
-        ).typePreset
+            defaultTypeRegistry
+        )
+
+        assertEquals(0, kusamaParsed.unknownTypes.size)
 
         return TypeRegistry(
-            types = typesPreset,
+            types = kusamaParsed.typePreset,
             dynamicTypeResolver = DynamicTypeResolver(
                 DynamicTypeResolver.DEFAULT_COMPOUND_EXTENSIONS + GenericsExtension
             )

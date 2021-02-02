@@ -7,7 +7,6 @@ import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaExtrasPreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.typePreset
@@ -405,18 +404,15 @@ class TypeDefinitionParserTest {
 
         val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(
             kusamaTree,
-            defaultParsed.typePreset + kusamaExtrasPreset()
+            defaultParsed.typePreset
         )
         val kusamaRegistry =
             TypeRegistry(kusamaParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
         assertEquals(0, kusamaParsed.unknownTypes.size)
 
-        val address = kusamaRegistry["Address"]
-        assertEquals("AccountIdAddress", address?.name)
-
         val keysKusama = kusamaRegistry["Keys"]
-        assertEquals("SessionKeysPolkadot", keysKusama?.name)
+        assertEquals("Keys", keysKusama?.name) // changed from SessionKeysSubstrate
     }
 
     private fun parseFromJson(typePreset: TypePreset, json: String): TypeRegistry {

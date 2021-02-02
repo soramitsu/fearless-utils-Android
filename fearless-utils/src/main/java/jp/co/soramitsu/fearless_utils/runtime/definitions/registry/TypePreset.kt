@@ -114,8 +114,6 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     alias("U32", "u32")
 
     alias("Bidkind", "BidKind")
-}
 
-fun kusamaExtrasPreset(): TypePreset = typePreset {
-    fakeType("AccountIdAddress")
+    alias("AccountIdAddress", "GenericAccountId")
 }
