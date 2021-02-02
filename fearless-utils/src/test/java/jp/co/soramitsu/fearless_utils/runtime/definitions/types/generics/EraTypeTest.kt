@@ -24,6 +24,14 @@ class EraTypeTest : BaseTypeTest() {
     }
 
     @Test
+    fun `should encode immortal`() {
+        val inHex = "0x00"
+        val encoded = EraType.toHex(runtime, Era.Immortal)
+
+        assertEquals(inHex, encoded)
+    }
+
+    @Test
     fun `should encode mortal`() {
         performMortalEncodeTest("0x4e9c", period = 32768, phase = 20000)
         performMortalEncodeTest("0xc503", period = 64, phase = 60)
