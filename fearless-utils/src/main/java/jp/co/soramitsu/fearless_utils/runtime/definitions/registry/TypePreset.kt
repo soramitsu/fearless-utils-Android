@@ -3,6 +3,8 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.registry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.BitVec
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.CallBytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
@@ -77,9 +79,12 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     type(Bytes)
 
-    fakeType("BitVec")
-    fakeType("ExtrinsicsDecoder")
-    fakeType("CallBytes")
+    type(BitVec)
+
+    fakeType("ExtrinsicsDecoder") // deprecated in origin
+
+    type(CallBytes) // seems to be unused in runtime
+
     fakeType("Era")
     fakeType("Data")
     fakeType("BoxProposal")

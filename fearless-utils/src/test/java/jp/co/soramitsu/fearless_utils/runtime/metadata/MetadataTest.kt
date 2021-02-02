@@ -14,6 +14,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreP
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -54,7 +55,7 @@ class MetadataTest {
     }
 
     @Test
-//    @Ignore("Manual run")
+    @Ignore("Manual run")
     fun `find unknown types in metadata`() {
         val metadata = buildRawMetadata()
         val kusamaTypeRegistry = buildKusamaRegistry()
@@ -111,8 +112,6 @@ class MetadataTest {
 
             toResolve += toResolveInModule.map { Holder(module[ModuleMetadataSchema.name], it) }
         }
-
-        kusamaTypeRegistry["Vec<<T::Lookup as StaticLookup>::Source>"]
 
         val notResolvable =
             toResolve.filter { kusamaTypeRegistry[it.type]?.isFullyResolved?.not() ?: true }
