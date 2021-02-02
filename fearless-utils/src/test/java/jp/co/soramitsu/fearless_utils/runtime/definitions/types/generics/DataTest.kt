@@ -10,7 +10,6 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

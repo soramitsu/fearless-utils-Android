@@ -4,17 +4,19 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.BitVec
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.CallBytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EraType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensusEngineId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H160
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H256
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H512
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SessionKeysSubstrate
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u16
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u256
@@ -80,21 +82,20 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     alias("GenericVote", "u8")
 
     type(Bytes)
-
     type(BitVec)
 
     fakeType("ExtrinsicsDecoder") // deprecated in origin
 
     type(CallBytes) // seems to be unused in runtime
-
     type(EraType)
-
     type(Data(this))
 
     alias("BoxProposal", "Proposal")
 
-    fakeType("GenericConsensusEngineId")
-    fakeType("SessionKeysSubstrate")
+    type(GenericConsensusEngineId)
+
+    type(SessionKeysSubstrate(this))
+
     fakeType("GenericMultiAddress")
     fakeType("OpaqueCall") // declared as "OpaqueCall": "OpaqueCall"
     fakeType("GenericAccountIndex") // declared as "OpaqueCall": "OpaqueCall"
