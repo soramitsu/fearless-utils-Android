@@ -90,7 +90,9 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     type(EraType)
 
     type(Data(this))
-    fakeType("BoxProposal")
+
+    alias("BoxProposal", "Proposal")
+
     fakeType("GenericConsensusEngineId")
     fakeType("SessionKeysSubstrate")
     fakeType("GenericMultiAddress")
