@@ -8,7 +8,7 @@ import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.resolveAliasingOrNull
 
-class DictEnum(
+open class DictEnum(
     name: String,
     val elements: List<Entry<TypeReference>>
 ) : Type<DictEnum.Entry<Any?>>(name) {
@@ -27,9 +27,7 @@ class DictEnum(
     override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Entry<Any?>) {
         val index = elements.indexOfFirst { it.name == value.name }
 
-        if (index == -1) {
-            throw EncodeDecodeException("No ${value.name} in ${elements.map(Entry<*>::name)}")
-        }
+        if (index == -1) elementNotFound(value.name)
 
         val type = elements[index].value.requireValue()
 
@@ -51,4 +49,8 @@ class DictEnum(
 
     override val isFullyResolved: Boolean
         get() = elements.all { it.value.isResolved() }
+
+    protected fun elementNotFound(name: String) {
+        throw EncodeDecodeException("No $name in ${elements.map(Entry<*>::name)}")
+    }
 }

@@ -5,6 +5,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.BitVec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.CallBytes
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EraType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
@@ -88,7 +89,7 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     type(EraType)
 
-    fakeType("Data")
+    type(Data(this))
     fakeType("BoxProposal")
     fakeType("GenericConsensusEngineId")
     fakeType("SessionKeysSubstrate")

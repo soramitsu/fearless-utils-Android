@@ -13,6 +13,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaExtrasP
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -44,7 +45,6 @@ class MetadataTest {
     }
 
     @Test
-//    @Ignore("Manual run")
     fun `connect metadata with real type registry`() {
         val metadataRaw = buildRawMetadata()
         val kusamaTypeRegistry = buildKusamaRegistry()
@@ -55,7 +55,6 @@ class MetadataTest {
     }
 
     @Test
-    @Ignore("Manual run")
     fun `find unknown types in metadata`() {
         val metadata = buildRawMetadata()
         val kusamaTypeRegistry = buildKusamaRegistry()
@@ -122,6 +121,8 @@ class MetadataTest {
             .forEach { (module, types) ->
                 println("$module: ${types.map(Holder::type)}\n")
             }
+
+        assertEquals(2, notResolvable.size)
     }
 
     private fun buildRawMetadata() = getFileContentFromResources("test_runtime_metadata").run {
