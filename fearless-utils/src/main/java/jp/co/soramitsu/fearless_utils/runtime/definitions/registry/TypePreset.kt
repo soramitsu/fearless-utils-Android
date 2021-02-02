@@ -8,9 +8,11 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.CallBytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EraType
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EventRecord
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensusEngineId
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericEvent
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericMultiAddress
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H160
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H256
@@ -102,10 +104,10 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     type(GenericMultiAddress(this))
 
-    type(OpaqueCall) // declared as "OpaqueCall": "OpaqueCall"
+    type(OpaqueCall)
 
-    fakeType("GenericEvent") // declared as "OpaqueCall": "OpaqueCall"
-    fakeType("EventRecord") // "EventRecord": "EventRecord"
+    type(GenericEvent)
+    type(EventRecord(this))
 
     alias("<T::Lookup as StaticLookup>::Source", "LookupSource")
     alias("U64", "u64")

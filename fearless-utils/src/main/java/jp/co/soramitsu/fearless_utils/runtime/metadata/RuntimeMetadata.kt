@@ -37,6 +37,12 @@ class RuntimeMetadata(
 
         return module?.calls?.values?.elementAtOrNull(callIndex)
     }
+
+    fun getEvent(moduleIndex: Int, eventIndex: Int): Event? {
+        val module = getModule(moduleIndex)
+
+        return module?.events?.values?.elementAtOrNull(eventIndex)
+    }
 }
 
 class Module(

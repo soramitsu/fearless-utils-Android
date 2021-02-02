@@ -7,7 +7,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toByteArray
 
-object OpaqueCall : Type<GenericCall.Instance>("GenericCall") {
+object OpaqueCall : Type<GenericCall.Instance>("OpaqueCall") {
 
     override val isFullyResolved = true
 

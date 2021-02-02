@@ -7,6 +7,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
+import jp.co.soramitsu.fearless_utils.runtime.metadata.Event
 import jp.co.soramitsu.fearless_utils.runtime.metadata.ExtrinsicMetadata
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
 import jp.co.soramitsu.fearless_utils.runtime.metadata.FunctionArgument
@@ -48,7 +49,16 @@ abstract class BaseTypeTest {
                             documentation = emptyList()
                         )
                     ),
-                    events = emptyMap(),
+                    events = mapOf(
+                        "A" to Event(
+                            name = "A",
+                            arguments = listOf(
+                                BooleanType,
+                                u8
+                            ),
+                            documentation = emptyList()
+                        )
+                    ),
                     constants = emptyMap(),
                     errors = emptyMap(),
                     index = BigInteger.ONE
