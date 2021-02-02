@@ -16,6 +16,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H160
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H256
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H512
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.OpaqueCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SessionKeysSubstrate
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
@@ -101,7 +102,7 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     type(GenericMultiAddress(this))
 
-    fakeType("OpaqueCall") // declared as "OpaqueCall": "OpaqueCall"
+    type(OpaqueCall) // declared as "OpaqueCall": "OpaqueCall"
 
     fakeType("GenericEvent") // declared as "OpaqueCall": "OpaqueCall"
     fakeType("EventRecord") // "EventRecord": "EventRecord"

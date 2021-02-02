@@ -16,8 +16,7 @@ object GenericCall : Type<GenericCall.Instance>("GenericCall") {
 
     private val indexCoder = tuple(uint8, uint8)
 
-    override val isFullyResolved: Boolean
-        get() = true
+    override val isFullyResolved = true
 
     override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Instance {
         val (moduleIndex, callIndex) = indexCoder.read(scaleCodecReader)
