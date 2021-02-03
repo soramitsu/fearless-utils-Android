@@ -48,9 +48,7 @@ class MetadataTest {
         val metadataRaw = buildRawMetadata()
         val kusamaTypeRegistry = buildKusamaRegistry()
 
-        val metadata = RuntimeMetadata(kusamaTypeRegistry, metadataRaw)
-
-        print(metadata)
+        RuntimeMetadata(kusamaTypeRegistry, metadataRaw)
     }
 
     @Test
@@ -136,6 +134,8 @@ class MetadataTest {
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
         val kusamaTree =
             gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
+
+        assertEquals(kusamaTree.runtimeId, 2027)
 
         val defaultTypeRegistry =
             TypeDefinitionParser.parseTypeDefinitions(tree, substratePreParsePreset()).typePreset

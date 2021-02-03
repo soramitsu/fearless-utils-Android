@@ -1,5 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
+import com.google.gson.annotations.SerializedName
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
@@ -16,7 +17,11 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.SetTyp
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
 import java.math.BigInteger
 
-class TypeDefinitionsTree(val types: Map<String, Any>)
+class TypeDefinitionsTree(
+    @SerializedName("runtime_id")
+    val runtimeId: Int?,
+    val types: Map<String, Any>
+)
 
 class ParseResult(
     val typePreset: TypePreset,
