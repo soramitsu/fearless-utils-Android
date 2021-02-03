@@ -58,7 +58,7 @@ object AccountData : Schema<AccountData>() {
 object AccountInfo : Schema<AccountInfo>() {
     val nonce by uint32()
 
-    val refCount by uint8()
+    val refCount by uint32()
 
     val data by schema(AccountData)
 }
@@ -196,7 +196,7 @@ class ScaleStructTest {
         val accountInfo = AccountInfo { accountInfo ->
             accountInfo[nonce] = 123.toUInt()
 
-            accountInfo[refCount] = 123.toUByte()
+            accountInfo[refCount] = 123.toUInt()
 
             accountInfo[data] = AccountData { data ->
                 data[free] = BigDecimal("1.23e+12", MathContext.DECIMAL128).toBigInteger()

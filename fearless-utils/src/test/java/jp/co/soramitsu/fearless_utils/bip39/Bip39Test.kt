@@ -1,10 +1,8 @@
 package jp.co.soramitsu.fearless_utils.bip39
 
-import io.github.novacrypto.bip39.Words
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import org.spongycastle.util.encoders.Hex
@@ -34,7 +32,8 @@ class Bip39Test {
     @Test
     fun generateEntropy() {
         val expectedEntropyHex = "2a5ecdeb7466f14d3c06d5aa5c6d433d"
-        val mnemonic = "clean wait kiss trip humor pledge useless survey prevent toddler express knock"
+        val mnemonic =
+            "clean wait kiss trip humor pledge useless survey prevent toddler express knock"
 
         val entropy = bip39.generateEntropy(mnemonic)
 
@@ -44,7 +43,8 @@ class Bip39Test {
     @Test
     fun generateMnemonicFromEntropy() {
         val entropyHex = "2a5ecdeb7466f14d3c06d5aa5c6d433d"
-        val expectedMnemonic = "clean wait kiss trip humor pledge useless survey prevent toddler express knock"
+        val expectedMnemonic =
+            "clean wait kiss trip humor pledge useless survey prevent toddler express knock"
 
         val mnemonic = bip39.generateMnemonic(Hex.decode(entropyHex))
 
@@ -54,7 +54,8 @@ class Bip39Test {
     @Test
     fun generateSeed() {
         val expectedSeed = "44e9d125f037ac1d51f0a7d3649689d422c2af8b1ec8e00d71db4d7bf6d127e3"
-        val mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        val mnemonic =
+            "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
         val passphrase = "Substrate"
 
         val seed = bip39.generateSeed(bip39.generateEntropy(mnemonic), passphrase)

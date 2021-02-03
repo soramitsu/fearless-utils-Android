@@ -6,6 +6,7 @@ import jp.co.soramitsu.fearless_utils.hash.isPositive
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.NumberType
 import java.math.BigInteger
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 
 class SetType(
     name: String,
@@ -13,11 +14,11 @@ class SetType(
     val valueList: LinkedHashMap<String, BigInteger>
 ) : WrapperType<Set<String>>(name, valueTypeReference) {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader): Set<String> {
+    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Set<String> {
         val valueType = typeReference.requireValue()
         require(valueType is NumberType)
 
-        val value = valueType.decode(scaleCodecReader)
+        val value = valueType.decode(scaleCodecReader, runtime)
 
         return valueList.mapNotNullTo(mutableSetOf()) { (name, mask) ->
             if (value.and(mask).isPositive()) {
@@ -28,7 +29,7 @@ class SetType(
         }
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Set<String>) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Set<String>) {
         val valueType = typeReference.requireValue()
         require(valueType is NumberType)
 
@@ -40,7 +41,7 @@ class SetType(
             }
         }
 
-        valueType.encode(scaleCodecWriter, folded)
+        valueType.encode(scaleCodecWriter, runtime, folded)
     }
 
     override fun isValidInstance(instance: Any?): Boolean {

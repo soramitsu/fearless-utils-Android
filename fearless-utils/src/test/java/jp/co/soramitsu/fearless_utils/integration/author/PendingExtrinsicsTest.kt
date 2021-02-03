@@ -1,7 +1,6 @@
 package jp.co.soramitsu.fearless_utils.integration.author
 
 import jp.co.soramitsu.fearless_utils.integration.BaseIntegrationTest
-import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.state.GetMetadataRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.executeAsync
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.author.PendingExtrinsicsRequest
 import kotlinx.coroutines.runBlocking

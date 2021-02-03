@@ -4,17 +4,18 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.scale.dataType.CollectionEnumType
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 
 class CollectionEnum(
     name: String,
     val elements: List<String>
 ) : Type<String>(name) {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader): String {
+    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): String {
         return CollectionEnumType(elements).read(scaleCodecReader)
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: String) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: String) {
         CollectionEnumType(elements).write(scaleCodecWriter, value)
     }
 

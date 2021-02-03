@@ -1,9 +1,11 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
+import jp.co.soramitsu.fearless_utils.extensions.toHexString
+import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromByteArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.isFullyResolved
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytesOrNull
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import java.math.BigInteger
 
@@ -11,7 +13,7 @@ interface WithName {
     val name: String
 }
 
-fun <T : WithName> List<T>.groupByName() = associateBy { it.name }
+fun <T : WithName> List<T>.groupByName() = map { it.name to it }.toMap()
 
 class RuntimeMetadata(
     val runtimeVersion: BigInteger,
@@ -27,6 +29,20 @@ class RuntimeMetadata(
             .groupByName(),
         extrinsic = ExtrinsicMetadata(struct[RuntimeMetadataSchema.extrinsic])
     )
+
+    fun getModule(index: Int): Module? = modules.values.find { it.index == index.toBigInteger() }
+
+    fun getCall(moduleIndex: Int, callIndex: Int): Function? {
+        val module = getModule(moduleIndex)
+
+        return module?.calls?.values?.elementAtOrNull(callIndex)
+    }
+
+    fun getEvent(moduleIndex: Int, eventIndex: Int): Event? {
+        val module = getModule(moduleIndex)
+
+        return module?.events?.values?.elementAtOrNull(eventIndex)
+    }
 }
 
 class Module(
@@ -38,12 +54,19 @@ class Module(
     val errors: Map<String, Error>,
     val index: BigInteger
 ) : WithName {
+
     constructor(
         typeRegistry: TypeRegistry,
         struct: EncodableStruct<ModuleMetadataSchema>
     ) : this(
-        name = struct[ModuleMetadataSchema.name],
-        storage = struct[ModuleMetadataSchema.storage]?.let { Storage(typeRegistry, it) },
+        name = struct.name,
+        storage = struct[ModuleMetadataSchema.storage]?.let {
+            Storage(
+                typeRegistry,
+                it,
+                struct.name
+            )
+        },
         calls = struct[ModuleMetadataSchema.calls]?.map { Function(typeRegistry, it) }
             ?.groupByName(),
         events = struct[ModuleMetadataSchema.events]?.map { Event(typeRegistry, it) }
@@ -55,18 +78,30 @@ class Module(
     )
 }
 
+private val EncodableStruct<ModuleMetadataSchema>.name: String
+    get() = get(ModuleMetadataSchema.name)
+
 class Storage(
     val prefix: String,
     val entries: Map<String, StorageEntry>
 ) {
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<StorageMetadataSchema>
+        struct: EncodableStruct<StorageMetadataSchema>,
+        moduleName: String
     ) : this(
         prefix = struct[StorageMetadataSchema.prefix],
-        entries = struct[StorageMetadataSchema.entries].map { StorageEntry(typeRegistry, it) }
+        entries = struct[StorageMetadataSchema.entries].map {
+            StorageEntry(
+                typeRegistry,
+                it,
+                moduleName
+            )
+        }
             .groupByName()
     )
+
+    operator fun get(entry: String) = entries[entry]
 }
 
 class StorageEntry(
@@ -74,18 +109,56 @@ class StorageEntry(
     val modifier: StorageEntryModifier,
     val type: StorageEntryType,
     val default: ByteArray,
-    val documentation: List<String>
+    val documentation: List<String>,
+    private val moduleName: String
 ) : WithName {
+
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<StorageEntryMetadataSchema>
+        struct: EncodableStruct<StorageEntryMetadataSchema>,
+        moduleName: String
     ) : this(
         name = struct[StorageEntryMetadataSchema.name],
         modifier = struct[StorageEntryMetadataSchema.modifier],
         type = StorageEntryType.from(typeRegistry, struct[StorageEntryMetadataSchema.type]),
         default = struct[StorageEntryMetadataSchema.default],
-        documentation = struct[StorageEntryMetadataSchema.documentation]
+        documentation = struct[StorageEntryMetadataSchema.documentation],
+        moduleName = moduleName
     )
+
+    fun storageKey(): String? {
+        if (type !is StorageEntryType.Plain) return null
+
+        return (moduleHash() + serviceHash()).toHexString(withPrefix = true)
+    }
+
+    fun storageKey(runtime: RuntimeSnapshot, key1: Any?): String? {
+        if (type !is StorageEntryType.Map) return null
+
+        val key1Encoded = type.key?.bytesOrNull(runtime, key1) ?: return null
+
+        val storageKey = moduleHash() + serviceHash() + type.hasher.hashingFunction(key1Encoded)
+
+        return storageKey.toHexString(withPrefix = true)
+    }
+
+    fun storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): String? {
+        if (type !is StorageEntryType.DoubleMap) return null
+
+        val key1Encoded = type.key1?.bytesOrNull(runtime, key1) ?: return null
+        val key2Encoded = type.key2?.bytesOrNull(runtime, key2) ?: return null
+
+        val key1Hashed = type.key1Hasher.hashingFunction(key1Encoded)
+        val key2Hashed = type.key2Hasher.hashingFunction(key2Encoded)
+
+        val storageKey = moduleHash() + serviceHash() + key1Hashed + key2Hashed
+
+        return storageKey.toHexString(withPrefix = true)
+    }
+
+    private fun moduleHash() = moduleName.toByteArray().xxHash128()
+
+    private fun serviceHash() = name.toByteArray().xxHash128()
 }
 
 sealed class StorageEntryType {
@@ -204,7 +277,7 @@ class Event(
 class Constant(
     override val name: String,
     val type: Type<*>?,
-    val valueRaw: ByteArray,
+    val value: ByteArray,
     val documentation: List<String>
 ) : WithName {
     constructor(
@@ -213,16 +286,9 @@ class Constant(
     ) : this(
         name = struct[ModuleConstantMetadataSchema.name],
         type = typeRegistry[struct[ModuleConstantMetadataSchema.type]],
-        valueRaw = struct[ModuleConstantMetadataSchema.value],
+        value = struct[ModuleConstantMetadataSchema.value],
         documentation = struct[ModuleConstantMetadataSchema.documentation]
     )
-
-    val value: Any?
-        get() = if (type.isFullyResolved()) {
-            type!!.fromByteArray(valueRaw)
-        } else {
-            null
-        }
 }
 
 class Error(
