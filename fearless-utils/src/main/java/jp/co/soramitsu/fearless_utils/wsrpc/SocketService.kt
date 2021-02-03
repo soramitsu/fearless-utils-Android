@@ -6,7 +6,7 @@ import com.neovisionaries.ws.client.WebSocketState
 import jp.co.soramitsu.fearless_utils.wsrpc.exception.ConnectionClosedException
 import jp.co.soramitsu.fearless_utils.wsrpc.logging.Logger
 import jp.co.soramitsu.fearless_utils.wsrpc.mappers.nonNull
-import jp.co.soramitsu.fearless_utils.wsrpc.mappers.string
+import jp.co.soramitsu.fearless_utils.wsrpc.mappers.pojo
 import jp.co.soramitsu.fearless_utils.wsrpc.recovery.Reconnector
 import jp.co.soramitsu.fearless_utils.wsrpc.request.DeliveryType
 import jp.co.soramitsu.fearless_utils.wsrpc.request.RequestExecutor
@@ -222,7 +222,7 @@ class SocketService(
 
         override fun onNext(response: RpcResponse) {
             val id = try {
-                string().nonNull().map(response, jsonMapper)
+                pojo<String>().nonNull().map(response, jsonMapper)
             } catch (e: Exception) {
                 subscriptionCallback.onError(e)
 
