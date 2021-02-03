@@ -7,10 +7,9 @@ import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Primitive
 import jp.co.soramitsu.fearless_utils.scale.dataType.byte
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint16
-import kotlin.math.max
 import kotlin.math.ceil
 import kotlin.math.log2
-import kotlin.math.min
+import kotlin.math.max
 import kotlin.math.pow
 
 sealed class Era {
@@ -22,7 +21,10 @@ sealed class Era {
         /**
          * @return first - period, second - phase
          */
-        fun getPeriodPhaseFromBlockPeriod(currentBlockNumber: Int, periodInBlocks: Int): Pair<Int, Int> {
+        fun getPeriodPhaseFromBlockPeriod(
+            currentBlockNumber: Int,
+            periodInBlocks: Int
+        ): Pair<Int, Int> {
             var callPeriod = 2.0.pow(ceil(log2(periodInBlocks.toDouble()))).toInt()
             callPeriod = callPeriod.coerceIn(4, 1 shl 16)
             val phase = currentBlockNumber % callPeriod
@@ -30,7 +32,8 @@ sealed class Era {
             val quantizePhase = phase / quantizeFactor * quantizeFactor
             return callPeriod to quantizePhase
         }
-        fun getEraFromBlockPeriod(currentBlockNumber: Int, periodInBlocks: Int): Era =
+
+        fun getEraFromBlockPeriod(currentBlockNumber: Int, periodInBlocks: Int): Mortal =
             getPeriodPhaseFromBlockPeriod(currentBlockNumber, periodInBlocks).let {
                 Mortal(it.first, it.second)
             }
@@ -61,7 +64,8 @@ object EraType : Primitive<Era>("Era") {
             is Era.Mortal -> {
                 val quantizeFactor = max(1, value.period shr 12)
                 val trailingZeros = value.period.countTrailingZeroBits() - 1
-                val encoded = trailingZeros.coerceIn(1, 15) or ((value.phase / quantizeFactor) shl 4)
+                val encoded =
+                    trailingZeros.coerceIn(1, 15) or ((value.phase / quantizeFactor) shl 4)
 
                 uint16.write(scaleCodecWriter, encoded)
             }
