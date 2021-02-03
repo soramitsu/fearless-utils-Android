@@ -19,14 +19,21 @@ sealed class Era {
     class Mortal(val period: Int, val phase: Int) : Era()
 
     companion object {
-        fun getMortalEraPeriodAndPhase(currentBlockNumber: Int, periodInBlocks: Int): Pair<Int, Int> {
+        /**
+         * @return first - period, second - phase
+         */
+        fun getPeriodPhaseFromBlockPeriod(currentBlockNumber: Int, periodInBlocks: Int): Pair<Int, Int> {
             var callPeriod = 2.0.pow(ceil(log2(periodInBlocks.toDouble()))).toInt()
-            callPeriod = min(1 shl 16, max(callPeriod, 4))
+            callPeriod = callPeriod.coerceIn(4, 1 shl 16)
             val phase = currentBlockNumber % callPeriod
             val quantizeFactor = max(1, callPeriod shr 12)
             val quantizePhase = phase / quantizeFactor * quantizeFactor
             return callPeriod to quantizePhase
         }
+        fun getEraFromBlockPeriod(currentBlockNumber: Int, periodInBlocks: Int): Era =
+            getPeriodPhaseFromBlockPeriod(currentBlockNumber, periodInBlocks).let {
+                Mortal(it.first, it.second)
+            }
     }
 }
 
