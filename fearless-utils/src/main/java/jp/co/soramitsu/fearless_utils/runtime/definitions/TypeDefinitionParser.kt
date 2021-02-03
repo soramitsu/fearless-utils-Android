@@ -1,8 +1,12 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.copy
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substrateRegistryPreset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.create
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.getOrCreate
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.newBuilder
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
@@ -15,7 +19,7 @@ import java.math.BigInteger
 class TypeDefinitionsTree(val types: Map<String, Any>)
 
 class ParseResult(
-    val typeRegistry: TypeRegistry,
+    val typePreset: TypePreset,
     val unknownTypes: List<String>
 )
 
@@ -23,33 +27,33 @@ private const val TOKEN_SET = "set"
 private const val TOKEN_STRUCT = "struct"
 private const val TOKEN_ENUM = "enum"
 
-// 1. we don't want extensions to process complex types that explicitly defined (storageOnly = true)
-// 2. we want to keep original structure of types while parsing (resolveAliasing = false)
-private fun TypeRegistry.getForParsing(typeDef: String) = getTypeReference(typeDef, resolveAliasing = false, storageOnly = true)
-
 object TypeDefinitionParser {
 
-    class Params(
+    private class Params(
         val tree: TypeDefinitionsTree,
-        val typeRegistry: TypeRegistry
+        val dynamicTypeResolver: DynamicTypeResolver,
+        val typesBuilder: TypePresetBuilder
     )
 
     fun parseTypeDefinitions(
         tree: TypeDefinitionsTree,
-        prepopulatedTypeRegistry: TypeRegistry = substrateRegistryPreset()
+        typePreset: TypePreset,
+        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
     ): ParseResult {
-        val params = Params(tree, prepopulatedTypeRegistry.copy())
+        val builder = typePreset.newBuilder()
+
+        val params = Params(tree, dynamicTypeResolver, builder)
 
         for (name in tree.types.keys) {
             val type = parse(params, name) ?: continue
 
-            params.typeRegistry.registerType(type)
+            params.typesBuilder.type(type)
         }
 
-        val unknownTypes = params.typeRegistry.allTypeRefs()
+        val unknownTypes = params.typesBuilder.entries
             .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
 
-        return ParseResult(params.typeRegistry, unknownTypes)
+        return ParseResult(params.typesBuilder, unknownTypes)
     }
 
     private fun parse(parsingParams: Params, name: String): Type<*>? {
@@ -59,19 +63,16 @@ object TypeDefinitionParser {
     }
 
     private fun parseType(parsingParams: Params, name: String, typeValue: Any?): Type<*>? {
-        val typeRegistry = parsingParams.typeRegistry
+        val typesBuilder = parsingParams.typesBuilder
 
         return when (typeValue) {
             is String -> {
-                val dynamicType = typeRegistry.resolveFromExtensions(name, typeValue)
+                val dynamicType = resolveDynamicType(parsingParams, name, typeValue)
 
                 when {
                     dynamicType != null -> dynamicType
-                    typeValue == name -> typeRegistry.getForParsing(name).value
-                    else -> Alias(
-                        name,
-                        typeRegistry.getForParsing(typeValue)
-                    )
+                    typeValue == name -> parsingParams.typesBuilder[name]?.value
+                    else -> Alias(name, typesBuilder.getOrCreate(typeValue))
                 }
             }
 
@@ -81,7 +82,7 @@ object TypeDefinitionParser {
                 when (typeValueCasted["type"]) {
                     TOKEN_STRUCT -> {
                         val typeMapping = typeValueCasted["type_mapping"] as List<List<String>>
-                        val children = parseTypeMapping(typeRegistry, typeMapping)
+                        val children = parseTypeMapping(parsingParams, typeMapping)
 
                         Struct(name, children)
                     }
@@ -94,10 +95,8 @@ object TypeDefinitionParser {
                             valueList != null -> CollectionEnum(name, valueList)
 
                             typeMapping != null -> {
-                                val children =
-                                    parseTypeMapping(typeRegistry, typeMapping).map { (name, typeRef) ->
-                                        DictEnum.Entry(name, typeRef)
-                                    }
+                                val children = parseTypeMapping(parsingParams, typeMapping)
+                                    .map { (name, typeRef) -> DictEnum.Entry(name, typeRef) }
 
                                 DictEnum(name, children)
                             }
@@ -109,7 +108,7 @@ object TypeDefinitionParser {
                         val valueTypeName = typeValueCasted["value_type"] as String
                         val valueListRaw = typeValueCasted["value_list"] as Map<String, Double>
 
-                        val valueTypeRef = typeRegistry.getTypeReference(valueTypeName, resolveAliasing = false)
+                        val valueTypeRef = resolveTypeAllWaysOrCreate(parsingParams, valueTypeName)
 
                         val valueList = valueListRaw.mapValues { (_, value) ->
                             BigInteger(value.toInt().toString())
@@ -126,17 +125,36 @@ object TypeDefinitionParser {
         }
     }
 
-    private fun parseTypeMapping(typeRegistry: TypeRegistry, typeMapping: List<List<String>>): LinkedHashMap<String, TypeReference> {
+    private fun parseTypeMapping(
+        parsingParams: Params,
+        typeMapping: List<List<String>>
+    ): LinkedHashMap<String, TypeReference> {
         val children = LinkedHashMap<String, TypeReference>()
 
         for ((fieldName, fieldType) in typeMapping) {
-
-            // resolveAliasing = false to keep original type structure
-            val typeRef = typeRegistry.getTypeReference(fieldType, resolveAliasing = false)
-
-            children[fieldName] = typeRef
+            children[fieldName] = resolveTypeAllWaysOrCreate(parsingParams, fieldType)
         }
 
         return children
+    }
+
+    private fun resolveDynamicType(
+        parsingParams: Params,
+        name: String,
+        typeDef: String
+    ): Type<*>? {
+        return parsingParams.dynamicTypeResolver.createDynamicType(name, typeDef) {
+            resolveTypeAllWaysOrCreate(parsingParams, it)
+        }
+    }
+
+    private fun resolveTypeAllWaysOrCreate(
+        parsingParams: Params,
+        typeDef: String,
+        name: String = typeDef
+    ): TypeReference {
+        return parsingParams.typesBuilder[name]
+            ?: resolveDynamicType(parsingParams, name, typeDef)?.let(::TypeReference)
+            ?: parsingParams.typesBuilder.create(name)
     }
 }

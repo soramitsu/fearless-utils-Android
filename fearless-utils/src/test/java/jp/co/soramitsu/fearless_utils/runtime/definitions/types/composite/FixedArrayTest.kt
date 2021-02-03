@@ -29,14 +29,14 @@ class FixedArrayTest : BaseTypeTest() {
 
     @Test
     fun `should decode instance`() {
-        val decoded = type.fromHex(inHex)
+        val decoded = type.fromHex(runtime, inHex)
 
         assertEquals(typeInstance, decoded)
     }
 
     @Test
     fun `should encode instance`() {
-        val encoded = type.toHex(typeInstance)
+        val encoded = type.toHex(runtime, typeInstance)
 
         assertEquals(inHex, encoded)
     }

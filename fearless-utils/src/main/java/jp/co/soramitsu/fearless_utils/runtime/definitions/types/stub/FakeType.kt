@@ -3,14 +3,15 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 
 class FakeType(name: String) : Type<Nothing>(name) {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader): Nothing {
+    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Nothing {
         throw IllegalArgumentException("Fake")
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Nothing) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Nothing) {
         throw IllegalArgumentException("Fake")
     }
 

@@ -23,7 +23,10 @@ inline fun <reified T : Throwable> assertThrows(block: () -> Unit): T {
     }
 
     Assert.assertNotNull("No error was thrown", throwable)
-    Assert.assertTrue("${T::class} expected, but ${throwable!!::class} thrown", throwable is T || throwable.cause is T)
+    Assert.assertTrue(
+        "${T::class} expected, but ${throwable!!::class} thrown",
+        throwable is T || throwable.cause is T
+    )
 
     return throwable as? T ?: throwable.cause as T
 }

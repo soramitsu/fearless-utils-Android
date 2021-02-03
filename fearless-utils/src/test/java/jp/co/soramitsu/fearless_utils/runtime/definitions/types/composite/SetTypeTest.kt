@@ -26,7 +26,7 @@ class SetTypeTest : BaseTypeTest() {
     @Test
     fun `should decode one flag`() {
         val inHex = "0x04"
-        val decoded = type.fromHex(inHex)
+        val decoded = type.fromHex(runtime, inHex)
 
         assertEquals(setOf("C"), decoded)
     }
@@ -34,7 +34,7 @@ class SetTypeTest : BaseTypeTest() {
     @Test
     fun `should decode multiple flags`() {
         val inHex = "0x0d"
-        val decoded = type.fromHex(inHex)
+        val decoded = type.fromHex(runtime, inHex)
 
         assertEquals(setOf("A", "C", "D"), decoded)
     }
@@ -42,7 +42,7 @@ class SetTypeTest : BaseTypeTest() {
     @Test
     fun `should encode one flag`() {
         val instance = setOf("C")
-        val encoded = type.toHex(instance)
+        val encoded = type.toHex(runtime, instance)
 
         assertEquals("0x04", encoded)
     }
@@ -50,7 +50,7 @@ class SetTypeTest : BaseTypeTest() {
     @Test
     fun `should encode multiple flags`() {
         val instance = setOf("A", "C", "D")
-        val encoded = type.toHex(instance)
+        val encoded = type.toHex(runtime, instance)
 
         assertEquals("0x0d", encoded)
     }
