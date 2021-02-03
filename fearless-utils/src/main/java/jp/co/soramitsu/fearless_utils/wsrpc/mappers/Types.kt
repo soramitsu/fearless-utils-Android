@@ -61,6 +61,5 @@ class POJOMapper<T>(val classRef: Class<T>) : NullableMapper<T>() {
             }
             else -> rpcResponse.result as? T ?: null
         }
-
     }
 }
