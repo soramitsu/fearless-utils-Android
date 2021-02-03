@@ -70,10 +70,14 @@ class POJOCollectionMapper<T>(val classRef: Class<T>) : NullableMapper<List<T>>(
 class POJOMapper<T>(val classRef: Class<T>) : NullableMapper<T>() {
 
     override fun mapNullable(rpcResponse: RpcResponse, jsonMapper: Gson): T? {
-        val raw = rpcResponse.result as? Map<*, *> ?: return null
+        return when {
+            rpcResponse.result is Map<*, *> -> {
+                val raw = rpcResponse.result as? Map<*, *> ?: return null
+                val tree = jsonMapper.toJsonTree(raw)
+                jsonMapper.fromJson(tree, classRef)
+            }
+            else -> return rpcResponse.result as T
+        }
 
-        val tree = jsonMapper.toJsonTree(raw)
-
-        return jsonMapper.fromJson(tree, classRef)
     }
 }
