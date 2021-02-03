@@ -18,6 +18,8 @@ fun <S : Schema<S>> scaleCollection(schema: S) = ScaleCollectionMapper(schema)
 
 fun string() = StringMapper()
 
+fun boolean() = BooleanMapper()
+
 inline fun <reified T> pojo() = POJOMapper(T::class.java)
 
 inline fun <reified T> pojoList() = POJOCollectionMapper(T::class.java)
@@ -46,6 +48,12 @@ class ScaleCollectionMapper<S : Schema<S>>(val schema: S) :
 class StringMapper : NullableMapper<String>() {
     override fun mapNullable(rpcResponse: RpcResponse, jsonMapper: Gson): String? {
         return rpcResponse.result as String? ?: return null
+    }
+}
+
+class BooleanMapper : NullableMapper<Boolean>() {
+    override fun mapNullable(rpcResponse: RpcResponse, jsonMapper: Gson): Boolean? {
+        return rpcResponse.result as Boolean? ?: return null
     }
 }
 
