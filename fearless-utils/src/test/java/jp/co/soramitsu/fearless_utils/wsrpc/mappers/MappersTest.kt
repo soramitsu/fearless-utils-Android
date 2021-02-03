@@ -29,11 +29,21 @@ class MappersTest {
     private val gson = Gson()
 
     @Test
+    fun `should map boolean response`() {
+        val body = true
+        val response = createSuccessResponse(body)
+
+        val mapped = pojo<Boolean>().nonNull().map(response, gson)
+
+        assertEquals(body, mapped)
+    }
+
+    @Test
     fun `should map string response`() {
         val body = "Test"
         val response = createSuccessResponse(body)
 
-        val mapped = string().nonNull().map(response, gson)
+        val mapped = pojo<String>().nonNull().map(response, gson)
 
         assertEquals(body, mapped)
     }
@@ -43,7 +53,7 @@ class MappersTest {
         val body = null
         val response = createSuccessResponse(body)
 
-        val mapped = string().map(response, gson)
+        val mapped = pojo<String>().map(response, gson)
 
         assertNull(mapped.result)
     }
@@ -54,7 +64,7 @@ class MappersTest {
         val response = createErrorResponse(error)
 
         val exception = assertThrows<RpcException> {
-            string().nonNull().map(response, gson)
+            pojo<String>().nonNull().map(response, gson)
         }
 
         assertEquals(error, exception.message)
