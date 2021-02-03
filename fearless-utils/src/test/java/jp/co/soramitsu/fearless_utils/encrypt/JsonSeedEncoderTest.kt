@@ -33,7 +33,7 @@ class JsonSeedEncoderTest {
 
     @Test
     fun `should encode ed25519`() {
-       performTest(EncryptionType.ED25519)
+        performTest(EncryptionType.ED25519)
     }
 
     @Test

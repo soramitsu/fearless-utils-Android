@@ -33,7 +33,7 @@ class DictEnumTest : BaseTypeTest() {
         val expectedInstance = DictEnum.Entry("B", true)
         val inHex = "0x0101"
 
-        val decoded = type.fromHex(inHex)
+        val decoded = type.fromHex(runtime, inHex)
 
         assertEquals(expectedInstance.name, decoded.name)
         assertEquals(expectedInstance.value, decoded.value)
@@ -43,7 +43,7 @@ class DictEnumTest : BaseTypeTest() {
     fun `should encode instance`() {
         val instance = DictEnum.Entry("A", 1.toBigInteger())
 
-        val encoded = type.toHex(instance)
+        val encoded = type.toHex(runtime, instance)
 
         assertEquals("0x0001", encoded)
     }

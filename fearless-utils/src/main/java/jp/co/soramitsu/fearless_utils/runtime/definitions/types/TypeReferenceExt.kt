@@ -4,7 +4,10 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 
 class CyclicAliasingException : Exception()
 
-fun TypeReference.resolveAliasing(): TypeReference {
+/**
+ * @throws CyclicAliasingException
+ */
+fun TypeReference.skipAliases(): TypeReference {
     var aliased = this
 
     val alreadySeen = mutableSetOf(this)
@@ -25,3 +28,9 @@ fun TypeReference.resolveAliasing(): TypeReference {
 
     return aliased
 }
+
+fun TypeReference.skipAliasesOrNull(): TypeReference? {
+    return runCatching { skipAliases() }.getOrNull()
+}
+
+fun TypeReference.resolvedOrNull(): TypeReference? = if (isResolved()) this else null

@@ -1,7 +1,7 @@
-package jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions
+package jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeConstructorExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.TypeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.splitTuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
@@ -38,22 +38,30 @@ object OptionExtension : WrapperExtension() {
     override fun createWrapper(name: String, innerTypeRef: TypeReference) = Option(name, innerTypeRef)
 }
 
-object TupleExtension : TypeConstructorExtension {
+object BoxExtension : WrapperExtension() {
+    override val wrapperName: String
+        get() = "Box"
 
-    override fun createType(name: String, typeDef: String, registry: TypeRegistry): Type<*>? {
+    override fun createWrapper(name: String, innerTypeRef: TypeReference): Type<*>? {
+        return innerTypeRef.value
+    }
+}
+
+object TupleExtension : DynamicTypeExtension {
+    override fun createType(name: String, typeDef: String, typeProvider: TypeProvider): Type<*>? {
         if (!typeDef.startsWith("(")) return null
 
         val innerTypeRefDefinitions = typeDef.splitTuple()
 
-        val innerTypeRefs = innerTypeRefDefinitions.map(registry::getTypeReference)
+        val innerTypeRefs = innerTypeRefDefinitions.map(typeProvider)
 
         return Tuple(name, innerTypeRefs)
     }
 }
 
-object FixedArrayExtension : TypeConstructorExtension {
+object FixedArrayExtension : DynamicTypeExtension {
 
-    override fun createType(name: String, typeDef: String, registry: TypeRegistry): Type<*>? {
+    override fun createType(name: String, typeDef: String, typeProvider: TypeProvider): Type<*>? {
         if (!typeDef.startsWith("[")) return null
 
         val withoutBrackets = typeDef.removeSurrounding("[", "]").replace(" ", "")
@@ -61,7 +69,7 @@ object FixedArrayExtension : TypeConstructorExtension {
 
         val length = lengthRaw.toInt()
 
-        val typeRef = registry.getTypeReference(typeName)
+        val typeRef = typeProvider(typeName)
 
         return if (typeRef.value == u8) {
             FixedByteArray(name, length)

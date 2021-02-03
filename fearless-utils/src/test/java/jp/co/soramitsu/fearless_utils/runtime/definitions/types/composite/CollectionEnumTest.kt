@@ -20,7 +20,7 @@ class EnumTest : BaseTypeTest() {
         val expectedInstance = enumValues[1]
         val inHex = "0x01"
 
-        val decoded = type.fromHex(inHex)
+        val decoded = type.fromHex(runtime, inHex)
 
         assertEquals(expectedInstance, decoded)
     }
@@ -29,7 +29,7 @@ class EnumTest : BaseTypeTest() {
     fun `should encode instance`() {
         val instance = enumValues[1]
 
-        val encoded = type.toHex(instance)
+        val encoded = type.toHex(runtime, instance)
 
         assertEquals("0x01", encoded)
     }

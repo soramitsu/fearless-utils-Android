@@ -29,14 +29,14 @@ class TupleTest : BaseTypeTest() {
 
     @Test
     fun `should decode instance`() {
-        val decoded = type.fromHex(expectedInHex)
+        val decoded = type.fromHex(runtime, expectedInHex)
 
         assertEquals(expectedInstance, decoded)
     }
 
     @Test
     fun `should encode instance`() {
-        val encoded = type.toHex(expectedInstance)
+        val encoded = type.toHex(runtime, expectedInstance)
 
         assertEquals(expectedInHex, encoded)
     }

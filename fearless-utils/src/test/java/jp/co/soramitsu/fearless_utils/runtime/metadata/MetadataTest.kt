@@ -6,11 +6,13 @@ import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParser
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.GenericsExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaBaseTypes
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
@@ -28,14 +30,8 @@ class MetadataTest {
     private lateinit var typeRegistry: TypeRegistry
 
     @Before
-    fun startUp(){
-        Mockito.`when`(
-            typeRegistry.get(
-                Mockito.anyString(),
-                resolveAliasing = Mockito.anyBoolean(),
-                storageOnly = Mockito.anyBoolean()
-            )
-        )
+    fun startUp() {
+        Mockito.`when`(typeRegistry[Mockito.anyString()])
             .thenAnswer { FakeType(it.arguments[0] as String) }
     }
 
@@ -48,29 +44,21 @@ class MetadataTest {
     }
 
     @Test
-    @Ignore("Manual run")
+    fun `connect metadata with real type registry`() {
+        val metadataRaw = buildRawMetadata()
+        val kusamaTypeRegistry = buildKusamaRegistry()
+
+        val metadata = RuntimeMetadata(kusamaTypeRegistry, metadataRaw)
+
+        print(metadata)
+    }
+
+    @Test
     fun `find unknown types in metadata`() {
-        val inHex = getFileContentFromResources("test_runtime_metadata")
-
-        val metadata = RuntimeMetadataSchema.read(inHex)
-
-        val gson = Gson()
-        val reader = JsonReader(getResourceReader("default.json"))
-        val kusamaReader = JsonReader(getResourceReader("kusama.json"))
-
-        val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
-        val kusamaTree =
-            gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
-
-        val defaultTypeRegistry = TypeDefinitionParser.parseTypeDefinitions(tree).typeRegistry
-        val kusamaTypeRegistry = TypeDefinitionParser.parseTypeDefinitions(
-            kusamaTree,
-            defaultTypeRegistry + kusamaBaseTypes()
-        ).typeRegistry
+        val metadata = buildRawMetadata()
+        val kusamaTypeRegistry = buildKusamaRegistry()
 
         val toResolve = mutableSetOf<Holder>()
-
-        kusamaTypeRegistry.addExtension(GenericsExtension)
 
         for (module in metadata[RuntimeMetadataSchema.modules]) {
             val toResolveInModule = mutableSetOf<String>()
@@ -132,5 +120,37 @@ class MetadataTest {
             .forEach { (module, types) ->
                 println("$module: ${types.map(Holder::type)}\n")
             }
+
+        assertEquals(2, notResolvable.size)
+    }
+
+    private fun buildRawMetadata() = getFileContentFromResources("test_runtime_metadata").run {
+        RuntimeMetadataSchema.read(this)
+    }
+
+    private fun buildKusamaRegistry(): TypeRegistry {
+        val gson = Gson()
+        val reader = JsonReader(getResourceReader("default.json"))
+        val kusamaReader = JsonReader(getResourceReader("kusama.json"))
+
+        val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
+        val kusamaTree =
+            gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
+
+        val defaultTypeRegistry =
+            TypeDefinitionParser.parseTypeDefinitions(tree, substratePreParsePreset()).typePreset
+        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(
+            kusamaTree,
+            defaultTypeRegistry
+        )
+
+        assertEquals(0, kusamaParsed.unknownTypes.size)
+
+        return TypeRegistry(
+            types = kusamaParsed.typePreset,
+            dynamicTypeResolver = DynamicTypeResolver(
+                DynamicTypeResolver.DEFAULT_COMPOUND_EXTENSIONS + GenericsExtension
+            )
+        )
     }
 }

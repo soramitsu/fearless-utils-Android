@@ -1,13 +1,12 @@
 package jp.co.soramitsu.fearless_utils.scale.dataType
 
 import jp.co.soramitsu.fearless_utils.scale.Schema
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
-
 import jp.co.soramitsu.fearless_utils.scale.enum
 import jp.co.soramitsu.fearless_utils.scale.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.junit.MockitoJUnitRunner
 
 enum class TestEnum {
     ZERO, ONE, TWO

@@ -4,16 +4,12 @@ import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.CompactExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.FixedArrayExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.GenericsExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.OptionExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.TupleExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions.VectorExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.kusamaBaseTypes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.preprocessors.RemoveGenericNoisePreprocessor
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.type
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.typePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.CollectionEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedArray
@@ -24,8 +20,6 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.NumberType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import org.junit.Assert.assertEquals
@@ -43,8 +37,8 @@ class TypeDefinitionParserTest {
     fun `should parse typealias`() {
         val A = FakeType("A")
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(A)
+        val initialTypeRegistry = typePreset {
+            type(A)
         }
 
         val definitions = definitions {
@@ -65,9 +59,9 @@ class TypeDefinitionParserTest {
         val A = FakeType("A")
         val B = FakeType("B")
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(A)
-            registerType(B)
+        val initialTypeRegistry = typePreset {
+            type(A)
+            type(B)
         }
 
         val definitions = definitions {
@@ -103,9 +97,9 @@ class TypeDefinitionParserTest {
         val A = FakeType("A")
         val B = FakeType("B")
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(A)
-            registerType(B)
+        val initialTypeRegistry = typePreset {
+            type(A)
+            type(B)
         }
 
         val definitions = definitions {
@@ -141,9 +135,9 @@ class TypeDefinitionParserTest {
         val A = FakeType("A")
         val B = FakeType("B")
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(A)
-            registerType(B)
+        val initialTypeRegistry = typePreset {
+            type(A)
+            type(B)
         }
 
         val definitions = definitions {
@@ -171,8 +165,8 @@ class TypeDefinitionParserTest {
     @Test
     fun `should parse set`() {
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(u8)
+        val initialTypeRegistry = typePreset {
+            type(u8)
         }
 
         val definitions = definitions {
@@ -201,8 +195,8 @@ class TypeDefinitionParserTest {
     @Test
     fun `should parse fixed array`() {
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(BooleanType)
+        val initialTypeRegistry = typePreset {
+            type(BooleanType)
         }
 
         val definitions = definitions {
@@ -224,8 +218,8 @@ class TypeDefinitionParserTest {
     @Test
     fun `should parse fixed u8 array optimized`() {
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(u8)
+        val initialTypeRegistry = typePreset {
+            type(u8)
         }
 
         val definitions = definitions {
@@ -246,8 +240,8 @@ class TypeDefinitionParserTest {
     @Test
     fun `should parse vector`() {
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(BooleanType)
+        val initialTypeRegistry = typePreset {
+            type(BooleanType)
         }
 
         val definitions = definitions {
@@ -270,9 +264,9 @@ class TypeDefinitionParserTest {
         val A = FakeType("A")
         val B = FakeType("B")
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(A)
-            registerType(B)
+        val initialTypeRegistry = typePreset {
+            type(A)
+            type(B)
         }
 
         val definitions = definitions {
@@ -295,8 +289,8 @@ class TypeDefinitionParserTest {
     fun `should parse option`() {
         val A = FakeType("A")
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(A)
+        val initialTypeRegistry = typePreset {
+            type(A)
         }
 
         val definitions = definitions {
@@ -319,9 +313,9 @@ class TypeDefinitionParserTest {
         val A = FakeType("A")
         val B = FakeType("B")
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(A)
-            registerType(B)
+        val initialTypeRegistry = typePreset {
+            type(A)
+            type(B)
         }
 
         val definitions = definitions {
@@ -356,9 +350,9 @@ class TypeDefinitionParserTest {
         val A = FakeType("A")
         val B = FakeType("B")
 
-        val initialTypeRegistry = typeRegistry {
-            registerType(A)
-            registerType(B)
+        val initialTypeRegistry = typePreset {
+            type(A)
+            type(B)
         }
 
         val definitions = definitions {
@@ -369,7 +363,8 @@ class TypeDefinitionParserTest {
 
         val tree = gson.fromJson(definitions, TypeDefinitionsTree::class.java)
 
-        val unknown = TypeDefinitionParser.parseTypeDefinitions(tree, initialTypeRegistry).unknownTypes
+        val unknown =
+            TypeDefinitionParser.parseTypeDefinitions(tree, initialTypeRegistry).unknownTypes
 
         assert("F" in unknown)
     }
@@ -380,7 +375,9 @@ class TypeDefinitionParserTest {
         val reader = JsonReader(getResourceReader("default.json"))
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
 
-        val result = TypeDefinitionParser.parseTypeDefinitions(tree)
+        val result = TypeDefinitionParser.parseTypeDefinitions(tree, substratePreParsePreset())
+
+        print(result.unknownTypes)
 
         assertEquals(0, result.unknownTypes.size)
     }
@@ -392,42 +389,39 @@ class TypeDefinitionParserTest {
         val defaultReader = JsonReader(getResourceReader("default.json"))
         val kusamaReader = JsonReader(getResourceReader("kusama.json"))
 
-        val defaultTree = gson.fromJson<TypeDefinitionsTree>(defaultReader, TypeDefinitionsTree::class.java)
-        val kusamaTree = gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
+        val defaultTree =
+            gson.fromJson<TypeDefinitionsTree>(defaultReader, TypeDefinitionsTree::class.java)
+        val kusamaTree =
+            gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
-        val defaultParsed = TypeDefinitionParser.parseTypeDefinitions(defaultTree)
+        val defaultParsed =
+            TypeDefinitionParser.parseTypeDefinitions(defaultTree, substratePreParsePreset())
+        val defaultRegistry =
+            TypeRegistry(defaultParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
-        val keysDefault = defaultParsed.typeRegistry["Keys"]
+        val keysDefault = defaultRegistry["Keys"]
         assertEquals("SessionKeysSubstrate", keysDefault?.name)
 
-        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(kusamaTree, defaultParsed.typeRegistry + kusamaBaseTypes())
+        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(
+            kusamaTree,
+            defaultParsed.typePreset
+        )
+        val kusamaRegistry =
+            TypeRegistry(kusamaParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
         assertEquals(0, kusamaParsed.unknownTypes.size)
 
-        val address = kusamaParsed.typeRegistry["Address"]
-        assertEquals("AccountIdAddress", address?.name)
-
-        val keysKusama = kusamaParsed.typeRegistry["Keys"]
-        assertEquals("SessionKeysPolkadot", keysKusama?.name)
+        val keysKusama = kusamaRegistry["Keys"]
+        assertEquals("Keys", keysKusama?.name) // changed from SessionKeysSubstrate
     }
 
-    private fun typeRegistry(builder: TypeRegistry.() -> Unit) = TypeRegistry().apply {
-        addExtension(VectorExtension)
-        addExtension(CompactExtension)
-        addExtension(OptionExtension)
-        addExtension(FixedArrayExtension)
-        addExtension(TupleExtension)
-        addExtension(GenericsExtension)
-
-        addPreprocessor(RemoveGenericNoisePreprocessor)
-
-        builder(this)
-    }
-
-    private fun parseFromJson(initialRegistry: TypeRegistry, json: String): TypeRegistry {
+    private fun parseFromJson(typePreset: TypePreset, json: String): TypeRegistry {
         val tree = gson.fromJson(json, TypeDefinitionsTree::class.java)
 
-        return TypeDefinitionParser.parseTypeDefinitions(tree, initialRegistry).typeRegistry
+        return TypeRegistry(
+            TypeDefinitionParser.parseTypeDefinitions(tree, typePreset).typePreset,
+            dynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
+        )
     }
 
     private fun definitions(builder: () -> String): String {

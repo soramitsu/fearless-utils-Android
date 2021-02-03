@@ -15,7 +15,8 @@ class ModulesTest {
 
     @Test
     fun `should create stacking-bonded key`() {
-        val expected = "0x5f3e4907f716ac89b6347d15ececedca3ed14b45ed20d054f05e37e2542cfe70102af806668257c706c60aeddcff7ecdf122d0299e915f63815cdc06a5fbabaa639588b4b9283d50"
+        val expected =
+            "0x5f3e4907f716ac89b6347d15ececedca3ed14b45ed20d054f05e37e2542cfe70102af806668257c706c60aeddcff7ecdf122d0299e915f63815cdc06a5fbabaa639588b4b9283d50"
 
         val bytes = sS58Encoder.decode(ADDRESS)
 
@@ -35,7 +36,8 @@ class ModulesTest {
 
     @Test
     fun `should create ledger key`() {
-        val expected = "0x5f3e4907f716ac89b6347d15ececedca422adb579f1dbf4f3886c5cfa3bb8cc45d37cb5ab0b196671bc08d32e5013f992cbac888c30f6e7d80b9caf0a18a325fb75f8839281fe74ce9d0528a9e828c3c"
+        val expected =
+            "0x5f3e4907f716ac89b6347d15ececedca422adb579f1dbf4f3886c5cfa3bb8cc45d37cb5ab0b196671bc08d32e5013f992cbac888c30f6e7d80b9caf0a18a325fb75f8839281fe74ce9d0528a9e828c3c"
 
         val publicKeyHex = "2cbac888c30f6e7d80b9caf0a18a325fb75f8839281fe74ce9d0528a9e828c3c"
         val bytes = Hex.decode(publicKeyHex)

@@ -1,8 +1,8 @@
 package jp.co.soramitsu.fearless_utils.common
 
 internal object TestAddressBytes {
-    const val KUSAMA : Byte = 2
-    const val POLKADOT : Byte = 0
+    const val KUSAMA: Byte = 2
+    const val POLKADOT: Byte = 0
     const val WESTEND: Byte = 42
 }
 
