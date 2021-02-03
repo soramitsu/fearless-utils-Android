@@ -8,11 +8,26 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Primi
 import jp.co.soramitsu.fearless_utils.scale.dataType.byte
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint16
 import kotlin.math.max
+import kotlin.math.ceil
+import kotlin.math.log2
+import kotlin.math.min
+import kotlin.math.pow
 
 sealed class Era {
     object Immortal : Era()
 
     class Mortal(val period: Int, val phase: Int) : Era()
+
+    companion object {
+        fun getMortalEraPeriodAndPhase(currentBlockNumber: Int, periodInBlocks: Int): Pair<Int, Int> {
+            var callPeriod = 2.0.pow(ceil(log2(periodInBlocks.toDouble()))).toInt()
+            callPeriod = min(1 shl 16, max(callPeriod, 4))
+            val phase = currentBlockNumber % callPeriod
+            val quantizeFactor = max(1, callPeriod shr 12)
+            val quantizePhase = phase / quantizeFactor * quantizeFactor
+            return callPeriod to quantizePhase
+        }
+    }
 }
 
 object EraType : Primitive<Era>("Era") {

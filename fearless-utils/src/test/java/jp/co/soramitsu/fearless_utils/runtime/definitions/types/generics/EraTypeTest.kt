@@ -3,11 +3,18 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era.Companion.getMortalEraPeriodAndPhase
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import org.junit.Assert.*
 import org.junit.Test
 
 class EraTypeTest : BaseTypeTest() {
+
+    @Test
+    fun `get period and phase from block number`() {
+        val p1 = getMortalEraPeriodAndPhase(97506, 64)
+        performMortalEncodeTest("0x2502", p1.first, p1.second)
+    }
 
     @Test
     fun `should decode immortal`() {
