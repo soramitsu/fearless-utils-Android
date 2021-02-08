@@ -52,7 +52,7 @@ abstract class Schema<S : Schema<S>> : ScaleReader<EncodableStruct<S>>,
     }
 
     override fun read(reader: ScaleCodecReader): EncodableStruct<S> {
-        val struct = EncodableStruct(this)
+        val struct = EncodableStruct(this as S)
 
         for (field in fields) {
             val value = field.dataType.read(reader)
