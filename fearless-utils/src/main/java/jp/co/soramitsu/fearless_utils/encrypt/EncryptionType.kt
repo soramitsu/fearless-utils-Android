@@ -8,6 +8,10 @@ enum class EncryptionType(val rawName: String, val signatureVersion: Int) {
     ECDSA("ecdsa", 2);
 
     companion object {
+        fun fromStringOrNull(string: String): EncryptionType? {
+            return runCatching { fromString(string) }.getOrNull()
+        }
+
         fun fromString(string: String): EncryptionType {
             return when (string) {
                 SR25519.rawName -> SR25519
