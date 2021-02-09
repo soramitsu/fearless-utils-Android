@@ -9,6 +9,7 @@ import jp.co.soramitsu.fearless_utils.scale.dataType.DataType
 import jp.co.soramitsu.fearless_utils.scale.dataType.optional
 import org.bouncycastle.util.encoders.Hex
 import java.io.ByteArrayOutputStream
+import kotlin.Exception
 
 @Suppress("UNCHECKED_CAST")
 abstract class Schema<S : Schema<S>> : ScaleReader<EncodableStruct<S>>,
@@ -36,7 +37,7 @@ abstract class Schema<S : Schema<S>> : ScaleReader<EncodableStruct<S>>,
     fun readOrNull(source: String): EncodableStruct<S>? {
         return try {
             read(source)
-        } catch (e: IndexOutOfBoundsException) {
+        } catch (_: Exception) {
             return null
         }
     }
