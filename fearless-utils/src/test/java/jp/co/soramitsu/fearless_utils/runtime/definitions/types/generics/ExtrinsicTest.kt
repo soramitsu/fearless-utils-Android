@@ -43,8 +43,6 @@ class ExtrinsicTest {
 
         val signature = MultiSignature(EncryptionType.SR25519, signatureInHex.fromHex())
 
-        val runtime = RealRuntimeProvider.buildRuntime("westend")
-
         val signedExtras = mapOf(
             SignedExtras.TIP to 0.toBigInteger(),
             SignedExtras.NONCE to 100.toBigInteger(),
