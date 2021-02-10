@@ -9,6 +9,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.CallByt
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EraType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EventRecord
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Extrinsic
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensusEngineId
@@ -88,7 +89,7 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     type(Bytes)
     type(BitVec)
 
-    fakeType("ExtrinsicsDecoder") // deprecated in origin
+    type(Extrinsic)
 
     type(CallBytes) // seems to be unused in runtime
     type(EraType)

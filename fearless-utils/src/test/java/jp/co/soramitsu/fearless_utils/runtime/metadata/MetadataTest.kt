@@ -1,20 +1,12 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
-import com.google.gson.Gson
-import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
-import jp.co.soramitsu.fearless_utils.common.getResourceReader
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParser
-import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.GenericsExtension
+import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -45,16 +37,16 @@ class MetadataTest {
 
     @Test
     fun `connect metadata with real type registry`() {
-        val metadataRaw = buildRawMetadata()
-        val kusamaTypeRegistry = buildKusamaRegistry()
+        val metadataRaw = RealRuntimeProvider.buildRawMetadata()
+        val kusamaTypeRegistry = RealRuntimeProvider.buildRegistry("kusama")
 
         RuntimeMetadata(kusamaTypeRegistry, metadataRaw)
     }
 
     @Test
     fun `find unknown types in metadata`() {
-        val metadata = buildRawMetadata()
-        val kusamaTypeRegistry = buildKusamaRegistry()
+        val metadata = RealRuntimeProvider.buildRawMetadata()
+        val kusamaTypeRegistry = RealRuntimeProvider.buildRegistry("kusama")
 
         val toResolve = mutableSetOf<Holder>()
 
@@ -120,37 +112,5 @@ class MetadataTest {
             }
 
         assertEquals(2, notResolvable.size)
-    }
-
-    private fun buildRawMetadata() = getFileContentFromResources("test_runtime_metadata").run {
-        RuntimeMetadataSchema.read(this)
-    }
-
-    private fun buildKusamaRegistry(): TypeRegistry {
-        val gson = Gson()
-        val reader = JsonReader(getResourceReader("default.json"))
-        val kusamaReader = JsonReader(getResourceReader("kusama.json"))
-
-        val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
-        val kusamaTree =
-            gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
-
-        assertEquals(kusamaTree.runtimeId, 2027)
-
-        val defaultTypeRegistry =
-            TypeDefinitionParser.parseTypeDefinitions(tree, substratePreParsePreset()).typePreset
-        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(
-            kusamaTree,
-            defaultTypeRegistry
-        )
-
-        assertEquals(0, kusamaParsed.unknownTypes.size)
-
-        return TypeRegistry(
-            types = kusamaParsed.typePreset,
-            dynamicTypeResolver = DynamicTypeResolver(
-                DynamicTypeResolver.DEFAULT_COMPOUND_EXTENSIONS + GenericsExtension
-            )
-        )
     }
 }
