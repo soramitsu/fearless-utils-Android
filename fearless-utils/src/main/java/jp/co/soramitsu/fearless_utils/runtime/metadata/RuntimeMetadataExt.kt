@@ -9,7 +9,7 @@ fun RuntimeMetadata.module(index: Int): Module =
 fun RuntimeMetadata.moduleOrNull(index: Int): Module? = nullOnException { module(index) }
 
 /**
- * @throws NoSuchElementException ifN module was not found
+ * @throws NoSuchElementException if module was not found
  */
 fun RuntimeMetadata.module(name: String) = moduleOrNull(name) ?: throw NoSuchElementException()
 
@@ -30,14 +30,14 @@ fun Module.call(name: String): Function = callOrNull(name) ?: throw NoSuchElemen
 fun Module.callOrNull(name: String): Function? = calls?.get(name)
 
 /**
- * @throws NoSuchElementException if calls was not found
+ * @throws NoSuchElementException if event was not found
  */
 fun Module.event(index: Int): Event = requireElementInMap(events, index)
 
 fun Module.eventOrNull(index: Int): Event? = nullOnException { event(index) }
 
 /**
- * @throws NoSuchElementException if calls was not found
+ * @throws NoSuchElementException if event was not found
  */
 fun Module.event(name: String): Event = eventOrNull(name) ?: throw NoSuchElementException()
 
