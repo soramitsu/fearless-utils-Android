@@ -16,6 +16,13 @@ fun RuntimeMetadata.module(name: String) = moduleOrNull(name) ?: throw NoSuchEle
 fun RuntimeMetadata.moduleOrNull(name: String): Module? = modules[name]
 
 /**
+ * @throws NoSuchElementException if storage entry was not found
+ */
+fun Module.storage(name: String): StorageEntry = storageOrNull(name) ?: throw NoSuchElementException()
+
+fun Module.storageOrNull(name: String): StorageEntry? = storage?.get(name)
+
+/**
  * @throws NoSuchElementException if call was not found
  */
 fun Module.call(index: Int): Function = requireElementInMap(calls, index)

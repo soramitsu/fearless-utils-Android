@@ -1,5 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
+import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
@@ -34,6 +35,7 @@ class MetadataTest {
         val metadataRaw = RuntimeMetadataSchema.read(inHex)
         val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
 
+        assertInstance<StorageEntryType.Plain>(metadata.module("System").storage("Events").type)
         assertEquals(4 to 2, metadata.module("Balances").event("Transfer").index)
         assertEquals(4 to 0, metadata.module("Balances").call("transfer").index)
     }
