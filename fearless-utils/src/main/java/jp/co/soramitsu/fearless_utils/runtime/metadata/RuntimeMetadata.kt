@@ -1,11 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
-import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytesOrNull
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import java.math.BigInteger
 
@@ -105,7 +101,7 @@ class StorageEntry(
     val type: StorageEntryType,
     val default: ByteArray,
     val documentation: List<String>,
-    private val moduleName: String
+    val moduleName: String
 ) : WithName {
 
     constructor(
@@ -120,40 +116,6 @@ class StorageEntry(
         documentation = struct[StorageEntryMetadataSchema.documentation],
         moduleName = moduleName
     )
-
-    fun storageKey(): String? {
-        if (type !is StorageEntryType.Plain) return null
-
-        return (moduleHash() + serviceHash()).toHexString(withPrefix = true)
-    }
-
-    fun storageKey(runtime: RuntimeSnapshot, key1: Any?): String? {
-        if (type !is StorageEntryType.Map) return null
-
-        val key1Encoded = type.key?.bytesOrNull(runtime, key1) ?: return null
-
-        val storageKey = moduleHash() + serviceHash() + type.hasher.hashingFunction(key1Encoded)
-
-        return storageKey.toHexString(withPrefix = true)
-    }
-
-    fun storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): String? {
-        if (type !is StorageEntryType.DoubleMap) return null
-
-        val key1Encoded = type.key1?.bytesOrNull(runtime, key1) ?: return null
-        val key2Encoded = type.key2?.bytesOrNull(runtime, key2) ?: return null
-
-        val key1Hashed = type.key1Hasher.hashingFunction(key1Encoded)
-        val key2Hashed = type.key2Hasher.hashingFunction(key2Encoded)
-
-        val storageKey = moduleHash() + serviceHash() + key1Hashed + key2Hashed
-
-        return storageKey.toHexString(withPrefix = true)
-    }
-
-    private fun moduleHash() = moduleName.toByteArray().xxHash128()
-
-    private fun serviceHash() = name.toByteArray().xxHash128()
 }
 
 sealed class StorageEntryType {
