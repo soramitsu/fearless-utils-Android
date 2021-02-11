@@ -78,7 +78,6 @@ fun StorageEntry.storageKeyOrNull() = nullOnException { storageKey() }
  * @throws EncodeDecodeException if error happened during encoding
  */
 fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key1: Any?): String {
-
     if (type !is StorageEntryType.Map) wrongEntryType()
 
     val key1Type = type.key ?: typeNotResolved(name)
