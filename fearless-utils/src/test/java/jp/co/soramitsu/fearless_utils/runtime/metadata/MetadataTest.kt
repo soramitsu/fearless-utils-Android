@@ -33,6 +33,9 @@ class MetadataTest {
 
         val metadataRaw = RuntimeMetadataSchema.read(inHex)
         val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
+
+        assertEquals(4 to 2, metadata.module("Balances").event("Transfer").index)
+        assertEquals(4 to 0, metadata.module("Balances").call("transfer").index)
     }
 
     @Test

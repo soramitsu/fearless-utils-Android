@@ -13,7 +13,7 @@ interface WithName {
     val name: String
 }
 
-fun <T : WithName> List<T>.groupByName() = map { it.name to it }.toMap()
+fun <T : WithName> List<T>.groupByName() = associateBy(WithName::name).toMap()
 
 class RuntimeMetadata(
     val runtimeVersion: BigInteger,
@@ -29,20 +29,10 @@ class RuntimeMetadata(
             .groupByName(),
         extrinsic = ExtrinsicMetadata(struct[RuntimeMetadataSchema.extrinsic])
     )
+}
 
-    fun getModule(index: Int): Module? = modules.values.find { it.index == index.toBigInteger() }
-
-    fun getCall(moduleIndex: Int, callIndex: Int): Function? {
-        val module = getModule(moduleIndex)
-
-        return module?.calls?.values?.elementAtOrNull(callIndex)
-    }
-
-    fun getEvent(moduleIndex: Int, eventIndex: Int): Event? {
-        val module = getModule(moduleIndex)
-
-        return module?.events?.values?.elementAtOrNull(eventIndex)
-    }
+private fun EncodableStruct<ModuleMetadataSchema>.indexForChild(childIndex: Int): Pair<Int, Int> {
+    return this[ModuleMetadataSchema.index].toInt() to childIndex
 }
 
 class Module(
@@ -57,24 +47,29 @@ class Module(
 
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<ModuleMetadataSchema>
+        moduleStruct: EncodableStruct<ModuleMetadataSchema>
     ) : this(
-        name = struct.name,
-        storage = struct[ModuleMetadataSchema.storage]?.let {
+        name = moduleStruct.name,
+        storage = moduleStruct[ModuleMetadataSchema.storage]?.let {
             Storage(
                 typeRegistry,
                 it,
-                struct.name
+                moduleStruct.name
             )
         },
-        calls = struct[ModuleMetadataSchema.calls]?.map { Function(typeRegistry, it) }
-            ?.groupByName(),
-        events = struct[ModuleMetadataSchema.events]?.map { Event(typeRegistry, it) }
-            ?.groupByName(),
-        constants = struct[ModuleMetadataSchema.constants].map { Constant(typeRegistry, it) }
+        calls = moduleStruct[ModuleMetadataSchema.calls]?.mapIndexed { functionIndex, functionStruct ->
+            Function(typeRegistry, functionStruct, moduleStruct.indexForChild(functionIndex))
+        }?.groupByName(),
+
+        events = moduleStruct[ModuleMetadataSchema.events]?.mapIndexed { eventIndex, eventStruct ->
+            Event(typeRegistry, eventStruct, index = moduleStruct.indexForChild(eventIndex))
+        }?.groupByName(),
+
+        constants = moduleStruct[ModuleMetadataSchema.constants].map { Constant(typeRegistry, it) }
             .groupByName(),
-        errors = struct[ModuleMetadataSchema.errors].map(::Error).groupByName(),
-        index = struct[ModuleMetadataSchema.index].toInt().toBigInteger()
+
+        errors = moduleStruct[ModuleMetadataSchema.errors].map(::Error).groupByName(),
+        index = moduleStruct[ModuleMetadataSchema.index].toInt().toBigInteger()
     )
 }
 
@@ -229,20 +224,20 @@ sealed class StorageEntryType {
 class Function(
     override val name: String,
     val arguments: List<FunctionArgument>,
-    val documentation: List<String>
+    val documentation: List<String>,
+    val index: Pair<Int, Int>
 ) : WithName {
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<FunctionMetadataSchema>
+        struct: EncodableStruct<FunctionMetadataSchema>,
+        index: Pair<Int, Int>
     ) : this(
         name = struct[FunctionMetadataSchema.name],
         arguments = struct[FunctionMetadataSchema.arguments].map {
-            FunctionArgument(
-                typeRegistry,
-                it
-            )
+            FunctionArgument(typeRegistry, it)
         },
-        documentation = struct[FunctionMetadataSchema.documentation]
+        documentation = struct[FunctionMetadataSchema.documentation],
+        index = index
     )
 }
 
@@ -261,16 +256,19 @@ class FunctionArgument(
 
 class Event(
     override val name: String,
+    val index: Pair<Int, Int>,
     val arguments: List<Type<*>?>,
     val documentation: List<String>
 ) : WithName {
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<EventMetadataSchema>
+        struct: EncodableStruct<EventMetadataSchema>,
+        index: Pair<Int, Int>
     ) : this(
         name = struct[EventMetadataSchema.name],
         arguments = struct[EventMetadataSchema.arguments].map { typeRegistry[it] },
-        documentation = struct[EventMetadataSchema.documentation]
+        documentation = struct[EventMetadataSchema.documentation],
+        index = index
     )
 }
 

@@ -7,6 +7,8 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
 import jp.co.soramitsu.fearless_utils.runtime.metadata.FunctionArgument
+import jp.co.soramitsu.fearless_utils.runtime.metadata.callOrNull
+import jp.co.soramitsu.fearless_utils.runtime.metadata.moduleOrNull
 import jp.co.soramitsu.fearless_utils.scale.dataType.tuple
 import jp.co.soramitsu.fearless_utils.scale.dataType.uint8
 
@@ -59,13 +61,13 @@ object GenericCall : Type<GenericCall.Instance>("GenericCall") {
         moduleIndex: Int,
         callIndex: Int
     ): Function {
-        return runtime.metadata.getCall(moduleIndex, callIndex) ?: callNotFound(
+        return runtime.metadata.moduleOrNull(moduleIndex)?.callOrNull(callIndex) ?: callNotFound(
             moduleIndex,
             callIndex
         )
     }
 
     private fun callNotFound(moduleIndex: Int, callIndex: Int): Nothing {
-        throw EncodeDecodeException("No call for ($moduleIndex, $callIndex) index found")
+        throw EncodeDecodeException("No call found for index ($moduleIndex, $callIndex)")
     }
 }

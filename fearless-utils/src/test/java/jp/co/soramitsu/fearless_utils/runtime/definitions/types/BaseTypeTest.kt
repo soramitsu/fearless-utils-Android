@@ -46,7 +46,8 @@ abstract class BaseTypeTest {
                                     type = u8
                                 )
                             ),
-                            documentation = emptyList()
+                            documentation = emptyList(),
+                            index = 0 to 0
                         )
                     ),
                     events = mapOf(
@@ -56,7 +57,8 @@ abstract class BaseTypeTest {
                                 BooleanType,
                                 u8
                             ),
-                            documentation = emptyList()
+                            documentation = emptyList(),
+                            index = 0 to 0
                         )
                     ),
                     constants = emptyMap(),
