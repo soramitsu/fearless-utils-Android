@@ -118,7 +118,9 @@ class StorageEntry(
     )
 }
 
-sealed class StorageEntryType {
+sealed class StorageEntryType(
+    val value: Type<*>?
+) {
     companion object {
         fun from(typeRegistry: TypeRegistry, value: Any?) = when (value) {
             is String -> Plain(typeRegistry, value)
@@ -135,7 +137,7 @@ sealed class StorageEntryType {
         }
     }
 
-    class Plain(val value: Type<*>?) : StorageEntryType() {
+    class Plain(value: Type<*>?) : StorageEntryType(value) {
 
         constructor(
             typeRegistry: TypeRegistry,
@@ -148,9 +150,9 @@ sealed class StorageEntryType {
     class Map(
         val hasher: StorageHasher,
         val key: Type<*>?,
-        val value: Type<*>?,
+        value: Type<*>?,
         val unused: Boolean
-    ) : StorageEntryType() {
+    ) : StorageEntryType(value) {
 
         constructor(
             typeRegistry: TypeRegistry,
@@ -167,9 +169,9 @@ sealed class StorageEntryType {
         val key1Hasher: StorageHasher,
         val key1: Type<*>?,
         val key2: Type<*>?,
-        val value: Type<*>?,
+        value: Type<*>?,
         val key2Hasher: StorageHasher
-    ) : StorageEntryType() {
+    ) : StorageEntryType(value) {
         constructor(
             typeRegistry: TypeRegistry,
             struct: EncodableStruct<*>
