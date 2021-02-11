@@ -1,11 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
-import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytesOrNull
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import java.math.BigInteger
 
@@ -13,7 +9,7 @@ interface WithName {
     val name: String
 }
 
-fun <T : WithName> List<T>.groupByName() = map { it.name to it }.toMap()
+fun <T : WithName> List<T>.groupByName() = associateBy(WithName::name).toMap()
 
 class RuntimeMetadata(
     val runtimeVersion: BigInteger,
@@ -29,20 +25,10 @@ class RuntimeMetadata(
             .groupByName(),
         extrinsic = ExtrinsicMetadata(struct[RuntimeMetadataSchema.extrinsic])
     )
+}
 
-    fun getModule(index: Int): Module? = modules.values.find { it.index == index.toBigInteger() }
-
-    fun getCall(moduleIndex: Int, callIndex: Int): Function? {
-        val module = getModule(moduleIndex)
-
-        return module?.calls?.values?.elementAtOrNull(callIndex)
-    }
-
-    fun getEvent(moduleIndex: Int, eventIndex: Int): Event? {
-        val module = getModule(moduleIndex)
-
-        return module?.events?.values?.elementAtOrNull(eventIndex)
-    }
+private fun EncodableStruct<ModuleMetadataSchema>.indexForChild(childIndex: Int): Pair<Int, Int> {
+    return this[ModuleMetadataSchema.index].toInt() to childIndex
 }
 
 class Module(
@@ -57,24 +43,29 @@ class Module(
 
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<ModuleMetadataSchema>
+        moduleStruct: EncodableStruct<ModuleMetadataSchema>
     ) : this(
-        name = struct.name,
-        storage = struct[ModuleMetadataSchema.storage]?.let {
+        name = moduleStruct.name,
+        storage = moduleStruct[ModuleMetadataSchema.storage]?.let {
             Storage(
                 typeRegistry,
                 it,
-                struct.name
+                moduleStruct.name
             )
         },
-        calls = struct[ModuleMetadataSchema.calls]?.map { Function(typeRegistry, it) }
-            ?.groupByName(),
-        events = struct[ModuleMetadataSchema.events]?.map { Event(typeRegistry, it) }
-            ?.groupByName(),
-        constants = struct[ModuleMetadataSchema.constants].map { Constant(typeRegistry, it) }
+        calls = moduleStruct[ModuleMetadataSchema.calls]?.mapIndexed { functionIndex, functionStruct ->
+            Function(typeRegistry, functionStruct, moduleStruct.indexForChild(functionIndex))
+        }?.groupByName(),
+
+        events = moduleStruct[ModuleMetadataSchema.events]?.mapIndexed { eventIndex, eventStruct ->
+            Event(typeRegistry, eventStruct, index = moduleStruct.indexForChild(eventIndex))
+        }?.groupByName(),
+
+        constants = moduleStruct[ModuleMetadataSchema.constants].map { Constant(typeRegistry, it) }
             .groupByName(),
-        errors = struct[ModuleMetadataSchema.errors].map(::Error).groupByName(),
-        index = struct[ModuleMetadataSchema.index].toInt().toBigInteger()
+
+        errors = moduleStruct[ModuleMetadataSchema.errors].map(::Error).groupByName(),
+        index = moduleStruct[ModuleMetadataSchema.index].toInt().toBigInteger()
     )
 }
 
@@ -110,7 +101,7 @@ class StorageEntry(
     val type: StorageEntryType,
     val default: ByteArray,
     val documentation: List<String>,
-    private val moduleName: String
+    val moduleName: String
 ) : WithName {
 
     constructor(
@@ -125,43 +116,11 @@ class StorageEntry(
         documentation = struct[StorageEntryMetadataSchema.documentation],
         moduleName = moduleName
     )
-
-    fun storageKey(): String? {
-        if (type !is StorageEntryType.Plain) return null
-
-        return (moduleHash() + serviceHash()).toHexString(withPrefix = true)
-    }
-
-    fun storageKey(runtime: RuntimeSnapshot, key1: Any?): String? {
-        if (type !is StorageEntryType.Map) return null
-
-        val key1Encoded = type.key?.bytesOrNull(runtime, key1) ?: return null
-
-        val storageKey = moduleHash() + serviceHash() + type.hasher.hashingFunction(key1Encoded)
-
-        return storageKey.toHexString(withPrefix = true)
-    }
-
-    fun storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): String? {
-        if (type !is StorageEntryType.DoubleMap) return null
-
-        val key1Encoded = type.key1?.bytesOrNull(runtime, key1) ?: return null
-        val key2Encoded = type.key2?.bytesOrNull(runtime, key2) ?: return null
-
-        val key1Hashed = type.key1Hasher.hashingFunction(key1Encoded)
-        val key2Hashed = type.key2Hasher.hashingFunction(key2Encoded)
-
-        val storageKey = moduleHash() + serviceHash() + key1Hashed + key2Hashed
-
-        return storageKey.toHexString(withPrefix = true)
-    }
-
-    private fun moduleHash() = moduleName.toByteArray().xxHash128()
-
-    private fun serviceHash() = name.toByteArray().xxHash128()
 }
 
-sealed class StorageEntryType {
+sealed class StorageEntryType(
+    val value: Type<*>?
+) {
     companion object {
         fun from(typeRegistry: TypeRegistry, value: Any?) = when (value) {
             is String -> Plain(typeRegistry, value)
@@ -178,7 +137,7 @@ sealed class StorageEntryType {
         }
     }
 
-    class Plain(val value: Type<*>?) : StorageEntryType() {
+    class Plain(value: Type<*>?) : StorageEntryType(value) {
 
         constructor(
             typeRegistry: TypeRegistry,
@@ -191,9 +150,9 @@ sealed class StorageEntryType {
     class Map(
         val hasher: StorageHasher,
         val key: Type<*>?,
-        val value: Type<*>?,
+        value: Type<*>?,
         val unused: Boolean
-    ) : StorageEntryType() {
+    ) : StorageEntryType(value) {
 
         constructor(
             typeRegistry: TypeRegistry,
@@ -210,9 +169,9 @@ sealed class StorageEntryType {
         val key1Hasher: StorageHasher,
         val key1: Type<*>?,
         val key2: Type<*>?,
-        val value: Type<*>?,
+        value: Type<*>?,
         val key2Hasher: StorageHasher
-    ) : StorageEntryType() {
+    ) : StorageEntryType(value) {
         constructor(
             typeRegistry: TypeRegistry,
             struct: EncodableStruct<*>
@@ -229,20 +188,20 @@ sealed class StorageEntryType {
 class Function(
     override val name: String,
     val arguments: List<FunctionArgument>,
-    val documentation: List<String>
+    val documentation: List<String>,
+    val index: Pair<Int, Int>
 ) : WithName {
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<FunctionMetadataSchema>
+        struct: EncodableStruct<FunctionMetadataSchema>,
+        index: Pair<Int, Int>
     ) : this(
         name = struct[FunctionMetadataSchema.name],
         arguments = struct[FunctionMetadataSchema.arguments].map {
-            FunctionArgument(
-                typeRegistry,
-                it
-            )
+            FunctionArgument(typeRegistry, it)
         },
-        documentation = struct[FunctionMetadataSchema.documentation]
+        documentation = struct[FunctionMetadataSchema.documentation],
+        index = index
     )
 }
 
@@ -261,16 +220,19 @@ class FunctionArgument(
 
 class Event(
     override val name: String,
+    val index: Pair<Int, Int>,
     val arguments: List<Type<*>?>,
     val documentation: List<String>
 ) : WithName {
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<EventMetadataSchema>
+        struct: EncodableStruct<EventMetadataSchema>,
+        index: Pair<Int, Int>
     ) : this(
         name = struct[EventMetadataSchema.name],
         arguments = struct[EventMetadataSchema.arguments].map { typeRegistry[it] },
-        documentation = struct[EventMetadataSchema.documentation]
+        documentation = struct[EventMetadataSchema.documentation],
+        index = index
     )
 }
 
