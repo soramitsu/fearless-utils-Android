@@ -3,7 +3,9 @@ package jp.co.soramitsu.fearless_utils.runtime.metadata
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import org.junit.Assert.assertEquals
@@ -35,7 +37,9 @@ class MetadataTest {
         val metadataRaw = RuntimeMetadataSchema.read(inHex)
         val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
 
-        assertInstance<StorageEntryType.Plain>(metadata.module("System").storage("Events").type)
+        val eventsStorageType = metadata.module("System").storage("Events")
+
+        assertInstance<StorageEntryType.Plain>(eventsStorageType.type)
         assertEquals(4 to 2, metadata.module("Balances").event("Transfer").index)
         assertEquals(4 to 0, metadata.module("Balances").call("transfer").index)
     }
@@ -45,7 +49,23 @@ class MetadataTest {
         val metadataRaw = RealRuntimeProvider.buildRawMetadata()
         val kusamaTypeRegistry = RealRuntimeProvider.buildRegistry("kusama")
 
-        RuntimeMetadata(kusamaTypeRegistry, metadataRaw)
+        val metadata = RuntimeMetadata(kusamaTypeRegistry, metadataRaw)
+        val runtime = RuntimeSnapshot(kusamaTypeRegistry, metadata)
+    }
+
+    @Test
+    fun `should decode events`() {
+        val metadataRaw = RealRuntimeProvider.buildRawMetadata()
+        val kusamaTypeRegistry = RealRuntimeProvider.buildRegistry("kusama")
+
+        val metadata = RuntimeMetadata(kusamaTypeRegistry, metadataRaw)
+        val runtime = RuntimeSnapshot(kusamaTypeRegistry, metadata)
+
+        val events = "0x0800000000000000482d7c0900000000020000000100000000010325030000000000000000000100"
+
+        val returnType = metadata.module("System").storage("Events").type.value!!
+
+        val parsed = returnType.fromHex(runtime, events)
     }
 
     @Test
