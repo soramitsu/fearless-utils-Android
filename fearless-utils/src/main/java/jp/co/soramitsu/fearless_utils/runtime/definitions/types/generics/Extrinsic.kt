@@ -20,11 +20,11 @@ private const val TYPE_SIGNATURE = "ExtrinsicSignature"
 object Extrinsic : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
 
     class Instance(
-        val signature: ExtrinsicSignature?,
+        val signature: Signature?,
         val call: GenericCall.Instance
     )
 
-    class ExtrinsicSignature(
+    class Signature(
         val accountIdentifier: Any?,
         val signature: Any?,
         val signedExtras: SignedExtrasInstance
@@ -40,7 +40,7 @@ object Extrinsic : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
         val extrinsicVersion = byte.read(scaleCodecReader).toUByte()
 
         val signature = if (isSigned(extrinsicVersion)) {
-            ExtrinsicSignature(
+            Signature(
                 accountIdentifier = addressType(runtime).decode(scaleCodecReader, runtime),
                 signature = signatureType(runtime).decode(scaleCodecReader, runtime),
                 signedExtras = SignedExtras.decode(scaleCodecReader, runtime)

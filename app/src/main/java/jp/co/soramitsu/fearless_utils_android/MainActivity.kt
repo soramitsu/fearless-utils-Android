@@ -70,12 +70,10 @@ class MainActivity : AppCompatActivity() {
 
         val keypair = keypairFactory.generate(EncryptionType.SR25519, SEED, "")
 
-        val signer = Signer()
-
-        val result = signer.sign(EncryptionType.SR25519, messageHex.toByteArray(), keypair)
+        val result = Signer.sign(EncryptionType.SR25519, messageHex.toByteArray(), keypair)
 
         require(
-            signer.verifySr25519(
+            Signer.verifySr25519(
                 messageHex.toByteArray(),
                 result.signature,
                 keypair.publicKey

@@ -17,7 +17,7 @@ import java.math.BigInteger
 import java.security.Security
 import java.security.Signature
 
-class Signer {
+object Signer {
 
     init {
         Security.addProvider(EdDSASecurityProvider())
