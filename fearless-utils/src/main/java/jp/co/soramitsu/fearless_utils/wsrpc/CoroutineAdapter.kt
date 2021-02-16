@@ -5,14 +5,20 @@ package jp.co.soramitsu.fearless_utils.wsrpc
 import jp.co.soramitsu.fearless_utils.wsrpc.mappers.ResponseMapper
 import jp.co.soramitsu.fearless_utils.wsrpc.request.DeliveryType
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.RuntimeRequest
+import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.storage.MultiplexerCallback
+import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.storage.StorageSubscriptionMultiplexer.Builder
+import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.storage.StorageSubscriptionMultiplexer.Change
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 import jp.co.soramitsu.fearless_utils.wsrpc.socket.StateObserver
 import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine.State
 import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
@@ -77,5 +83,27 @@ fun SocketService.networkStateFlow(): Flow<State> = callbackFlow {
 
     awaitClose {
         removeStateObserver(observer)
+    }
+}
+
+fun Builder.subscribe(key: String): Flow<Change> {
+    val callback = FlowCallback()
+
+    subscribe(key, callback)
+
+    return callback.collector
+        .map { it.getOrThrow() }
+}
+
+private class FlowCallback : MultiplexerCallback {
+
+    val collector = MutableSharedFlow<Result<Change>>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    override fun onNext(response: Change) {
+        collector.tryEmit(Result.success(response))
+    }
+
+    override fun onError(throwable: Throwable) {
+        collector.tryEmit(Result.failure(throwable))
     }
 }
