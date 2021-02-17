@@ -5,6 +5,7 @@ import jp.co.soramitsu.fearless_utils.encrypt.json.copyBytes
 import jp.co.soramitsu.fearless_utils.exceptions.AddressFormatException
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b512
+import java.lang.Exception
 
 object SS58Encoder {
 
@@ -47,7 +48,7 @@ object SS58Encoder {
 
     fun extractAddressByteOrNull(address: String): Byte? = try {
         extractAddressByte(address)
-    } catch (e: AddressFormatException) {
+    } catch (e: Exception) {
         null
     }
 
