@@ -8,7 +8,6 @@ import jp.co.soramitsu.fearless_utils.encrypt.KeypairFactory
 import jp.co.soramitsu.fearless_utils.encrypt.Signer
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecoder
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedEncoder
-import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.spongycastle.util.encoders.Hex
 import java.security.SecureRandom
 
@@ -17,10 +16,10 @@ private val PASSWORD = "12345"
 private val NAME = "name"
 
 private const val ADDRESS_TYPE_WESTEND: Byte = 42
-private const val GENESIS_HASH_WESTEND = "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
+private const val GENESIS_HASH_WESTEND =
+    "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
 
 private val gson = Gson()
-private val ss58 = SS58Encoder()
 private val keypairFactory = KeypairFactory()
 
 class MainActivity : AppCompatActivity() {
@@ -36,13 +35,8 @@ class MainActivity : AppCompatActivity() {
     private fun shouldEncodeSr25519Json() {
         val keypairExpected = keypairFactory.generate(EncryptionType.SR25519, SEED)
 
-        val decoder = JsonSeedDecoder(
-            gson,
-            ss58,
-            keypairFactory
-        )
-
-        val encoder = JsonSeedEncoder(gson, ss58, SecureRandom())
+        val decoder = JsonSeedDecoder(gson, keypairFactory)
+        val encoder = JsonSeedEncoder(gson, SecureRandom())
 
         val json = encoder.generate(
             keypair = keypairExpected,

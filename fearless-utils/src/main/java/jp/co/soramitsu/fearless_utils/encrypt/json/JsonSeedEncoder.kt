@@ -6,7 +6,7 @@ import jp.co.soramitsu.fearless_utils.encrypt.Sr25519
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
-import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
+import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAddress
 import org.spongycastle.crypto.generators.SCrypt
 import org.spongycastle.util.encoders.Base64
 import java.util.Random
@@ -19,7 +19,6 @@ private const val r = 8
 @Suppress("EXPERIMENTAL_API_USAGE")
 class JsonSeedEncoder(
     private val gson: Gson,
-    private val sS58Encoder: SS58Encoder,
     private val random: Random
 ) {
     fun generate(
@@ -32,7 +31,7 @@ class JsonSeedEncoder(
         addressByte: Byte
     ): String {
         val encoded = formEncodedField(keypair, seed, password, encryptionType)
-        val address = sS58Encoder.encode(keypair.publicKey, addressByte)
+        val address = keypair.publicKey.toAddress(addressByte)
 
         val importData = JsonAccountData(
             encoded = encoded,
@@ -69,7 +68,7 @@ class JsonSeedEncoder(
         val secret = secretBox.seal(nonce, pkcs8Bytes)
 
         val encodedBytes = salt + N.asLittleEndianBytes() + p.asLittleEndianBytes() +
-            r.asLittleEndianBytes() + nonce + secret
+                r.asLittleEndianBytes() + nonce + secret
 
         return Base64.toBase64String(encodedBytes)
     }

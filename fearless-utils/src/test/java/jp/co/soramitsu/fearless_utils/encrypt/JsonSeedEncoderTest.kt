@@ -20,16 +20,10 @@ private const val NAME = "test"
 @RunWith(MockitoJUnitRunner::class)
 class JsonSeedEncoderTest {
     private val gson = Gson()
-    private val ss58 = SS58Encoder()
     private val keypairFactory = KeypairFactory()
 
-    private val decoder = JsonSeedDecoder(
-        gson,
-        ss58,
-        keypairFactory
-    )
-
-    private val encoder = JsonSeedEncoder(gson, ss58, SecureRandom())
+    private val decoder = JsonSeedDecoder(gson, keypairFactory)
+    private val encoder = JsonSeedEncoder(gson, SecureRandom())
 
     @Test
     fun `should encode ed25519`() {

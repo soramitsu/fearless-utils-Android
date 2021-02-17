@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime
 
-import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
+import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAccountId
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -11,14 +11,13 @@ private const val ADDRESS = "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn"
 
 @RunWith(MockitoJUnitRunner::class)
 class ModulesTest {
-    private val sS58Encoder = SS58Encoder()
 
     @Test
     fun `should create stacking-bonded key`() {
         val expected =
             "0x5f3e4907f716ac89b6347d15ececedca3ed14b45ed20d054f05e37e2542cfe70102af806668257c706c60aeddcff7ecdf122d0299e915f63815cdc06a5fbabaa639588b4b9283d50"
 
-        val bytes = sS58Encoder.decode(ADDRESS)
+        val bytes = ADDRESS.toAccountId()
 
         val key = Module.Staking.Bonded.storageKey(bytes)
 
