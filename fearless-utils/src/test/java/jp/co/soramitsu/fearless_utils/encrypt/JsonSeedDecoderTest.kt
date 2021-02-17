@@ -49,14 +49,9 @@ private const val NOT_JSON = "not json"
 @RunWith(MockitoJUnitRunner::class)
 class JsonSeedDecoderTest {
     private val gson = Gson()
-    private val ss58 = SS58Encoder()
     private val keypairFactory = KeypairFactory()
 
-    private val decoder = JsonSeedDecoder(
-        gson,
-        ss58,
-        keypairFactory
-    )
+    private val decoder = JsonSeedDecoder(gson, keypairFactory)
 
     @Test
     fun `should decode valid json with correct password`() {

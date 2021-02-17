@@ -12,7 +12,7 @@ import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.model.NetworkTypeIdentifier
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
-import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
+import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.addressByteOrNull
 import org.spongycastle.crypto.generators.SCrypt
 import org.spongycastle.util.encoders.Base64
 
@@ -24,7 +24,6 @@ sealed class JsonSeedDecodingException : Exception() {
 
 class JsonSeedDecoder(
     private val gson: Gson,
-    private val sS58Encoder: SS58Encoder,
     private val keypairFactory: KeypairFactory
 ) {
 
@@ -68,7 +67,8 @@ class JsonSeedDecoder(
 
         val username = jsonData.meta.name
 
-        val networkTypeIdentifier = getNetworkTypeIdentifier(jsonData.address, jsonData.meta.genesisHash)
+        val networkTypeIdentifier =
+            getNetworkTypeIdentifier(jsonData.address, jsonData.meta.genesisHash)
 
         val byteData = Base64.decode(jsonData.encoded)
 
@@ -80,7 +80,8 @@ class JsonSeedDecoder(
         val nonce = byteData.copyBytes(NONCE_OFFSET, NONCE_SIZE)
         val encryptedData = byteData.copyOfRange(DATA_OFFSET, byteData.size)
 
-        val encryptionSecret = SCrypt.generate(password.toByteArray(), salt, N, r, p, SCRYPT_KEY_SIZE)
+        val encryptionSecret =
+            SCrypt.generate(password.toByteArray(), salt, N, r, p, SCRYPT_KEY_SIZE)
 
         val secret = SecretBox(encryptionSecret).open(nonce, encryptedData)
 
@@ -131,8 +132,11 @@ class JsonSeedDecoder(
         if (secret.isEmpty()) throw IncorrectPasswordException()
     }
 
-    private fun getNetworkTypeIdentifier(address: String?, genesisHash: String?): NetworkTypeIdentifier {
-        val addressByte = address?.let(sS58Encoder::extractAddressByteOrNull)
+    private fun getNetworkTypeIdentifier(
+        address: String?,
+        genesisHash: String?
+    ): NetworkTypeIdentifier {
+        val addressByte = address?.addressByteOrNull()
 
         return when {
             genesisHash != null -> NetworkTypeIdentifier.Genesis(genesisHash)

@@ -6,15 +6,12 @@ import jp.co.soramitsu.fearless_utils.exceptions.AddressFormatException
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b512
 
-class SS58Encoder {
+object SS58Encoder {
 
-    companion object {
-
-        private val PREFIX = "SS58PRE".toByteArray(Charsets.UTF_8)
-        private const val ADDRESS_TYPE_SIZE = 1
-        private const val PREFIX_SIZE = 2
-        private const val PUBLIC_KEY_SIZE = 32
-    }
+    private val PREFIX = "SS58PRE".toByteArray(Charsets.UTF_8)
+    private const val ADDRESS_TYPE_SIZE = 1
+    private const val PREFIX_SIZE = 2
+    private const val PUBLIC_KEY_SIZE = 32
 
     private val base58 = Base58()
 
@@ -53,4 +50,12 @@ class SS58Encoder {
     } catch (e: AddressFormatException) {
         null
     }
+
+    fun ByteArray.toAddress(addressByte: Byte) = encode(this, addressByte)
+
+    fun String.toAccountId() = decode(this)
+
+    fun String.addressByte() = extractAddressByte(this)
+
+    fun String.addressByteOrNull() = extractAddressByteOrNull(this)
 }
