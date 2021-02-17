@@ -17,7 +17,7 @@ import org.junit.Assert
 object RealRuntimeProvider {
 
     fun buildRuntime(networkName: String): RuntimeSnapshot {
-        val metadataRaw = buildRawMetadata()
+        val metadataRaw = buildRawMetadata(networkName)
         val typeRegistry = buildRegistry(networkName)
 
         val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
@@ -25,7 +25,7 @@ object RealRuntimeProvider {
         return RuntimeSnapshot(typeRegistry, metadata)
     }
 
-    fun buildRawMetadata() = getFileContentFromResources("test_runtime_metadata").run {
+    fun buildRawMetadata(networkName: String = "kusama") = getFileContentFromResources("${networkName}_metadata").run {
         RuntimeMetadataSchema.read(this)
     }
 

@@ -5,7 +5,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEn
 
 class MultiSignature(val encryptionType: EncryptionType, val value: ByteArray)
 
-fun Extrinsic.ExtrinsicSignature.tryExtractMultiSignature(): MultiSignature? {
+fun Extrinsic.Signature.tryExtractMultiSignature(): MultiSignature? {
     val enumEntry = signature as? DictEnum.Entry<*> ?: return null
     val value = enumEntry.value as? ByteArray ?: return null
 
@@ -21,31 +21,31 @@ fun MultiSignature.asExtrinsicSignature(): Any {
     return DictEnum.Entry(entryName, value)
 }
 
-fun <A> Extrinsic.ExtrinsicSignature.Companion.new(
+fun <A> Extrinsic.Signature.Companion.new(
     accountIdentifier: A,
     signature: MultiSignature,
     signedExtras: SignedExtrasInstance
-) = Extrinsic.ExtrinsicSignature(
+) = Extrinsic.Signature(
     accountIdentifier = accountIdentifier,
     signature = signature.asExtrinsicSignature(),
     signedExtras = signedExtras
 )
 
-fun Extrinsic.ExtrinsicSignature.Companion.newV27(
+fun Extrinsic.Signature.Companion.newV27(
     accountId: ByteArray,
     signature: MultiSignature,
     signedExtras: SignedExtrasInstance
-) = Extrinsic.ExtrinsicSignature.new(
+) = Extrinsic.Signature.new(
     accountIdentifier = accountId,
     signature = signature,
     signedExtras = signedExtras
 )
 
-fun Extrinsic.ExtrinsicSignature.Companion.newV28(
+fun Extrinsic.Signature.Companion.newV28(
     accountId: ByteArray,
     signature: MultiSignature,
     signedExtras: SignedExtrasInstance
-) = Extrinsic.ExtrinsicSignature.new(
+) = Extrinsic.Signature.new(
     accountIdentifier = multiAddressFromId(accountId),
     signature = signature,
     signedExtras = signedExtras

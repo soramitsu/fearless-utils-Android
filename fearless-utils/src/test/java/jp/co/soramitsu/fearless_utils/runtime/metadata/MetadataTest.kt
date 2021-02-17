@@ -30,7 +30,7 @@ class MetadataTest {
 
     @Test
     fun `should decode metadata`() {
-        val inHex = getFileContentFromResources("test_runtime_metadata")
+        val inHex = getFileContentFromResources("kusama_metadata")
 
         val metadataRaw = RuntimeMetadataSchema.read(inHex)
         val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
