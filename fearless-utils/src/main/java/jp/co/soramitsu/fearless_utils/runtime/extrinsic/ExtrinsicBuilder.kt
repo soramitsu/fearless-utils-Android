@@ -40,19 +40,23 @@ class ExtrinsicBuilder(
         moduleIndex: Int,
         callIndex: Int,
         args: Map<String, Any?>
-    ) {
+    ): ExtrinsicBuilder {
         calls.add(GenericCall.Instance(moduleIndex, callIndex, args))
+
+        return this
     }
 
     fun call(
         moduleName: String,
         callName: String,
         arguments: Map<String, Any?>
-    ) {
+    ): ExtrinsicBuilder {
         val call = runtime.metadata.module(moduleName).call(callName)
         val (moduleIndex, callIndex) = call.index
 
         calls.add(GenericCall.Instance(moduleIndex, callIndex, arguments))
+
+        return this
     }
 
     fun build(): String {
