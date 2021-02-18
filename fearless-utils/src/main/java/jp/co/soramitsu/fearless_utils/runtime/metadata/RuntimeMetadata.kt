@@ -121,6 +121,7 @@ class StorageEntry(
 sealed class StorageEntryType(
     val value: Type<*>?
 ) {
+
     companion object {
         fun from(typeRegistry: TypeRegistry, value: Any?) = when (value) {
             is String -> Plain(typeRegistry, value)

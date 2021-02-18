@@ -58,33 +58,36 @@ fun Module.event(name: String): Event = eventOrNull(name) ?: throw NoSuchElement
 fun Module.eventOrNull(name: String): Event? = events?.get(name)
 
 /**
- * Constructs a key for storage entries with [StorageEntryType.Plain] type.
+ * Constructs a key for storage with no arguments.
+ * This either fill be a full key for [StorageEntryType.Plain] entries,
+ * or a prefix key for [StorageEntryType.Map] and [StorageEntryType.DoubleMap] entries
  *
- * @throws IllegalArgumentException if storage entry has different type than requested for storage key
  */
 fun StorageEntry.storageKey(): String {
-    if (type !is StorageEntryType.Plain) wrongEntryType()
-
     return (moduleHash() + serviceHash()).toHexString(withPrefix = true)
 }
 
 fun StorageEntry.storageKeyOrNull() = nullOnException { storageKey() }
 
 /**
- * Constructs a key for storage entries with [StorageEntryType.Map] type.
+ * Constructs a key for storage with one argument.
+ * This either fill be a full key for [StorageEntryType.Map] entries,
+ * or a prefix key for [StorageEntryType.DoubleMap] entries
  *
- * @throws IllegalArgumentException if storage entry has different type than requested for storage key
+ * @throws IllegalArgumentException if storage entry has [StorageEntryType.Plain]  type
  * @throws IllegalStateException if some of types used for encoding cannot be resolved
  * @throws EncodeDecodeException if error happened during encoding
  */
-fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key1: Any?): String {
-    if (type !is StorageEntryType.Map) wrongEntryType()
+fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key: Any?): String {
+    val (keyType, hasher) = when (type) {
+        is StorageEntryType.Map -> type.key to type.hasher
+        is StorageEntryType.DoubleMap -> type.key1 to type.key1Hasher
+        else -> wrongEntryType()
+    }
 
-    val key1Type = type.key ?: typeNotResolved(name)
+    val keyEncoded = keyType?.bytes(runtime, key) ?: typeNotResolved(name)
 
-    val key1Encoded = key1Type.bytes(runtime, key1)
-
-    val storageKey = moduleHash() + serviceHash() + type.hasher.hashingFunction(key1Encoded)
+    val storageKey = moduleHash() + serviceHash() + hasher.hashingFunction(keyEncoded)
 
     return storageKey.toHexString(withPrefix = true)
 }
@@ -94,9 +97,11 @@ fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?) = nullOn
 }
 
 /**
- * Constructs a key for storage entries with [StorageEntryType.DoubleMap] type.
+ **
+ * Constructs a key for storage with two arguments.
+ * This will be full key for [StorageEntryType.DoubleMap] entries,
  *
- * @throws IllegalArgumentException if storage entry has different type than requested for storage key
+ * @throws IllegalArgumentException if storage entry has [StorageEntryType.Plain] or [StorageEntryType.Map] type
  * @throws IllegalStateException if some of types used for encoding cannot be resolved
  * @throws EncodeDecodeException if error happened during encoding
  */
@@ -117,9 +122,10 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): S
     return storageKey.toHexString(withPrefix = true)
 }
 
-fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?, key2: Any?) = nullOnException {
-    storageKey(runtime, key1, key2)
-}
+fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?, key2: Any?) =
+    nullOnException {
+        storageKey(runtime, key1, key2)
+    }
 
 private fun typeNotResolved(entryName: String): Nothing =
     throw IllegalStateException("Cannot resolve key or value type for storage entry `$entryName`")
