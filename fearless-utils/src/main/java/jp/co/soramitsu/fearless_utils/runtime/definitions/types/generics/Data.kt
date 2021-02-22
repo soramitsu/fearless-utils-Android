@@ -11,14 +11,16 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDec
 import jp.co.soramitsu.fearless_utils.scale.dataType.byte
 import jp.co.soramitsu.fearless_utils.scale.utils.directWrite
 
-private const val NONE = "None"
-private const val RAW = "Raw"
-private const val BLAKE_2B_256 = "BlakeTwo256"
-private const val SHA_256 = "Sha256"
-private const val KECCAK_256 = "Keccak256"
-private const val SHA_3_256 = "ShaThree256"
-
 class Data(preset: TypePresetBuilder) : DictEnum("Data", createMapping(preset)) {
+
+    companion object {
+        const val NONE = "None"
+        const val RAW = "Raw"
+        const val BLAKE_2B_256 = "BlakeTwo256"
+        const val SHA_256 = "Sha256"
+        const val KECCAK_256 = "Keccak256"
+        const val SHA_3_256 = "ShaThree256"
+    }
 
     override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Entry<Any?> {
 
@@ -78,11 +80,11 @@ class Data(preset: TypePresetBuilder) : DictEnum("Data", createMapping(preset)) 
 
 private fun createMapping(preset: TypePresetBuilder): List<DictEnum.Entry<TypeReference>> {
     return listOf(
-        DictEnum.Entry(NONE, preset.getOrCreate("Null")),
-        DictEnum.Entry(RAW, preset.getOrCreate("Bytes")),
-        DictEnum.Entry(BLAKE_2B_256, preset.getOrCreate("H256")),
-        DictEnum.Entry(SHA_256, preset.getOrCreate("H256")),
-        DictEnum.Entry(KECCAK_256, preset.getOrCreate("H256")),
-        DictEnum.Entry(SHA_3_256, preset.getOrCreate("H256"))
+        DictEnum.Entry(Data.NONE, preset.getOrCreate("Null")),
+        DictEnum.Entry(Data.RAW, preset.getOrCreate("Bytes")),
+        DictEnum.Entry(Data.BLAKE_2B_256, preset.getOrCreate("H256")),
+        DictEnum.Entry(Data.SHA_256, preset.getOrCreate("H256")),
+        DictEnum.Entry(Data.KECCAK_256, preset.getOrCreate("H256")),
+        DictEnum.Entry(Data.SHA_3_256, preset.getOrCreate("H256"))
     )
 }
