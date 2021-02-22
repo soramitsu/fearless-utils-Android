@@ -15,10 +15,10 @@ node(jenkinsAgent) {
                 checkout scm
             }
             withCredentials([
-                [$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexus-soramitsu-rw', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']
+                [$class: 'UsernamePasswordMultiBinding', credentialsId: 'bot-soramitsu-rw', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']
                 ])
             {
-                docker.withRegistry('https://docker.soramitsu.co.jp', 'nexus-build-tools-ro') {
+                docker.withRegistry('https://docker.soramitsu.co.jp', 'bot-build-tools-ro') {
                     docker.image("${dockerImage}").inside() {
                         stage('Lint') {
                             sh "./gradlew ktlint"
