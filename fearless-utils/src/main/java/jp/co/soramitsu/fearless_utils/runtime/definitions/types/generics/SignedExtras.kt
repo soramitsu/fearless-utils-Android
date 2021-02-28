@@ -23,7 +23,8 @@ object SignedExtras : Type<SignedExtrasInstance>("SignedExtras") {
         ERA to EraType,
         NONCE to Compact("Compact<Index>"),
         "CheckWeight" to Null,
-        TIP to Compact("Compact<u32>") // tip
+        TIP to Compact("Compact<u32>"),
+        "PrevalidateAttests" to Null
     )
 
     override fun decode(

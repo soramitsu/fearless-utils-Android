@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 jni = { version = "0.17.0", default-features = false }
-schnorrkel = { version="0.9.1" }
+schnorrkel = { version="<=0.9.1" }
 
 [profile.release]
 lto = true
