@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.runtime.extrinsic
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.Signer
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
+import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
@@ -20,6 +21,8 @@ import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.chain.RuntimeVersion
 import java.math.BigInteger
 
 private val DEFAULT_TIP = BigInteger.ZERO
+
+private const val PAYLOAD_HASH_THRESHOLD = 256
 
 class ExtrinsicBuilder(
     private val runtime: RuntimeSnapshot,
@@ -103,7 +106,14 @@ class ExtrinsicBuilder(
             )
         )
 
-        val messageToSign = payloadType.bytes(runtime, payload)
+        val payloadBytes = payloadType.bytes(runtime, payload)
+
+        val messageToSign = if (payloadBytes.size > PAYLOAD_HASH_THRESHOLD) {
+            payloadBytes.blake2b256()
+        } else {
+            payloadBytes
+        }
+
         val signature = Signer.sign(encryptionType, messageToSign, keypair).signature
 
         return MultiSignature(encryptionType, signature)
