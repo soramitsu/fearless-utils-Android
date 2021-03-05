@@ -20,8 +20,18 @@ import java.math.BigInteger
 class TypeDefinitionsTree(
     @SerializedName("runtime_id")
     val runtimeId: Int?,
-    val types: Map<String, Any>
-)
+    val types: Map<String, Any>,
+    val versioning: List<Versioning>?
+) {
+
+    class Versioning(
+        @SerializedName("runtime_range") val range: List<Int?>,
+        val types: Map<String, Any>
+    ) {
+        val from: Int
+            get() = range.first()!!
+    }
+}
 
 class ParseResult(
     val typePreset: TypePreset,
@@ -35,25 +45,21 @@ private const val TOKEN_ENUM = "enum"
 object TypeDefinitionParser {
 
     private class Params(
-        val tree: TypeDefinitionsTree,
+        val types: Map<String, Any>,
         val dynamicTypeResolver: DynamicTypeResolver,
         val typesBuilder: TypePresetBuilder
     )
 
-    fun parseTypeDefinitions(
+    fun parseBaseDefinitions(
         tree: TypeDefinitionsTree,
         typePreset: TypePreset,
         dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
     ): ParseResult {
         val builder = typePreset.newBuilder()
 
-        val params = Params(tree, dynamicTypeResolver, builder)
+        val params = Params(tree.types, dynamicTypeResolver, builder)
 
-        for (name in tree.types.keys) {
-            val type = parse(params, name) ?: continue
-
-            params.typesBuilder.type(type)
-        }
+        parseTypes(params)
 
         val unknownTypes = params.typesBuilder.entries
             .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
@@ -61,8 +67,39 @@ object TypeDefinitionParser {
         return ParseResult(params.typesBuilder, unknownTypes)
     }
 
+    fun parseNetworkVersioning(
+        tree: TypeDefinitionsTree,
+        typePreset: TypePreset,
+        currentRuntimeVersion: Int = tree.runtimeId!!,
+        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
+    ): ParseResult {
+        val versioning = tree.versioning
+        requireNotNull(versioning)
+
+        val builder = typePreset.newBuilder()
+
+        versioning.filter { it.from <= currentRuntimeVersion }
+            .sortedBy(TypeDefinitionsTree.Versioning::from)
+            .forEach {
+                parseTypes(Params(it.types, dynamicTypeResolver, builder))
+            }
+
+        val unknownTypes = builder.entries
+            .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
+
+        return ParseResult(builder, unknownTypes)
+    }
+
+    private fun parseTypes(parsingParams: Params) {
+        for (name in parsingParams.types.keys) {
+            val type = parse(parsingParams, name) ?: continue
+
+            parsingParams.typesBuilder.type(type)
+        }
+    }
+
     private fun parse(parsingParams: Params, name: String): Type<*>? {
-        val typeValue = parsingParams.tree.types[name]
+        val typeValue = parsingParams.types[name]
 
         return parseType(parsingParams, name, typeValue)
     }

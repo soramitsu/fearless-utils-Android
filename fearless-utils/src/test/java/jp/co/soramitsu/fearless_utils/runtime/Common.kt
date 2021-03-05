@@ -39,13 +39,11 @@ object RealRuntimeProvider {
             gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
         val defaultTypeRegistry =
-            TypeDefinitionParser.parseTypeDefinitions(tree, substratePreParsePreset()).typePreset
-        val networkParsed = TypeDefinitionParser.parseTypeDefinitions(
+            TypeDefinitionParser.parseBaseDefinitions(tree, substratePreParsePreset()).typePreset
+        val networkParsed = TypeDefinitionParser.parseNetworkVersioning(
             kusamaTree,
             defaultTypeRegistry
         )
-
-        Assert.assertEquals(0, networkParsed.unknownTypes.size)
 
         return TypeRegistry(
             types = networkParsed.typePreset,
