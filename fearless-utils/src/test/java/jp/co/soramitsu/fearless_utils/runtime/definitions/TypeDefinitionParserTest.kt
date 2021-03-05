@@ -21,6 +21,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u64
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import org.junit.Assert.assertEquals
@@ -418,6 +419,9 @@ class TypeDefinitionParserTest {
 
         val addressKusama = kusamaRegistry["Address"]
         assertEquals("GenericAccountId", addressKusama?.name) // Address changed to MultiAddress only in 2028
+
+        val weight = kusamaRegistry["Weight"]
+        assertEquals(u64, weight) // changed multiple times, latest at 1057
 
         val refCount = kusamaRegistry["RefCount"]
         assertEquals(u8, refCount)
