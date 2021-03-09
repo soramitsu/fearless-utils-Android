@@ -20,6 +20,8 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u64
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
 import org.junit.Assert.assertEquals
@@ -364,7 +366,7 @@ class TypeDefinitionParserTest {
         val tree = gson.fromJson(definitions, TypeDefinitionsTree::class.java)
 
         val unknown =
-            TypeDefinitionParser.parseTypeDefinitions(tree, initialTypeRegistry).unknownTypes
+            TypeDefinitionParser.parseBaseDefinitions(tree, initialTypeRegistry).unknownTypes
 
         assert("F" in unknown)
     }
@@ -375,7 +377,7 @@ class TypeDefinitionParserTest {
         val reader = JsonReader(getResourceReader("default.json"))
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
 
-        val result = TypeDefinitionParser.parseTypeDefinitions(tree, substratePreParsePreset())
+        val result = TypeDefinitionParser.parseBaseDefinitions(tree, substratePreParsePreset())
 
         print(result.unknownTypes)
 
@@ -394,32 +396,42 @@ class TypeDefinitionParserTest {
         val kusamaTree =
             gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
-        val defaultParsed =
-            TypeDefinitionParser.parseTypeDefinitions(defaultTree, substratePreParsePreset())
-        val defaultRegistry =
-            TypeRegistry(defaultParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
+        val defaultParsed = TypeDefinitionParser.parseBaseDefinitions(defaultTree, substratePreParsePreset())
+        val defaultRegistry = TypeRegistry(defaultParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
         val keysDefault = defaultRegistry["Keys"]
         assertEquals("SessionKeysSubstrate", keysDefault?.name)
 
-        val kusamaParsed = TypeDefinitionParser.parseTypeDefinitions(
+        val kusamaParsed = TypeDefinitionParser.parseNetworkVersioning(
             kusamaTree,
-            defaultParsed.typePreset
+            defaultParsed.typePreset,
+            1057
         )
-        val kusamaRegistry =
-            TypeRegistry(kusamaParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
+        val kusamaRegistry = TypeRegistry(kusamaParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
-        assertEquals(0, kusamaParsed.unknownTypes.size)
+        print(kusamaParsed.unknownTypes)
 
         val keysKusama = kusamaRegistry["Keys"]
         assertEquals("Keys", keysKusama?.name) // changed from SessionKeysSubstrate
+
+        val assignments = kusamaRegistry["CompactAssignments"]
+        assertEquals("CompactAssignmentsTo257", assignments?.name) // changed only at 2023
+
+        val addressKusama = kusamaRegistry["Address"]
+        assertEquals("GenericAccountId", addressKusama?.name) // Address changed to MultiAddress only in 2028
+
+        val weight = kusamaRegistry["Weight"]
+        assertEquals(u64, weight) // changed multiple times, latest at 1057
+
+        val refCount = kusamaRegistry["RefCount"]
+        assertEquals(u8, refCount)
     }
 
     private fun parseFromJson(typePreset: TypePreset, json: String): TypeRegistry {
         val tree = gson.fromJson(json, TypeDefinitionsTree::class.java)
 
         return TypeRegistry(
-            TypeDefinitionParser.parseTypeDefinitions(tree, typePreset).typePreset,
+            TypeDefinitionParser.parseBaseDefinitions(tree, typePreset).typePreset,
             dynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
         )
     }
