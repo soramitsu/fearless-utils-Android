@@ -22,6 +22,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.OpaqueCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SessionKeysSubstrate
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.i128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u16
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u256
@@ -73,6 +74,8 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     type(u64)
     type(u128)
     type(u256)
+
+    type(i128)
 
     type(GenericAccountId)
     type(Null)
