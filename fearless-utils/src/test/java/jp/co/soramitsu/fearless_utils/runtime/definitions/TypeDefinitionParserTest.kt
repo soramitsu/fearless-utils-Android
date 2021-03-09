@@ -405,7 +405,7 @@ class TypeDefinitionParserTest {
         val kusamaParsed = TypeDefinitionParser.parseNetworkVersioning(
             kusamaTree,
             defaultParsed.typePreset,
-            2020
+            1057
         )
         val kusamaRegistry = TypeRegistry(kusamaParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
