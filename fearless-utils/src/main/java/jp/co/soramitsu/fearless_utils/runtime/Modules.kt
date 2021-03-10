@@ -2,12 +2,14 @@ package jp.co.soramitsu.fearless_utils.runtime
 
 typealias AccountId = ByteArray
 
+@Deprecated("Use new dynamic runtime system instead")
 abstract class Service<STORAGE_ARGS>(val module: Module, val id: String) {
     abstract fun storageKey(storageArgs: STORAGE_ARGS): String
 }
 
 fun Service<Unit>.storageKey() = storageKey(Unit)
 
+@Deprecated("Use new dynamic runtime system instead")
 open class AccountIdService(
     module: Module,
     id: String,
@@ -25,6 +27,7 @@ open class AccountIdService(
     }
 }
 
+@Deprecated("Use new dynamic runtime system instead")
 abstract class Module(val id: String) {
 
     object System : Module("System") {
