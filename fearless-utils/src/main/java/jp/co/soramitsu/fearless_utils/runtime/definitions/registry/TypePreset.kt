@@ -117,4 +117,6 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     alias("Bidkind", "BidKind")
 
     alias("AccountIdAddress", "GenericAccountId")
+
+    alias("i128", "u128")
 }
