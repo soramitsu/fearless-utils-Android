@@ -9,6 +9,8 @@
       "types": {
         "String": "Text",
         "FixedU128": "u128",
+        "U256": "u256",
+        "SessionKeys2": "(AccountId, AccountId)",
         "Address": "AccountId",
         "Amount": "i128",
         "AmountOf": "Amount",
