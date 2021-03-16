@@ -20,7 +20,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u64
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
@@ -424,6 +424,42 @@ class TypeDefinitionParserTest {
         assertEquals(u64, weight) // changed multiple times, latest at 1057
 
         val refCount = kusamaRegistry["RefCount"]
+        assertEquals(u8, refCount)
+    }
+
+    @Test
+    fun `should parse sora-specific patches`() {
+        val gson = Gson()
+
+        val defaultReader = JsonReader(getResourceReader("default.json"))
+        val kusamaReader = JsonReader(getResourceReader("sora2.json"))
+
+        val defaultTree =
+            gson.fromJson<TypeDefinitionsTree>(defaultReader, TypeDefinitionsTree::class.java)
+        val soraTree =
+            gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
+
+        val defaultParsed = TypeDefinitionParser.parseBaseDefinitions(defaultTree, substratePreParsePreset())
+
+        val soraParsed = TypeDefinitionParser.parseNetworkVersioning(
+            soraTree,
+            defaultParsed.typePreset,
+            1
+        )
+        val soraRegistry = TypeRegistry(soraParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
+
+        print(soraParsed.unknownTypes)
+
+        val fixedU128 = soraRegistry["FixedU128"]
+        assertEquals(u128, fixedU128)
+
+        val string = soraRegistry["String"]
+        assertEquals("Text", fixedU128)
+
+        val addressKusama = soraRegistry["Address"]
+        assertEquals("GenericAccountId", addressKusama?.name)
+
+        val refCount = soraRegistry["RefCount"]
         assertEquals(u8, refCount)
     }
 
