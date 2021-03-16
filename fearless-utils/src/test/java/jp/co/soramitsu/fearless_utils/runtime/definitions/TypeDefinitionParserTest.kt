@@ -21,6 +21,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u64
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
@@ -454,13 +455,13 @@ class TypeDefinitionParserTest {
         assertEquals(u128, fixedU128)
 
         val string = soraRegistry["String"]
-        assertEquals("Text", fixedU128)
+        assertEquals("Bytes", string?.name)
 
         val addressKusama = soraRegistry["Address"]
         assertEquals("GenericAccountId", addressKusama?.name)
 
         val refCount = soraRegistry["RefCount"]
-        assertEquals(u8, refCount)
+        assertEquals(u32, refCount)
     }
 
     private fun parseFromJson(typePreset: TypePreset, json: String): TypeRegistry {
