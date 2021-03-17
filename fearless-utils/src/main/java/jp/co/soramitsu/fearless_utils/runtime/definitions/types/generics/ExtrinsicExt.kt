@@ -24,7 +24,7 @@ fun MultiSignature.asExtrinsicSignature(): Any {
 fun <A> Extrinsic.Signature.Companion.new(
     accountIdentifier: A,
     signature: MultiSignature,
-    signedExtras: SignedExtrasInstance
+    signedExtras: ExtrinsicPayloadExtrasInstance
 ) = Extrinsic.Signature(
     accountIdentifier = accountIdentifier,
     signature = signature.asExtrinsicSignature(),
@@ -34,7 +34,7 @@ fun <A> Extrinsic.Signature.Companion.new(
 fun Extrinsic.Signature.Companion.newV27(
     accountId: ByteArray,
     signature: MultiSignature,
-    signedExtras: SignedExtrasInstance
+    signedExtras: ExtrinsicPayloadExtrasInstance
 ) = Extrinsic.Signature.new(
     accountIdentifier = accountId,
     signature = signature,
@@ -44,7 +44,7 @@ fun Extrinsic.Signature.Companion.newV27(
 fun Extrinsic.Signature.Companion.newV28(
     accountId: ByteArray,
     signature: MultiSignature,
-    signedExtras: SignedExtrasInstance
+    signedExtras: ExtrinsicPayloadExtrasInstance
 ) = Extrinsic.Signature.new(
     accountIdentifier = multiAddressFromId(accountId),
     signature = signature,

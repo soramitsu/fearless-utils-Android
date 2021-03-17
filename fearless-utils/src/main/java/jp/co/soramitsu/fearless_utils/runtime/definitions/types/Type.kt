@@ -41,7 +41,11 @@ abstract class Type<InstanceType>(val name: String) {
     /**
      * @throws EncodeDecodeException
      */
-    abstract fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: InstanceType)
+    abstract fun encode(
+        scaleCodecWriter: ScaleCodecWriter,
+        runtime: RuntimeSnapshot,
+        value: InstanceType
+    )
 
     abstract fun isValidInstance(instance: Any?): Boolean
 
@@ -50,7 +54,11 @@ abstract class Type<InstanceType>(val name: String) {
      */
     @Suppress("UNCHECKED_CAST")
     fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Any?) {
-        if (!isValidInstance(value)) throw EncodeDecodeException("$value is not a valid instance if $this")
+        if (!isValidInstance(value)) {
+            val valueTypeName = value?.let { it::class.java.simpleName }
+
+            throw EncodeDecodeException("$value ($valueTypeName) is not a valid instance if $this")
+        }
 
         encode(scaleCodecWriter, runtime, value as InstanceType)
     }

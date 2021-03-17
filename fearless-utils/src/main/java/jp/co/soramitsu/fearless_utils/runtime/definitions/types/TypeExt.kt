@@ -50,7 +50,7 @@ fun <I> Type<I>.fromHexOrNull(runtime: RuntimeSnapshot, hex: String): I? {
  */
 fun <I> Type<I>.toByteArray(runtime: RuntimeSnapshot, value: I): ByteArray {
     return ensureUnifiedException {
-        useWriter { encode(this, runtime, value) }
+        useScaleWriter { encode(this, runtime, value) }
     }
 }
 
@@ -61,7 +61,7 @@ fun <I> Type<I>.toByteArray(runtime: RuntimeSnapshot, value: I): ByteArray {
  */
 fun Type<*>.bytes(runtime: RuntimeSnapshot, value: Any?): ByteArray {
     return ensureUnifiedException {
-        useWriter { encodeUnsafe(this, runtime, value) }
+        useScaleWriter { encodeUnsafe(this, runtime, value) }
     }
 }
 
@@ -82,7 +82,7 @@ fun <I> Type<I>.toHex(runtime: RuntimeSnapshot, value: I) =
 fun <I> Type<I>.toHexOrNull(runtime: RuntimeSnapshot, value: I) =
     toByteArrayOrNull(runtime, value)?.toHexString(withPrefix = true)
 
-private fun useWriter(use: ScaleCodecWriter.() -> Unit): ByteArray {
+fun useScaleWriter(use: ScaleCodecWriter.() -> Unit): ByteArray {
     val stream = ByteArrayOutputStream()
     val writer = ScaleCodecWriter(stream)
 

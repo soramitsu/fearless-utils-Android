@@ -27,7 +27,7 @@ object Extrinsic : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
     class Signature(
         val accountIdentifier: Any?,
         val signature: Any?,
-        val signedExtras: SignedExtrasInstance
+        val signedExtras: ExtrinsicPayloadExtrasInstance
     ) {
         companion object // for creator extensions
     }
