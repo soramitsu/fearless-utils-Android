@@ -5,16 +5,16 @@ import jp.co.soramitsu.fearless_utils.encrypt.Signer
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.AdditionalExtras
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Extrinsic
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.ExtrinsicPayloadExtrasInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.MultiSignature
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SignedExtras
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SignedExtrasInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.new
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.useScaleWriter
 import jp.co.soramitsu.fearless_utils.runtime.metadata.call
 import jp.co.soramitsu.fearless_utils.runtime.metadata.module
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.chain.RuntimeVersion
@@ -88,25 +88,24 @@ class ExtrinsicBuilder(
     }
 
     private fun buildSignature(call: GenericCall.Instance): MultiSignature {
-        val payloadType = runtime.typeRegistry["ExtrinsicPayloadValue"]
-            ?: error("Cannot resolve ExtrinsicPayloadValue type")
-
-        val callBytes = GenericCall.toHex(runtime, call)
-
-        val payload = Struct.Instance(
-            mapOf(
-                "call" to callBytes,
-                "era" to era,
-                "nonce" to nonce,
-                "tip" to tip,
-                "specVersion" to runtimeVersion.specVersion.toBigInteger(),
-                "transactionVersion" to runtimeVersion.transactionVersion.toBigInteger(),
-                "genesisHash" to genesisHash,
-                "blockHash" to blockHash
-            )
+        val signedExtrasInstance = mapOf(
+            SignedExtras.ERA to era,
+            SignedExtras.NONCE to nonce,
+            SignedExtras.TIP to tip
         )
 
-        val payloadBytes = payloadType.bytes(runtime, payload)
+        val additionalExtrasInstance = mapOf(
+            AdditionalExtras.BLOCK_HASH to blockHash,
+            AdditionalExtras.GENESIS to genesisHash,
+            AdditionalExtras.SPEC_VERSION to runtimeVersion.specVersion.toBigInteger(),
+            AdditionalExtras.TX_VERSION to runtimeVersion.transactionVersion.toBigInteger(),
+        )
+
+        val payloadBytes = useScaleWriter {
+            GenericCall.encode(this, runtime, call)
+            SignedExtras.encode(this, runtime, signedExtrasInstance)
+            AdditionalExtras.encode(this, runtime, additionalExtrasInstance)
+        }
 
         val messageToSign = if (payloadBytes.size > PAYLOAD_HASH_THRESHOLD) {
             payloadBytes.blake2b256()
@@ -132,7 +131,7 @@ class ExtrinsicBuilder(
         )
     }
 
-    private fun buildSignedExtras(): SignedExtrasInstance = mapOf(
+    private fun buildSignedExtras(): ExtrinsicPayloadExtrasInstance = mapOf(
         SignedExtras.ERA to era,
         SignedExtras.TIP to tip,
         SignedExtras.NONCE to nonce

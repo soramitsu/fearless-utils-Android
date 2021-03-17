@@ -30,7 +30,7 @@ class ExtrinsicBuilderTest {
             keypair = KEYPAIR,
             nonce = 34.toBigInteger(),
             runtimeVersion = RuntimeVersion(48, 4),
-            genesisHash = "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e".fromHex(),
+            genesisHash = "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f342".fromHex(),
             encryptionType = EncryptionType.ED25519,
             accountIdentifier = multiAddressFromId(KEYPAIR.publicKey),
             era = Era.Mortal(64, 59),
