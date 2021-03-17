@@ -98,7 +98,7 @@ class ExtrinsicBuilder(
             AdditionalExtras.BLOCK_HASH to blockHash,
             AdditionalExtras.GENESIS to genesisHash,
             AdditionalExtras.SPEC_VERSION to runtimeVersion.specVersion.toBigInteger(),
-            AdditionalExtras.TX_VERSION to runtimeVersion.transactionVersion.toBigInteger(),
+            AdditionalExtras.TX_VERSION to runtimeVersion.transactionVersion.toBigInteger()
         )
 
         val payloadBytes = useScaleWriter {
