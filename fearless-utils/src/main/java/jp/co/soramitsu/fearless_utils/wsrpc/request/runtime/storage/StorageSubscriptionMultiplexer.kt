@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.storage
 
 import jp.co.soramitsu.fearless_utils.wsrpc.SocketService
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.RuntimeRequest
+import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.UnsubscribeMethodResolver
 import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
 
 typealias MultiplexerCallback = SocketService.ResponseListener<StorageSubscriptionMultiplexer.Change>
@@ -48,5 +49,7 @@ class StorageSubscriptionMultiplexer(
 }
 
 fun SocketService.subscribeUsing(multiplexer: StorageSubscriptionMultiplexer): SocketService.Cancellable {
-    return subscribe(multiplexer.createRequest(), multiplexer)
+    val request = multiplexer.createRequest()
+
+    return subscribe(request, multiplexer, UnsubscribeMethodResolver.resolve(request.method))
 }

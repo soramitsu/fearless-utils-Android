@@ -61,12 +61,13 @@ class SocketService(
     @Synchronized
     fun subscribe(
         request: RuntimeRequest,
-        callback: ResponseListener<SubscriptionChange>
+        callback: ResponseListener<SubscriptionChange>,
+        unsubscribeMethod: String
     ): Cancellable {
         return executeRequest(
             request,
             DeliveryType.ON_RECONNECT,
-            SubscribedCallback(request.id, callback)
+            SubscribedCallback(request.id, unsubscribeMethod, callback)
         )
     }
 
@@ -135,7 +136,7 @@ class SocketService(
             is SideEffect.Connect -> connectToSocket(sideEffect.url)
             is SideEffect.ScheduleReconnect -> scheduleReconnect(sideEffect.attempt)
             is SideEffect.Disconnect -> disconnect()
-            is SideEffect.Unsubscribe -> unsubscribe()
+            is SideEffect.Unsubscribe -> unsubscribe(sideEffect.subscription)
         }
     }
 
@@ -201,8 +202,17 @@ class SocketService(
         reconnector.reset()
     }
 
-    private fun unsubscribe() {
-        // TODO
+    private fun unsubscribe(subscription: SocketStateMachine.Subscription) {
+        require(subscription is RespondableSubscription)
+
+        val unsubscribeRequest =
+            RuntimeRequest(subscription.unsubscribeMethod, listOf(subscription.id))
+
+        executeRequest(
+            unsubscribeRequest,
+            deliveryType = DeliveryType.AT_MOST_ONCE,
+            FireAndForgetCallback()
+        )
     }
 
     interface ResponseListener<R> {
@@ -217,6 +227,7 @@ class SocketService(
 
     inner class SubscribedCallback(
         private val initiatorId: Int,
+        private val unsubscribeMethod: String,
         private val subscriptionCallback: ResponseListener<SubscriptionChange>
     ) : ResponseListener<RpcResponse> {
 
@@ -229,7 +240,8 @@ class SocketService(
                 return
             }
 
-            val subscription = RespondableSubscription(id, initiatorId, subscriptionCallback)
+            val subscription =
+                RespondableSubscription(id, initiatorId, unsubscribeMethod, subscriptionCallback)
 
             updateState(Event.Subscribed(subscription))
         }
@@ -245,6 +257,17 @@ class SocketService(
 
         override fun cancel() {
             updateState(Event.Cancel(sendable))
+        }
+    }
+
+    private class FireAndForgetCallback : ResponseListener<RpcResponse> {
+
+        override fun onNext(response: RpcResponse) {
+            // do nothing
+        }
+
+        override fun onError(throwable: Throwable) {
+            // do nothing
         }
     }
 }
