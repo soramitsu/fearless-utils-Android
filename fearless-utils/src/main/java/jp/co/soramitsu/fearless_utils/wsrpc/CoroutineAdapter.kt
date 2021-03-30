@@ -5,6 +5,7 @@ package jp.co.soramitsu.fearless_utils.wsrpc
 import jp.co.soramitsu.fearless_utils.wsrpc.mappers.ResponseMapper
 import jp.co.soramitsu.fearless_utils.wsrpc.request.DeliveryType
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.RuntimeRequest
+import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.UnsubscribeMethodResolver
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.storage.MultiplexerCallback
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.storage.StorageSubscriptionMultiplexer.Builder
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.storage.StorageSubscriptionMultiplexer.Change
@@ -56,7 +57,10 @@ suspend fun SocketService.executeAsync(
     }
 }
 
-fun SocketService.subscriptionFlow(request: RuntimeRequest): Flow<SubscriptionChange> =
+fun SocketService.subscriptionFlow(
+    request: RuntimeRequest,
+    unsubscribeMethod: String = UnsubscribeMethodResolver.resolve(request.method)
+): Flow<SubscriptionChange> =
     callbackFlow {
         val cancellable =
             subscribe(request, object : SocketService.ResponseListener<SubscriptionChange> {
@@ -67,7 +71,7 @@ fun SocketService.subscriptionFlow(request: RuntimeRequest): Flow<SubscriptionCh
                 override fun onError(throwable: Throwable) {
                     close(throwable)
                 }
-            })
+            }, unsubscribeMethod)
 
         awaitClose {
             cancellable.cancel()

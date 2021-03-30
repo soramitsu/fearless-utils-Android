@@ -7,6 +7,7 @@ import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionCh
 class RespondableSubscription(
     override val id: String,
     override val initiatorId: Int,
+    val unsubscribeMethod: String,
     val callback: ResponseListener<SubscriptionChange>
 ) : SocketStateMachine.Subscription {
 
