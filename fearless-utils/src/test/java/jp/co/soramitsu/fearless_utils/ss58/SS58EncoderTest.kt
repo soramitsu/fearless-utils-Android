@@ -3,10 +3,10 @@ package jp.co.soramitsu.fearless_utils.ss58
 import jp.co.soramitsu.fearless_utils.common.TestAddressBytes
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
+import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.addressByte
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAccountId
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAddress
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -29,5 +29,21 @@ class SS58EncoderTest {
         val result = KUSAMA_ADDRESS.toAccountId().toHexString()
 
         assertEquals(PUBLIC_KEY, result)
+    }
+
+    @Test
+    fun `encode key to address with 69 prefix`() {
+        val hexKey = "0x84bdc405d139399bba3ccea5d3de23316c9deeab661f57e2f4d1720cc6649859"
+        val address = hexKey.fromHex().toAddress(69)
+        assertEquals("cnUVLAjzRsrXrzEiqjxMpBwvb6YgdBy8DKibonvZgtcQY5ZKe", address)
+    }
+
+    @Test
+    fun `decode address to key with 69 prefix`() {
+        val address = "cnUVLAjzRsrXrzEiqjxMpBwvb6YgdBy8DKibonvZgtcQY5ZKe"
+        val hexKey = address.toAccountId().toHexString(true)
+        val prefix = address.addressByte()
+        assertEquals("0x84bdc405d139399bba3ccea5d3de23316c9deeab661f57e2f4d1720cc6649859", hexKey)
+        assertEquals(69.toByte(), prefix)
     }
 }
