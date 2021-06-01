@@ -123,12 +123,11 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     alias("i128", "u128")
 
-    alias("FixedU128", "u128")
-    alias("U256", "u256")
     alias("VoteWeight", "u128")
     alias("PreRuntime", "GenericPreRuntime")
     // todo replace with real type
     fakeType("GenericPreRuntime")
+    fakeType("HashMap<Text, Text>")
     type(GenericSealV0(this))
     type(GenericSeal(this))
     type(GenericConsensus(this))
