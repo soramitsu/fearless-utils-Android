@@ -127,7 +127,6 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     alias("PreRuntime", "GenericPreRuntime")
     // todo replace with real type
     fakeType("GenericPreRuntime")
-    fakeType("HashMap<Text, Text>")
     type(GenericSealV0(this))
     type(GenericSeal(this))
     type(GenericConsensus(this))
