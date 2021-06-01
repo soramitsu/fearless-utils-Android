@@ -19,6 +19,6 @@ fun GenericConsensus(typePresetBuilder: TypePresetBuilder) = Struct(
                 name = "Vec<u8>",
                 typeReference = typePresetBuilder.getOrCreate("u8")
             )
-        ),
+        )
     )
 )

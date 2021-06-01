@@ -127,10 +127,9 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     alias("U256", "u256")
     alias("VoteWeight", "u128")
     alias("PreRuntime", "GenericPreRuntime")
-    //todo replace with real type
+    // todo replace with real type
     fakeType("GenericPreRuntime")
     type(GenericSealV0(this))
     type(GenericSeal(this))
     type(GenericConsensus(this))
-
 }

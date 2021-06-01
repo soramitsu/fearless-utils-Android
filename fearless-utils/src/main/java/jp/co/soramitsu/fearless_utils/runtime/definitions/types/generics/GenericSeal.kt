@@ -9,7 +9,7 @@ fun GenericSealV0(typePresetBuilder: TypePresetBuilder) = Struct(
     name = "GenericSealV0",
     mapping = linkedMapOf(
         "slot" to typePresetBuilder.getOrCreate("u64"),
-        "signature" to typePresetBuilder.getOrCreate("Signature"),
+        "signature" to typePresetBuilder.getOrCreate("Signature")
     )
 )
 
@@ -18,6 +18,6 @@ fun GenericSeal(typePresetBuilder: TypePresetBuilder) = Struct(
     name = "GenericSeal",
     mapping = linkedMapOf(
         "engine" to typePresetBuilder.getOrCreate("ConsensusEngineId"),
-        "data" to typePresetBuilder.getOrCreate("Bytes"),
+        "data" to typePresetBuilder.getOrCreate("Bytes")
     )
 )
