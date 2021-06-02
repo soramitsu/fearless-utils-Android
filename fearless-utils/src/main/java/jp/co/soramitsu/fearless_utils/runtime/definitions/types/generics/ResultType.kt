@@ -6,7 +6,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEn
 class ResultType(ok: TypeReference, err: TypeReference) : DictEnum(
     "Result", listOf(
         Entry(Ok, ok),
-        Entry(Err, err),
+        Entry(Err, err)
     )
 ) {
 
