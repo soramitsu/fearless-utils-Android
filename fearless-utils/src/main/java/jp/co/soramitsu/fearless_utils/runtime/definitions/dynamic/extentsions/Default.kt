@@ -78,3 +78,15 @@ object FixedArrayExtension : DynamicTypeExtension {
         }
     }
 }
+
+object HashMapExtension : DynamicTypeExtension {
+
+    override fun createType(name: String, typeDef: String, typeProvider: TypeProvider): Type<*>? {
+        if (!typeDef.startsWith("HashMap")) return null
+        val withoutBrackets = typeDef.removePrefix("HashMap").removeSurrounding("<", ">").replace(" ", "")
+        if (withoutBrackets.split(",").size != 2) return null
+        val tuple = "($withoutBrackets)"
+        val typeRef = typeProvider(tuple)
+        return Vec("Vec<$tuple>", typeRef)
+    }
+}

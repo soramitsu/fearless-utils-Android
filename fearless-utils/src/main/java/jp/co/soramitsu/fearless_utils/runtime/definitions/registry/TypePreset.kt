@@ -12,9 +12,12 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EventRe
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Extrinsic
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensus
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensusEngineId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericEvent
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericMultiAddress
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericSeal
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericSealV0
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H160
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H256
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H512
@@ -119,4 +122,12 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     alias("AccountIdAddress", "GenericAccountId")
 
     alias("i128", "u128")
+
+    alias("VoteWeight", "u128")
+    alias("PreRuntime", "GenericPreRuntime")
+    // todo replace with real type
+    fakeType("GenericPreRuntime")
+    type(GenericSealV0(this))
+    type(GenericSeal(this))
+    type(GenericConsensus(this))
 }

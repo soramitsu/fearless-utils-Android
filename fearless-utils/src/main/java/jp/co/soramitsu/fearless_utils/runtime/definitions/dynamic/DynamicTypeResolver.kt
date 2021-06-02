@@ -4,6 +4,7 @@ import jp.co.soramitsu.fearless_utils.extensions.tryFindNonNull
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.BoxExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.CompactExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.FixedArrayExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.HashMapExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.OptionExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.TupleExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.VectorExtension
@@ -25,7 +26,8 @@ class DynamicTypeResolver(
             OptionExtension,
             BoxExtension,
             TupleExtension,
-            FixedArrayExtension
+            FixedArrayExtension,
+            HashMapExtension
         )
     }
 
