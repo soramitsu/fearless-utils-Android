@@ -9,6 +9,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedA
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Option
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.ResultType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Compact
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.DynamicByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
@@ -88,5 +89,17 @@ object HashMapExtension : DynamicTypeExtension {
         val tuple = "($withoutBrackets)"
         val typeRef = typeProvider(tuple)
         return Vec("Vec<$tuple>", typeRef)
+    }
+}
+
+object ResultTypeExtension : DynamicTypeExtension {
+
+    override fun createType(name: String, typeDef: String, typeProvider: TypeProvider): Type<*>? {
+        if (!typeDef.startsWith("Result")) return null
+        val withoutBrackets =
+            typeDef.removePrefix("Result").removeSurrounding("<", ">").replace(" ", "")
+        val types = withoutBrackets.split(",")
+        if (types.size != 2) return null
+        return ResultType(typeProvider(types[0]), typeProvider(types[1]))
     }
 }

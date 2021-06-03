@@ -6,6 +6,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.Co
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.FixedArrayExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.HashMapExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.OptionExtension
+import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.ResultTypeExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.TupleExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.VectorExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
@@ -27,7 +28,8 @@ class DynamicTypeResolver(
             BoxExtension,
             TupleExtension,
             FixedArrayExtension,
-            HashMapExtension
+            HashMapExtension,
+            ResultTypeExtension
         )
     }
 
