@@ -20,11 +20,12 @@ import jp.co.soramitsu.fearless_utils.scale.DefaultValues.bigInteger
 import jp.co.soramitsu.fearless_utils.scale.DefaultValues.bytes
 import jp.co.soramitsu.fearless_utils.scale.DefaultValues.text
 import jp.co.soramitsu.fearless_utils.scale.Vector.numbers
-import jp.co.soramitsu.fearless_utils.scale.dataType.DataType
-import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
-import jp.co.soramitsu.fearless_utils.scale.dataType.scalable
-import jp.co.soramitsu.fearless_utils.scale.dataType.string
-import jp.co.soramitsu.fearless_utils.scale.dataType.uint16
+import jp.co.soramitsu.schema.scale.*
+import jp.co.soramitsu.schema.scale.dataType.DataType
+import jp.co.soramitsu.schema.scale.dataType.compactInt
+import jp.co.soramitsu.schema.scale.dataType.scalable
+import jp.co.soramitsu.schema.scale.dataType.string
+import jp.co.soramitsu.schema.scale.dataType.uint16
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -33,8 +34,8 @@ import org.mockito.junit.MockitoJUnitRunner
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.MathContext
-import jp.co.soramitsu.fearless_utils.scale.dataType.boolean as Bool
-import jp.co.soramitsu.fearless_utils.scale.dataType.uint8 as Uint8
+import jp.co.soramitsu.schema.scale.dataType.boolean as Bool
+import jp.co.soramitsu.schema.scale.dataType.uint8 as Uint8
 
 object OnlyCompact : Schema<OnlyCompact>() {
     val compact by compactInt()

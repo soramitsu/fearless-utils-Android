@@ -3,7 +3,7 @@ package jp.co.soramitsu.schema.definitions.types.composite
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
+import jp.co.soramitsu.schema.scale.dataType.compactInt
 import jp.co.soramitsu.schema.RuntimeSnapshot
 
 class Vec(name: String, typeReference: TypeReference) : WrapperType<List<*>>(name, typeReference) {

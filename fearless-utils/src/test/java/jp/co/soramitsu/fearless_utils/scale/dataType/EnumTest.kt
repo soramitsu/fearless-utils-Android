@@ -1,8 +1,8 @@
 package jp.co.soramitsu.fearless_utils.scale.dataType
 
-import jp.co.soramitsu.fearless_utils.scale.Schema
-import jp.co.soramitsu.fearless_utils.scale.enum
-import jp.co.soramitsu.fearless_utils.scale.toHexString
+import jp.co.soramitsu.schema.scale.Schema
+import jp.co.soramitsu.schema.scale.enum
+import jp.co.soramitsu.schema.scale.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

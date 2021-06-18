@@ -2,7 +2,7 @@ package jp.co.soramitsu.schema.definitions.types.primitives
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
+import jp.co.soramitsu.schema.scale.dataType.compactInt
 import java.math.BigInteger
 import jp.co.soramitsu.schema.RuntimeSnapshot
 

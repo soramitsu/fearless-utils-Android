@@ -2,11 +2,10 @@ package jp.co.soramitsu.schema.definitions.types.composite
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.hash.isPositive
+import jp.co.soramitsu.schema.RuntimeSnapshot
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.primitives.NumberType
 import java.math.BigInteger
-import jp.co.soramitsu.schema.RuntimeSnapshot
 
 class SetType(
     name: String,
@@ -21,7 +20,7 @@ class SetType(
         val value = valueType.decode(scaleCodecReader, runtime)
 
         return valueList.mapNotNullTo(mutableSetOf()) { (name, mask) ->
-            if (value.and(mask).isPositive()) {
+            if (value.and(mask).signum() == 1) {
                 name
             } else {
                 null
