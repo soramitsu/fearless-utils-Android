@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.jp.co.soramitsu.schema.definitions.types.generics
+package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.schema.definitions.types.composite.DictEnum

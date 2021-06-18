@@ -4,7 +4,7 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 
 class Option(
@@ -12,7 +12,7 @@ class Option(
     typeReference: TypeReference
 ) : WrapperType<Any?>(name, typeReference) {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Any? {
+    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Any? {
         if (typeReference.requireValue() is BooleanType) {
             return when (scaleCodecReader.readByte().toInt()) {
                 0 -> null
@@ -24,10 +24,10 @@ class Option(
 
         val some: Boolean = scaleCodecReader.readBoolean()
 
-        return if (some) typeReference.requireValue().decode(scaleCodecReader, runtime) else null
+        return if (some) typeReference.requireValue().decode(scaleCodecReader, context) else null
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Any?) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Any?) {
         val type = typeReference.requireValue()
 
         if (type is BooleanType) {

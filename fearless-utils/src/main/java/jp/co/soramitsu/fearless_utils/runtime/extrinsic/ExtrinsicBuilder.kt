@@ -5,19 +5,12 @@ import jp.co.soramitsu.fearless_utils.encrypt.Signer
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.AdditionalExtras
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Extrinsic
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.ExtrinsicPayloadExtrasInstance
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.MultiSignature
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SignedExtras
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.new
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.useScaleWriter
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.*
 import jp.co.soramitsu.fearless_utils.runtime.metadata.call
 import jp.co.soramitsu.fearless_utils.runtime.metadata.module
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.chain.RuntimeVersion
+import jp.co.soramitsu.schema.definitions.types.toHex
+import jp.co.soramitsu.schema.definitions.types.useScaleWriter
 import java.math.BigInteger
 
 private val DEFAULT_TIP = BigInteger.ZERO

@@ -2,7 +2,7 @@ package jp.co.soramitsu.schema.definitions.types.composite
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.primitives.NumberType
 import java.math.BigInteger
@@ -13,11 +13,11 @@ class SetType(
     val valueList: LinkedHashMap<String, BigInteger>
 ) : WrapperType<Set<String>>(name, valueTypeReference) {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Set<String> {
+    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Set<String> {
         val valueType = typeReference.requireValue()
         require(valueType is NumberType)
 
-        val value = valueType.decode(scaleCodecReader, runtime)
+        val value = valueType.decode(scaleCodecReader, context)
 
         return valueList.mapNotNullTo(mutableSetOf()) { (name, mask) ->
             if (value.and(mask).signum() == 1) {
@@ -28,7 +28,7 @@ class SetType(
         }
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Set<String>) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Set<String>) {
         val valueType = typeReference.requireValue()
         require(valueType is NumberType)
 

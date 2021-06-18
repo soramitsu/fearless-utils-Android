@@ -1,8 +1,8 @@
-package jp.co.soramitsu.fearless_utils.jp.co.soramitsu.schema.definitions.types.generics
+package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.primitives.Primitive
 import jp.co.soramitsu.schema.extensions.toHex
 import jp.co.soramitsu.schema.scale.dataType.byte
@@ -42,7 +42,7 @@ sealed class Era {
 
 object EraType : Primitive<Era>("Era") {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Era {
+    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Era {
         val firstByte = byte.read(scaleCodecReader).toHex()
 
         return if (firstByte == "00") {
@@ -58,7 +58,7 @@ object EraType : Primitive<Era>("Era") {
         }
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Era) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Era) {
         when (value) {
             is Era.Immortal -> byte.write(scaleCodecWriter, 0)
             is Era.Mortal -> {

@@ -4,16 +4,16 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.skipAliasesOrNull
 
 class Tuple(name: String, val typeReferences: List<TypeReference>) : Type<List<*>>(name) {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): List<*> {
-        return typeReferences.map { it.requireValue().decode(scaleCodecReader, runtime) }
+    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): List<*> {
+        return typeReferences.map { it.requireValue().decode(scaleCodecReader, context) }
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: List<*>) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: List<*>) {
         typeReferences.zip(value).onEach { (type, value) ->
             type.requireValue().encodeUnsafe(scaleCodecWriter, runtime, value)
         }

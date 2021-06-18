@@ -2,8 +2,9 @@ package jp.co.soramitsu.fearless_utils.runtime.metadata
 
 import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.schema.Context
+import jp.co.soramitsu.schema.definitions.types.bytes
+import jp.co.soramitsu.schema.extensions.toHexString
 
 /**
  * @throws NoSuchElementException if module was not found
@@ -63,7 +64,7 @@ fun Module.eventOrNull(name: String): Event? = events?.get(name)
  *
  */
 fun StorageEntry.storageKey(): String {
-    return jp.co.soramitsu.schema.extensions.toHexString(withPrefix = true)
+    return (moduleHash() + serviceHash()).toHexString(withPrefix = true)
 }
 
 fun StorageEntry.storageKeyOrNull() = nullOnException { storageKey() }
@@ -84,7 +85,7 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key: Any?): String {
         else -> wrongEntryType()
     }
 
-    val keyEncoded = keyType?.bytes(runtime, key) ?: typeNotResolved(name)
+    val keyEncoded = keyType?.bytes(runtime as Context, key) ?: typeNotResolved(name)
 
     val storageKey = moduleHash() + serviceHash() + hasher.hashingFunction(keyEncoded)
 
@@ -110,15 +111,15 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): S
     val key1Type = type.key1 ?: typeNotResolved(name)
     val key2Type = type.key2 ?: typeNotResolved(name)
 
-    val key1Encoded = key1Type.bytes(runtime, key1)
-    val key2Encoded = key2Type.bytes(runtime, key2)
+    val key1Encoded = key1Type.bytes(runtime as Context, key1)
+    val key2Encoded = key2Type.bytes(runtime as Context, key2)
 
     val key1Hashed = type.key1Hasher.hashingFunction(key1Encoded)
     val key2Hashed = type.key2Hasher.hashingFunction(key2Encoded)
 
     val storageKey = moduleHash() + serviceHash() + key1Hashed + key2Hashed
 
-    return jp.co.soramitsu.schema.extensions.toHexString(withPrefix = true)
+    return storageKey.toHexString(withPrefix = true)
 }
 
 fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?, key2: Any?) =

@@ -1,13 +1,16 @@
-package jp.co.soramitsu.fearless_utils.jp.co.soramitsu.schema.definitions.types.generics
+package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Event
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.metadata.eventOrNull
+import jp.co.soramitsu.fearless_utils.runtime.metadata.moduleOrNull
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.schema.scale.dataType.uint8
 import jp.co.soramitsu.schema.scale.dataType.tuple
+import jp.co.soramitsu.schema.scale.dataType.uint8
 
 object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
 
@@ -17,14 +20,14 @@ object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
 
     override val isFullyResolved = true
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Instance {
+    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Instance {
         val (moduleIndex, eventIndex) = indexCoder.read(scaleCodecReader)
             .run { first.toInt() to second.toInt() }
 
-        val call = getEventOrThrow(runtime, moduleIndex, eventIndex)
+        val call = getEventOrThrow(context, moduleIndex, eventIndex)
 
         val arguments = call.arguments.map { argumentDefinition ->
-            argumentDefinition.requireNonNull().decode(scaleCodecReader, runtime)
+            argumentDefinition.requireNonNull().decode(scaleCodecReader, context)
         }
 
         return Instance(moduleIndex, eventIndex, arguments)
@@ -32,7 +35,7 @@ object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
 
     override fun encode(
         scaleCodecWriter: ScaleCodecWriter,
-        runtime: RuntimeSnapshot,
+        runtime: Context,
         value: Instance
     ) = with(value) {
         val call = getEventOrThrow(runtime, moduleIndex, eventIndex)
@@ -53,11 +56,11 @@ object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
         this ?: throw EncodeDecodeException("Argument $name is not resolved")
 
     private fun getEventOrThrow(
-        runtime: RuntimeSnapshot,
+        context: Context,
         moduleIndex: Int,
         callIndex: Int
     ): Event {
-        return runtime.metadata.moduleOrNull(moduleIndex)?.eventOrNull(callIndex) ?: eventNotFound(
+        return (context as RuntimeSnapshot).metadata.moduleOrNull(moduleIndex)?.eventOrNull(callIndex) ?: eventNotFound(
             moduleIndex,
             callIndex
         )

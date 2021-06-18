@@ -5,7 +5,7 @@ import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.extensions.ensureExceptionType
 import jp.co.soramitsu.schema.extensions.fromHex
 import jp.co.soramitsu.schema.extensions.toHexString
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.composite.Alias
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import java.io.ByteArrayOutputStream
@@ -24,7 +24,7 @@ fun Type<*>?.isFullyResolved() = this?.isFullyResolved ?: false
 /**
  * @throws EncodeDecodeException
  */
-fun <I> Type<I>.fromByteArray(runtime: RuntimeSnapshot, byteArray: ByteArray): I {
+fun <I> Type<I>.fromByteArray(runtime: Context, byteArray: ByteArray): I {
     val reader = ScaleCodecReader(byteArray)
 
     return ensureUnifiedException { decode(reader, runtime) }
@@ -33,22 +33,22 @@ fun <I> Type<I>.fromByteArray(runtime: RuntimeSnapshot, byteArray: ByteArray): I
 /**
  * @throws EncodeDecodeException
  */
-fun <I> Type<I>.fromHex(runtime: RuntimeSnapshot, hex: String): I {
+fun <I> Type<I>.fromHex(runtime: Context, hex: String): I {
     return ensureUnifiedException { fromByteArray(runtime, hex.fromHex()) }
 }
 
-fun <I> Type<I>.fromByteArrayOrNull(runtime: RuntimeSnapshot, byteArray: ByteArray): I? {
+fun <I> Type<I>.fromByteArrayOrNull(runtime: Context, byteArray: ByteArray): I? {
     return runCatching { fromByteArray(runtime, byteArray) }.getOrNull()
 }
 
-fun <I> Type<I>.fromHexOrNull(runtime: RuntimeSnapshot, hex: String): I? {
+fun <I> Type<I>.fromHexOrNull(runtime: Context, hex: String): I? {
     return runCatching { fromHex(runtime, hex) }.getOrNull()
 }
 
 /**
  * @throws EncodeDecodeException
  */
-fun <I> Type<I>.toByteArray(runtime: RuntimeSnapshot, value: I): ByteArray {
+fun <I> Type<I>.toByteArray(runtime: Context, value: I): ByteArray {
     return ensureUnifiedException {
         useScaleWriter { encode(this, runtime, value) }
     }
@@ -59,27 +59,27 @@ fun <I> Type<I>.toByteArray(runtime: RuntimeSnapshot, value: I): ByteArray {
  *
  * @throws EncodeDecodeException
  */
-fun Type<*>.bytes(runtime: RuntimeSnapshot, value: Any?): ByteArray {
+fun Type<*>.bytes(runtime: Context, value: Any?): ByteArray {
     return ensureUnifiedException {
         useScaleWriter { encodeUnsafe(this, runtime, value) }
     }
 }
 
-fun <I> Type<I>.toByteArrayOrNull(runtime: RuntimeSnapshot, value: I): ByteArray? {
+fun <I> Type<I>.toByteArrayOrNull(runtime: Context, value: I): ByteArray? {
     return runCatching { toByteArray(runtime, value) }.getOrNull()
 }
 
-fun Type<*>.bytesOrNull(runtime: RuntimeSnapshot, value: Any?): ByteArray? {
+fun Type<*>.bytesOrNull(runtime: Context, value: Any?): ByteArray? {
     return runCatching { bytes(runtime, value) }.getOrNull()
 }
 
 /**
  * @throws EncodeDecodeException
  */
-fun <I> Type<I>.toHex(runtime: RuntimeSnapshot, value: I) =
+fun <I> Type<I>.toHex(runtime: Context, value: I) =
     toByteArray(runtime, value).toHexString(withPrefix = true)
 
-fun <I> Type<I>.toHexOrNull(runtime: RuntimeSnapshot, value: I) =
+fun <I> Type<I>.toHexOrNull(runtime: Context, value: I) =
     toByteArrayOrNull(runtime, value)?.toHexString(withPrefix = true)
 
 fun useScaleWriter(use: ScaleCodecWriter.() -> Unit): ByteArray {

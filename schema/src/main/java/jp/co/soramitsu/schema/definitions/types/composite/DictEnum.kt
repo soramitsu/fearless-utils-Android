@@ -4,7 +4,7 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.definitions.types.skipAliasesOrNull
 
@@ -15,16 +15,16 @@ open class DictEnum(
 
     class Entry<out T>(val name: String, val value: T)
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Entry<Any?> {
+    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Entry<Any?> {
         val typeIndex = scaleCodecReader.readByte()
         val entry = elements[typeIndex.toInt()]
 
-        val decoded = entry.value.requireValue().decode(scaleCodecReader, runtime)
+        val decoded = entry.value.requireValue().decode(scaleCodecReader, context)
 
         return Entry(entry.name, decoded)
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Entry<Any?>) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Entry<Any?>) {
         val index = elements.indexOfFirst { it.name == value.name }
 
         if (index == -1) elementNotFound(value.name)

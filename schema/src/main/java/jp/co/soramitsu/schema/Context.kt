@@ -1,4 +1,4 @@
 package jp.co.soramitsu.schema
 
-class RuntimeSnapshot {
+interface Context {
 }

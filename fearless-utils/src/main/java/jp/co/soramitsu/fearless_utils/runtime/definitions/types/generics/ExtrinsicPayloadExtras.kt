@@ -1,8 +1,9 @@
-package jp.co.soramitsu.fearless_utils.jp.co.soramitsu.schema.definitions.types.generics
+package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.definitions.types.primitives.Compact
@@ -53,24 +54,24 @@ open class ExtrinsicPayloadExtras(
 
     override fun decode(
         scaleCodecReader: ScaleCodecReader,
-        runtime: RuntimeSnapshot
+        context: Context
     ): ExtrinsicPayloadExtrasInstance {
-        val enabledSignedExtras = runtime.metadata.extrinsic.signedExtensions
+        val enabledSignedExtras = (context as RuntimeSnapshot).metadata.extrinsic.signedExtensions
 
         return enabledSignedExtras.associateWith { name ->
-            extrasMapping[name]?.decode(scaleCodecReader, runtime)
+            extrasMapping[name]?.decode(scaleCodecReader, context)
         }
     }
 
     override fun encode(
         scaleCodecWriter: ScaleCodecWriter,
-        runtime: RuntimeSnapshot,
+        context: Context,
         value: ExtrinsicPayloadExtrasInstance
     ) {
-        val enabledSignedExtras = runtime.metadata.extrinsic.signedExtensions
+        val enabledSignedExtras = (context as RuntimeSnapshot).metadata.extrinsic.signedExtensions
 
         return enabledSignedExtras.forEach { name ->
-            extrasMapping[name]?.encodeUnsafe(scaleCodecWriter, runtime, value[name])
+            extrasMapping[name]?.encodeUnsafe(scaleCodecWriter, context, value[name])
         }
     }
 

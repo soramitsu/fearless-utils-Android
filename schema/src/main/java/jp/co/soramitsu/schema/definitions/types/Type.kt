@@ -2,7 +2,7 @@ package jp.co.soramitsu.schema.definitions.types
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.schema.RuntimeSnapshot
+import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 
 class TypeReference(var value: Type<*>?) {
@@ -36,14 +36,14 @@ abstract class Type<InstanceType>(val name: String) {
     /**
      * @throws EncodeDecodeException
      */
-    abstract fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): InstanceType
+    abstract fun decode(scaleCodecReader: ScaleCodecReader, context: Context): InstanceType
 
     /**
      * @throws EncodeDecodeException
      */
     abstract fun encode(
         scaleCodecWriter: ScaleCodecWriter,
-        runtime: RuntimeSnapshot,
+        runtime: Context,
         value: InstanceType
     )
 
@@ -53,7 +53,7 @@ abstract class Type<InstanceType>(val name: String) {
      * @throws EncodeDecodeException
      */
     @Suppress("UNCHECKED_CAST")
-    fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Any?) {
+    fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Any?) {
         if (!isValidInstance(value)) {
             val valueTypeName = value?.let { it::class.java.simpleName }
 
