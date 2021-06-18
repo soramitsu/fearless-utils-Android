@@ -5,7 +5,6 @@ import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.skipAliases
-import jp.co.soramitsu.schema.Context
 
 @Suppress("UNCHECKED_CAST")
 class Struct(
@@ -17,17 +16,17 @@ class Struct(
         inline operator fun <reified R> get(key: String): R? = mapping[key] as? R
     }
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Instance {
+    override fun decode(scaleCodecReader: ScaleCodecReader): Instance {
         val values = mapping.mapValues { (_, type) ->
-            type.requireValue().decode(scaleCodecReader, context)
+            type.requireValue().decode(scaleCodecReader)
         }
 
         return Instance(values)
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Instance) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Instance) {
         mapping.forEach { (name, type) ->
-            type.requireValue().encodeUnsafe(scaleCodecWriter, runtime, value[name])
+            type.requireValue().encodeUnsafe(scaleCodecWriter, value[name])
         }
     }
 

@@ -69,7 +69,7 @@ class ExtrinsicBuilder(
             call = call
         )
 
-        return Extrinsic.toHex(runtime, extrinsic)
+        return Extrinsic(runtime).toHex(extrinsic)
     }
 
     private fun maybeWrapInBatch(): GenericCall.Instance {
@@ -95,9 +95,9 @@ class ExtrinsicBuilder(
         )
 
         val payloadBytes = useScaleWriter {
-            GenericCall.encode(this, runtime, call)
-            SignedExtras.encode(this, runtime, signedExtrasInstance)
-            AdditionalExtras.encode(this, runtime, additionalExtrasInstance)
+            GenericCall(runtime).encode(this, call)
+            SignedExtras(runtime).encode(this, signedExtrasInstance)
+            AdditionalExtras(runtime).encode(this, additionalExtrasInstance)
         }
 
         val messageToSign = if (payloadBytes.size > PAYLOAD_HASH_THRESHOLD) {

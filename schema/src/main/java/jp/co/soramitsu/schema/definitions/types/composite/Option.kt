@@ -4,7 +4,6 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 
 class Option(
@@ -12,7 +11,7 @@ class Option(
     typeReference: TypeReference
 ) : WrapperType<Any?>(name, typeReference) {
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Any? {
+    override fun decode(scaleCodecReader: ScaleCodecReader): Any? {
         if (typeReference.requireValue() is BooleanType) {
             return when (scaleCodecReader.readByte().toInt()) {
                 0 -> null
@@ -24,10 +23,10 @@ class Option(
 
         val some: Boolean = scaleCodecReader.readBoolean()
 
-        return if (some) typeReference.requireValue().decode(scaleCodecReader, context) else null
+        return if (some) typeReference.requireValue().decode(scaleCodecReader) else null
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Any?) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Any?) {
         val type = typeReference.requireValue()
 
         if (type is BooleanType) {
@@ -37,7 +36,7 @@ class Option(
                 scaleCodecWriter.write(ScaleCodecWriter.BOOL, false)
             } else {
                 scaleCodecWriter.write(ScaleCodecWriter.BOOL, true)
-                type.encodeUnsafe(scaleCodecWriter, runtime, value)
+                type.encodeUnsafe(scaleCodecWriter, value)
             }
         }
     }

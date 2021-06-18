@@ -2,7 +2,6 @@ package jp.co.soramitsu.schema.definitions.types
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 
 class TypeReference(var value: Type<*>?) {
@@ -36,16 +35,12 @@ abstract class Type<InstanceType>(val name: String) {
     /**
      * @throws EncodeDecodeException
      */
-    abstract fun decode(scaleCodecReader: ScaleCodecReader, context: Context): InstanceType
+    abstract fun decode(scaleCodecReader: ScaleCodecReader): InstanceType
 
     /**
      * @throws EncodeDecodeException
      */
-    abstract fun encode(
-        scaleCodecWriter: ScaleCodecWriter,
-        runtime: Context,
-        value: InstanceType
-    )
+    abstract fun encode(scaleCodecWriter: ScaleCodecWriter, value: InstanceType)
 
     abstract fun isValidInstance(instance: Any?): Boolean
 
@@ -53,14 +48,14 @@ abstract class Type<InstanceType>(val name: String) {
      * @throws EncodeDecodeException
      */
     @Suppress("UNCHECKED_CAST")
-    fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Any?) {
+    fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, value: Any?) {
         if (!isValidInstance(value)) {
             val valueTypeName = value?.let { it::class.java.simpleName }
 
             throw EncodeDecodeException("$value ($valueTypeName) is not a valid instance if $this")
         }
 
-        encode(scaleCodecWriter, runtime, value as InstanceType)
+        encode(scaleCodecWriter, value as InstanceType)
     }
 
     override fun toString(): String {

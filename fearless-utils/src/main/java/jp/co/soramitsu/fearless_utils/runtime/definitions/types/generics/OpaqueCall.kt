@@ -2,32 +2,30 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.schema.Context
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.fromByteArray
 import jp.co.soramitsu.schema.definitions.types.toByteArray
 
-object OpaqueCall : Type<GenericCall.Instance>("OpaqueCall") {
+class OpaqueCall(private val context: RuntimeSnapshot) : Type<GenericCall.Instance>("OpaqueCall") {
 
     override val isFullyResolved = true
 
     override fun decode(
         scaleCodecReader: ScaleCodecReader,
-        context: Context
     ): GenericCall.Instance {
-        val bytes = Bytes.decode(scaleCodecReader, context)
+        val bytes = Bytes.decode(scaleCodecReader)
 
-        return GenericCall.fromByteArray(context, bytes)
+        return GenericCall(context).fromByteArray(bytes)
     }
 
     override fun encode(
         scaleCodecWriter: ScaleCodecWriter,
-        runtime: Context,
         value: GenericCall.Instance
     ) {
-        val callEncoded = GenericCall.toByteArray(runtime, value)
+        val callEncoded = GenericCall(context).toByteArray(value)
 
-        return Bytes.encode(scaleCodecWriter, runtime, callEncoded)
+        return Bytes.encode(scaleCodecWriter, callEncoded)
     }
 
     override fun isValidInstance(instance: Any?): Boolean {

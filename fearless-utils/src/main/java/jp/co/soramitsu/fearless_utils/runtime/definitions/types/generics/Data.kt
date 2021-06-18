@@ -4,7 +4,7 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.getOrCreate
-import jp.co.soramitsu.schema.Context
+
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
@@ -22,7 +22,7 @@ class Data(preset: TypePresetBuilder) : DictEnum("Data", createMapping(preset)) 
         const val SHA_3_256 = "ShaThree256"
     }
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Entry<Any?> {
+    override fun decode(scaleCodecReader: ScaleCodecReader): Entry<Any?> {
 
         return when (val typeIndex = byte.read(scaleCodecReader).toInt()) {
             0 -> Entry(NONE, null)
@@ -39,7 +39,7 @@ class Data(preset: TypePresetBuilder) : DictEnum("Data", createMapping(preset)) 
 
                 val typeEntry = elements[typeIndex - offset]
 
-                val decoded = typeEntry.value.requireValue().decode(scaleCodecReader, context)
+                val decoded = typeEntry.value.requireValue().decode(scaleCodecReader)
 
                 Entry(typeEntry.name, decoded)
             }
@@ -50,7 +50,6 @@ class Data(preset: TypePresetBuilder) : DictEnum("Data", createMapping(preset)) 
 
     override fun encode(
         scaleCodecWriter: ScaleCodecWriter,
-        runtime: Context,
         value: Entry<Any?>
     ) {
         when (value.name) {
@@ -72,7 +71,7 @@ class Data(preset: TypePresetBuilder) : DictEnum("Data", createMapping(preset)) 
                 val type = elements[index].value.requireValue()
 
                 scaleCodecWriter.writeByte(index + offset)
-                type.encodeUnsafe(scaleCodecWriter, runtime, value.value)
+                type.encodeUnsafe(scaleCodecWriter, value.value)
             }
         }
     }

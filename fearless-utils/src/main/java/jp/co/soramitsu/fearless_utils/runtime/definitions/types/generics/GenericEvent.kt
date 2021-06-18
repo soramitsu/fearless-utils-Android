@@ -6,13 +6,12 @@ import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Event
 import jp.co.soramitsu.fearless_utils.runtime.metadata.eventOrNull
 import jp.co.soramitsu.fearless_utils.runtime.metadata.moduleOrNull
-import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.scale.dataType.tuple
 import jp.co.soramitsu.schema.scale.dataType.uint8
 
-object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
+class GenericEvent(val context: RuntimeSnapshot) : Type<GenericEvent.Instance>("GenericEvent") {
 
     class Instance(val moduleIndex: Int, val eventIndex: Int, val arguments: List<Any?>)
 
@@ -20,14 +19,14 @@ object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
 
     override val isFullyResolved = true
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Instance {
+    override fun decode(scaleCodecReader: ScaleCodecReader): Instance {
         val (moduleIndex, eventIndex) = indexCoder.read(scaleCodecReader)
             .run { first.toInt() to second.toInt() }
 
-        val call = getEventOrThrow(context, moduleIndex, eventIndex)
+        val call = getEventOrThrow(moduleIndex, eventIndex)
 
         val arguments = call.arguments.map { argumentDefinition ->
-            argumentDefinition.requireNonNull().decode(scaleCodecReader, context)
+            argumentDefinition.requireNonNull().decode(scaleCodecReader)
         }
 
         return Instance(moduleIndex, eventIndex, arguments)
@@ -35,16 +34,15 @@ object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
 
     override fun encode(
         scaleCodecWriter: ScaleCodecWriter,
-        runtime: Context,
         value: Instance
     ) = with(value) {
-        val call = getEventOrThrow(runtime, moduleIndex, eventIndex)
+        val call = getEventOrThrow(moduleIndex, eventIndex)
 
         indexCoder.write(scaleCodecWriter, moduleIndex.toUByte() to eventIndex.toUByte())
 
         call.arguments.forEachIndexed { index, argumentType ->
             argumentType.requireNonNull()
-                .encodeUnsafe(scaleCodecWriter, runtime, arguments[index])
+                .encodeUnsafe(scaleCodecWriter, arguments[index])
         }
     }
 
@@ -56,11 +54,10 @@ object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
         this ?: throw EncodeDecodeException("Argument $name is not resolved")
 
     private fun getEventOrThrow(
-        context: Context,
         moduleIndex: Int,
         callIndex: Int
     ): Event {
-        return (context as RuntimeSnapshot).metadata.moduleOrNull(moduleIndex)?.eventOrNull(callIndex) ?: eventNotFound(
+        return context.metadata.moduleOrNull(moduleIndex)?.eventOrNull(callIndex) ?: eventNotFound(
             moduleIndex,
             callIndex
         )

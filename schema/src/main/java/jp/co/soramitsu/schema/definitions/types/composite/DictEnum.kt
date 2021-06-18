@@ -4,7 +4,6 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
-import jp.co.soramitsu.schema.Context
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.definitions.types.skipAliasesOrNull
 
@@ -15,16 +14,16 @@ open class DictEnum(
 
     class Entry<out T>(val name: String, val value: T)
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, context: Context): Entry<Any?> {
+    override fun decode(scaleCodecReader: ScaleCodecReader): Entry<Any?> {
         val typeIndex = scaleCodecReader.readByte()
         val entry = elements[typeIndex.toInt()]
 
-        val decoded = entry.value.requireValue().decode(scaleCodecReader, context)
+        val decoded = entry.value.requireValue().decode(scaleCodecReader)
 
         return Entry(entry.name, decoded)
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: Context, value: Entry<Any?>) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Entry<Any?>) {
         val index = elements.indexOfFirst { it.name == value.name }
 
         if (index == -1) elementNotFound(value.name)
@@ -32,7 +31,7 @@ open class DictEnum(
         val type = elements[index].value.requireValue()
 
         scaleCodecWriter.writeByte(index)
-        type.encodeUnsafe(scaleCodecWriter, runtime, value.value)
+        type.encodeUnsafe(scaleCodecWriter, value.value)
     }
 
     override fun isValidInstance(instance: Any?): Boolean {

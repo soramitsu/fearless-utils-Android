@@ -1,5 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.registry
 
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.BitVec
@@ -67,7 +68,7 @@ fun typePreset(builder: TypePresetBuilder.() -> Unit): TypePreset {
     return createTypePresetBuilder().apply(builder)
 }
 
-fun substratePreParsePreset(): TypePreset = typePreset {
+fun substratePreParsePreset(context: RuntimeSnapshot): TypePreset = typePreset {
     type(BooleanType)
 
     type(u8)
@@ -79,7 +80,7 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     type(GenericAccountId)
     type(Null)
-    type(GenericCall)
+    type(GenericCall(context))
 
     fakeType("GenericBlock")
 
@@ -92,7 +93,7 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     type(Bytes)
     type(BitVec)
 
-    type(Extrinsic)
+    type(Extrinsic(context))
 
     type(CallBytes) // seems to be unused in runtime
     type(EraType)
@@ -108,9 +109,9 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     type(GenericMultiAddress(this))
 
-    type(OpaqueCall)
+    type(OpaqueCall(context))
 
-    type(GenericEvent)
+    type(GenericEvent(context))
     type(EventRecord(this))
 
     alias("<T::Lookup as StaticLookup>::Source", "LookupSource")
