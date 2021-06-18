@@ -1,6 +1,5 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex

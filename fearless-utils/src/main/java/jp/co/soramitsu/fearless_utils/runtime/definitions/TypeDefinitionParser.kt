@@ -1,20 +1,14 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
 import com.google.gson.annotations.SerializedName
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.create
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.getOrCreate
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.newBuilder
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.CollectionEnum
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.SetType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.*
+import jp.co.soramitsu.schema.DynamicTypeResolver
+import jp.co.soramitsu.schema.ParseResult
+import jp.co.soramitsu.schema.TypeDefinitionParser
+import jp.co.soramitsu.schema.TypePreset
+import jp.co.soramitsu.schema.definitions.types.Type
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.*
 import java.math.BigInteger
 
 class TypeDefinitionsTree(
@@ -33,16 +27,11 @@ class TypeDefinitionsTree(
     }
 }
 
-class ParseResult(
-    val typePreset: TypePreset,
-    val unknownTypes: List<String>
-)
-
 private const val TOKEN_SET = "set"
 private const val TOKEN_STRUCT = "struct"
 private const val TOKEN_ENUM = "enum"
 
-object TypeDefinitionParser {
+object TypeDefinitionParserImpl : TypeDefinitionParser {
 
     private class Params(
         val types: Map<String, Any>,
@@ -50,14 +39,14 @@ object TypeDefinitionParser {
         val typesBuilder: TypePresetBuilder
     )
 
-    fun parseBaseDefinitions(
-        tree: TypeDefinitionsTree,
+    override fun parseBaseDefinitions(
+        types: Map<String, Any>,
         typePreset: TypePreset,
-        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
+        dynamicTypeResolver: DynamicTypeResolver
     ): ParseResult {
         val builder = typePreset.newBuilder()
 
-        val params = Params(tree.types, dynamicTypeResolver, builder)
+        val params = Params(types, dynamicTypeResolver, builder)
 
         parseTypes(params)
 

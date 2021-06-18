@@ -1,8 +1,8 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.GenericsExtension
+import jp.co.soramitsu.schema.DynamicTypeResolver
+import jp.co.soramitsu.schema.definitions.dynamic.extentsions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType

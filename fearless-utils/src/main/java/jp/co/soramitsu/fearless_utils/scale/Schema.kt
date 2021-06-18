@@ -4,7 +4,6 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import io.emeraldpay.polkaj.scale.ScaleReader
 import io.emeraldpay.polkaj.scale.ScaleWriter
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.scale.dataType.DataType
 import jp.co.soramitsu.fearless_utils.scale.dataType.optional
 import org.bouncycastle.util.encoders.Hex
@@ -74,7 +73,7 @@ abstract class Schema<S : Schema<S>> : ScaleReader<EncodableStruct<S>>,
     }
 
     fun toHexString(struct: EncodableStruct<S>): String =
-        toByteArray(struct).toHexString(withPrefix = true)
+        jp.co.soramitsu.schema.extensions.toHexString(withPrefix = true)
 
     override fun write(writer: ScaleCodecWriter, struct: EncodableStruct<S>) {
         for (field in fields) {

@@ -1,6 +1,5 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
@@ -64,7 +63,7 @@ fun Module.eventOrNull(name: String): Event? = events?.get(name)
  *
  */
 fun StorageEntry.storageKey(): String {
-    return (moduleHash() + serviceHash()).toHexString(withPrefix = true)
+    return jp.co.soramitsu.schema.extensions.toHexString(withPrefix = true)
 }
 
 fun StorageEntry.storageKeyOrNull() = nullOnException { storageKey() }
@@ -119,7 +118,7 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): S
 
     val storageKey = moduleHash() + serviceHash() + key1Hashed + key2Hashed
 
-    return storageKey.toHexString(withPrefix = true)
+    return jp.co.soramitsu.schema.extensions.toHexString(withPrefix = true)
 }
 
 fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?, key2: Any?) =

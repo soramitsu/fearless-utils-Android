@@ -9,8 +9,10 @@ class KotlinKtTest {
 
     @Test
     fun `should create little endian big int`() {
-        val bytes = "0xb63f9b9eff0000000000000000000000".fromHex()
+        val bytes = jp.co.soramitsu.schema.extensions.fromHex()
 
-        assertEquals(BigInteger("1097877634998"), bytes.toBigInteger(ByteOrder.LITTLE_ENDIAN))
+        assertEquals(BigInteger("1097877634998"),
+            jp.co.soramitsu.schema.extensions.toBigInteger(ByteOrder.LITTLE_ENDIAN)
+        )
     }
 }

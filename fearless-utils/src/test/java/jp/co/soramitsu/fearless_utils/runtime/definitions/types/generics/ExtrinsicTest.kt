@@ -1,8 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
@@ -46,13 +44,15 @@ class ExtrinsicTest {
             arguments = mapOf(
                 "dest" to DictEnum.Entry(
                     name = "Id",
-                    value = "fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d168".fromHex()
+                    value = jp.co.soramitsu.schema.extensions.fromHex()
                 ),
                 "value" to BigInteger("10000000000")
             )
         )
 
-        val signature = MultiSignature(EncryptionType.SR25519, signatureInHex.fromHex())
+        val signature = MultiSignature(EncryptionType.SR25519,
+            jp.co.soramitsu.schema.extensions.fromHex()
+        )
 
         val signedExtras = mapOf(
             SignedExtras.TIP to 0.toBigInteger(),
@@ -62,7 +62,7 @@ class ExtrinsicTest {
 
         val extrinsic = Extrinsic.Instance(
             signature = Extrinsic.Signature.newV28(
-                accountId = "340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c63".fromHex(),
+                accountId = jp.co.soramitsu.schema.extensions.fromHex(),
                 signature = signature,
                 signedExtras = signedExtras
             ),

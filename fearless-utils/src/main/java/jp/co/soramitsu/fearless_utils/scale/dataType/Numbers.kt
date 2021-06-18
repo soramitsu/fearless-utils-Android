@@ -5,7 +5,6 @@ package jp.co.soramitsu.fearless_utils.scale.dataType
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import io.emeraldpay.polkaj.scale.reader.CompactBigIntReader
-import jp.co.soramitsu.fearless_utils.extensions.toBigInteger
 import jp.co.soramitsu.fearless_utils.scale.utils.CompactBigIntWriter
 import java.math.BigInteger
 import java.nio.ByteOrder
@@ -67,7 +66,7 @@ open class uint(val size: Int) : DataType<BigInteger>() {
     override fun read(reader: ScaleCodecReader): BigInteger {
         val bytes = reader.readByteArray(size)
 
-        return bytes.toBigInteger(ByteOrder.LITTLE_ENDIAN)
+        return jp.co.soramitsu.schema.extensions.toBigInteger(ByteOrder.LITTLE_ENDIAN)
     }
 
     override fun write(writer: ScaleCodecWriter, value: BigInteger) {

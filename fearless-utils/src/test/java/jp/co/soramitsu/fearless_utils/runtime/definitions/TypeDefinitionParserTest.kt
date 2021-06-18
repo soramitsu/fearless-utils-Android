@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
+import jp.co.soramitsu.schema.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
@@ -365,7 +365,7 @@ class TypeDefinitionParserTest {
         val tree = gson.fromJson(definitions, TypeDefinitionsTree::class.java)
 
         val unknown =
-            TypeDefinitionParser.parseBaseDefinitions(tree, initialTypeRegistry).unknownTypes
+            TypeDefinitionParserImpl.parseBaseDefinitions(tree.types, initialTypeRegistry).unknownTypes
 
         assert("F" in unknown)
     }
@@ -376,7 +376,7 @@ class TypeDefinitionParserTest {
         val reader = JsonReader(getResourceReader("default.json"))
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
 
-        val result = TypeDefinitionParser.parseBaseDefinitions(tree, substratePreParsePreset())
+        val result = TypeDefinitionParserImpl.parseBaseDefinitions(tree.types, substratePreParsePreset())
 
         print(result.unknownTypes)
 
@@ -395,13 +395,13 @@ class TypeDefinitionParserTest {
         val kusamaTree =
             gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
-        val defaultParsed = TypeDefinitionParser.parseBaseDefinitions(defaultTree, substratePreParsePreset())
+        val defaultParsed = TypeDefinitionParserImpl.parseBaseDefinitions(defaultTree.types, substratePreParsePreset())
         val defaultRegistry = TypeRegistry(defaultParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
         val keysDefault = defaultRegistry["Keys"]
         assertEquals("SessionKeysSubstrate", keysDefault?.name)
 
-        val kusamaParsed = TypeDefinitionParser.parseNetworkVersioning(
+        val kusamaParsed = TypeDefinitionParserImpl.parseNetworkVersioning(
             kusamaTree,
             defaultParsed.typePreset,
             1057
@@ -430,7 +430,7 @@ class TypeDefinitionParserTest {
         val tree = gson.fromJson(json, TypeDefinitionsTree::class.java)
 
         return TypeRegistry(
-            TypeDefinitionParser.parseBaseDefinitions(tree, typePreset).typePreset,
+            TypeDefinitionParserImpl.parseBaseDefinitions(tree.types, typePreset).typePreset,
             dynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
         )
     }

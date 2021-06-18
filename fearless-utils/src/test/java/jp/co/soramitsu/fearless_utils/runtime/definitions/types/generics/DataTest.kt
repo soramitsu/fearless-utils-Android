@@ -2,8 +2,6 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.assertThrows
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
@@ -76,14 +74,18 @@ class DataTest : BaseTypeTest() {
 
     @Test
     fun `should encode raw`() {
-        val encoded = type.toHex(runtime, DictEnum.Entry("Raw", "0x0102030405060708".fromHex()))
+        val encoded = type.toHex(runtime, DictEnum.Entry("Raw",
+            jp.co.soramitsu.schema.extensions.fromHex()
+        ))
 
         assertEquals("0x090102030405060708", encoded)
     }
 
     @Test
     fun `should encode hasher`() {
-        val encoded = type.toHex(runtime, DictEnum.Entry("Keccak256", "0x1234567890123456789012345678901212345678901234567890123456789012".fromHex()))
+        val encoded = type.toHex(runtime, DictEnum.Entry("Keccak256",
+            jp.co.soramitsu.schema.extensions.fromHex()
+        ))
 
         assertEquals("0x241234567890123456789012345678901212345678901234567890123456789012", encoded)
     }

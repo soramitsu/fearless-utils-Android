@@ -2,7 +2,6 @@ package jp.co.soramitsu.fearless_utils.runtime.extrinsic
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.multiAddressFromId
@@ -13,8 +12,8 @@ import org.junit.Test
 import java.math.BigInteger
 
 private val KEYPAIR = Keypair(
-    publicKey = "fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d168".fromHex(),
-    privateKey = "f3923eea431177cd21906d4308aea61c037055fb00575cae687217c6d8b2397f".fromHex()
+    publicKey = jp.co.soramitsu.schema.extensions.fromHex(),
+    privateKey = jp.co.soramitsu.schema.extensions.fromHex()
 )
 
 class ExtrinsicBuilderTest {
@@ -25,8 +24,8 @@ class ExtrinsicBuilderTest {
     fun `should build single sora transfer extrinsic`() {
         val soraRuntime = RealRuntimeProvider.buildRuntime("sora2")
         val soraKeypair = Keypair(
-            privateKey = "dd9b35e3288c2e2667313532f825f60fc5e8523b16d8e3ddc0b0ff5200b4c145".fromHex(),
-            publicKey = "83ba494b62a40d20c370e5381230d74b4e8906d0334a91777baef57c9a935467".fromHex()
+            privateKey = jp.co.soramitsu.schema.extensions.fromHex(),
+            publicKey = jp.co.soramitsu.schema.extensions.fromHex()
         )
         val from = "5F3RU8neUpkZJK7QxAHJ9TGDjUiyjfufpZvaXDBEifPkeJSz"
         val to = "5EcDoG4T1SLbop4bxBjLL9VJaaytZxGXA7mLaY9y84GYpzsR"
@@ -39,18 +38,18 @@ class ExtrinsicBuilderTest {
             keypair = soraKeypair,
             nonce = 1.toBigInteger(),
             runtimeVersion = RuntimeVersion(1, 1),
-            genesisHash = "0f751ca2d30efe3385a4001d0bfa1548471babf5095f6fe88ee4813cf724fafc".fromHex(),
+            genesisHash = jp.co.soramitsu.schema.extensions.fromHex(),
             encryptionType = EncryptionType.ED25519,
             accountIdentifier = from.toAccountId(),
             era = Era.getEraFromBlockPeriod(44866, 64),
-            blockHash = "0xa532ea14451c9b4e1a9ed1c75ab67d8be659362c9d8f2206009ae8d62faf9fca".fromHex()
+            blockHash = jp.co.soramitsu.schema.extensions.fromHex()
         )
 
         builder.call(
             "Assets",
             "transfer",
             mapOf(
-                "asset_id" to asset.fromHex(),
+                "asset_id" to jp.co.soramitsu.schema.extensions.fromHex(),
                 "to" to to.toAccountId(),
                 "amount" to BigInteger("200000000000000000")
             )
@@ -71,15 +70,15 @@ class ExtrinsicBuilderTest {
             keypair = KEYPAIR,
             nonce = 34.toBigInteger(),
             runtimeVersion = RuntimeVersion(48, 4),
-            genesisHash = "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e".fromHex(),
+            genesisHash = jp.co.soramitsu.schema.extensions.fromHex(),
             encryptionType = EncryptionType.ED25519,
             accountIdentifier = multiAddressFromId(KEYPAIR.publicKey),
             era = Era.Mortal(64, 59),
-            blockHash = "0x1b876104c68b4a8924c098d61d2ad798761bb6fff55cca2885939ffc27ef5ecb".fromHex()
+            blockHash = jp.co.soramitsu.schema.extensions.fromHex()
         )
 
         builder.transfer(
-            recipientAccountId = "340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c63".fromHex(),
+            recipientAccountId = jp.co.soramitsu.schema.extensions.fromHex(),
             amount = BigInteger("10000000000")
         )
 
@@ -99,16 +98,16 @@ class ExtrinsicBuilderTest {
             keypair = KEYPAIR,
             nonce = 34.toBigInteger(),
             runtimeVersion = RuntimeVersion(48, 4),
-            genesisHash = "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e".fromHex(),
+            genesisHash = jp.co.soramitsu.schema.extensions.fromHex(),
             encryptionType = EncryptionType.ED25519,
             accountIdentifier = multiAddressFromId(KEYPAIR.publicKey),
             era = Era.Mortal(64, 59),
-            blockHash = "0x1b876104c68b4a8924c098d61d2ad798761bb6fff55cca2885939ffc27ef5ecb".fromHex()
+            blockHash = jp.co.soramitsu.schema.extensions.fromHex()
         )
 
         repeat(2) {
             builder.transfer(
-                recipientAccountId = "340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c63".fromHex(),
+                recipientAccountId = jp.co.soramitsu.schema.extensions.fromHex(),
                 amount = BigInteger("10000000000")
             )
         }
