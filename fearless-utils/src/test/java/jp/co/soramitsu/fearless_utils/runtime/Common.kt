@@ -6,12 +6,12 @@ import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParserImpl
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
-import jp.co.soramitsu.schema.DynamicTypeResolver
-import jp.co.soramitsu.schema.definitions.dynamic.extentsions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadataSchema
+import jp.co.soramitsu.schema.DynamicTypeResolver
+import jp.co.soramitsu.schema.definitions.dynamic.extentsions.GenericsExtension
 
 object RealRuntimeProvider {
 

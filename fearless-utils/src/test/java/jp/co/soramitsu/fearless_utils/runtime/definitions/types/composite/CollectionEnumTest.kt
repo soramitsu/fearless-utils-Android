@@ -1,11 +1,10 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import jp.co.soramitsu.schema.definitions.types.composite.CollectionEnum
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.toHex
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -20,7 +19,7 @@ class EnumTest : BaseTypeTest() {
         val expectedInstance = enumValues[1]
         val inHex = "0x01"
 
-        val decoded = type.fromHex(runtime, inHex)
+        val decoded = type.fromHex(inHex)
 
         assertEquals(expectedInstance, decoded)
     }
@@ -29,7 +28,7 @@ class EnumTest : BaseTypeTest() {
     fun `should encode instance`() {
         val instance = enumValues[1]
 
-        val encoded = type.toHex(runtime, instance)
+        val encoded = type.toHex(instance)
 
         assertEquals("0x01", encoded)
     }

@@ -1,18 +1,18 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.schema.definitions.types.primitives.u128
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
+import jp.co.soramitsu.schema.definitions.types.toHex
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+
 
 @RunWith(JUnit4::class)
 class DictEnumTest : BaseTypeTest() {
@@ -33,7 +33,7 @@ class DictEnumTest : BaseTypeTest() {
         val expectedInstance = DictEnum.Entry("B", true)
         val inHex = "0x0101"
 
-        val decoded = type.fromHex(runtime, inHex)
+        val decoded = type.fromHex(inHex)
 
         assertEquals(expectedInstance.name, decoded.name)
         assertEquals(expectedInstance.value, decoded.value)
@@ -43,7 +43,7 @@ class DictEnumTest : BaseTypeTest() {
     fun `should encode instance`() {
         val instance = DictEnum.Entry("A", 1.toBigInteger())
 
-        val encoded = type.toHex(runtime, instance)
+        val encoded = type.toHex(instance)
 
         assertEquals("0x0001", encoded)
     }

@@ -2,10 +2,12 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era.Companion.getPeriodPhaseFromBlockPeriod
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.*
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EraType
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.toHex
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class EraTypeTest : BaseTypeTest() {
@@ -18,7 +20,7 @@ class EraTypeTest : BaseTypeTest() {
 
     @Test
     fun `should decode immortal`() {
-        val decoded = EraType.fromHex(runtime, "0x00")
+        val decoded = EraType.fromHex("0x00")
 
         assertEquals(Era.Immortal, decoded)
     }
@@ -33,7 +35,7 @@ class EraTypeTest : BaseTypeTest() {
     @Test
     fun `should encode immortal`() {
         val inHex = "0x00"
-        val encoded = EraType.toHex(runtime, Era.Immortal)
+        val encoded = EraType.toHex(Era.Immortal)
 
         assertEquals(inHex, encoded)
     }
@@ -46,7 +48,7 @@ class EraTypeTest : BaseTypeTest() {
     }
 
     private fun performMortalDecodeTest(inHex: String, period: Int, phase: Int) {
-        val decoded = EraType.fromHex(runtime, inHex)
+        val decoded = EraType.fromHex(inHex)
 
         assertInstance<Era.Mortal>(decoded)
 
@@ -55,7 +57,7 @@ class EraTypeTest : BaseTypeTest() {
     }
 
     private fun performMortalEncodeTest(inHex: String, period: Int, phase: Int) {
-        val encoded = EraType.toHex(runtime, Era.Mortal(period, phase))
+        val encoded = EraType.toHex(Era.Mortal(period, phase))
 
         assertEquals(inHex, encoded)
     }

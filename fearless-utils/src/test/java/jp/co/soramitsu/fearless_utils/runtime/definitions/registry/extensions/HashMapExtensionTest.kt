@@ -6,15 +6,15 @@ import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParserImpl
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
-import jp.co.soramitsu.schema.DynamicTypeResolver
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.TypeProvider
-import jp.co.soramitsu.schema.definitions.dynamic.extentsions.HashMapExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
+import jp.co.soramitsu.schema.DynamicTypeResolver
+import jp.co.soramitsu.schema.definitions.dynamic.TypeProvider
+import jp.co.soramitsu.schema.definitions.dynamic.extentsions.HashMapExtension
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.Tuple
+import jp.co.soramitsu.schema.definitions.types.composite.Vec
+import jp.co.soramitsu.schema.definitions.types.stub.FakeType
 import org.junit.Assert
 import org.junit.Test
 

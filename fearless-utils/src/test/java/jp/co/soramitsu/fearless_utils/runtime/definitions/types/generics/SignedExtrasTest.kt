@@ -2,11 +2,11 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import jp.co.soramitsu.fearless_utils.runtime.metadata.ExtrinsicMetadata
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
+import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.toHex
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -44,7 +44,7 @@ class SignedExtrasTest {
             SignedExtras.ERA to Era.Immortal
         )
 
-        val encoded = SignedExtras.toHex(runtime, extras)
+        val encoded = SignedExtras(runtime).toHex( extras)
 
         assertEquals("0x002804", encoded)
     }
@@ -59,7 +59,7 @@ class SignedExtrasTest {
             SignedExtras.ERA to Era.Immortal // CheckMortality is unused
         )
 
-        val encoded = SignedExtras.toHex(runtime, extras)
+        val encoded = SignedExtras(runtime).toHex( extras)
 
         assertEquals("0x2804", encoded)
     }
@@ -75,7 +75,7 @@ class SignedExtrasTest {
             SignedExtras.ERA to Era.Immortal
         )
 
-        val encoded = SignedExtras.toHex(runtime, extras)
+        val encoded = SignedExtras(runtime).toHex( extras)
 
         assertEquals("0x", encoded)
     }
@@ -89,7 +89,7 @@ class SignedExtrasTest {
         )
 
         assertThrows<EncodeDecodeException> {
-            SignedExtras.toHex(runtime, extras)
+            SignedExtras(runtime).toHex( extras)
         }
     }
 
@@ -99,7 +99,7 @@ class SignedExtrasTest {
 
         val inHex = "0x002804"
 
-        val decoded = SignedExtras.fromHex(runtime, inHex)
+        val decoded = SignedExtras(runtime).fromHex( inHex)
 
         assertEquals(decoded.size, 3)
     }
@@ -110,7 +110,7 @@ class SignedExtrasTest {
 
         val inHex = "0x2804"
 
-        val decoded = SignedExtras.fromHex(runtime, inHex)
+        val decoded = SignedExtras(runtime).fromHex( inHex)
 
         assertEquals(decoded.size, 2)
     }
@@ -121,7 +121,7 @@ class SignedExtrasTest {
 
         val inHex = "0x"
 
-        val decoded = SignedExtras.fromHex(runtime, inHex)
+        val decoded = SignedExtras(runtime).fromHex( inHex)
 
         assertEquals(decoded.size, 0)
     }

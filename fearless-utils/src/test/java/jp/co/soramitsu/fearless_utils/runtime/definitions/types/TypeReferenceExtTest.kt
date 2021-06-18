@@ -1,8 +1,12 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 
 import jp.co.soramitsu.fearless_utils.common.assertThrows
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
+import jp.co.soramitsu.schema.definitions.types.CyclicAliasingException
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.Alias
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
+import jp.co.soramitsu.schema.definitions.types.skipAliases
+import jp.co.soramitsu.schema.definitions.types.skipAliasesOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

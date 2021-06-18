@@ -1,9 +1,9 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.registry.extensions
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.TypeProvider
+import jp.co.soramitsu.schema.definitions.dynamic.TypeProvider
 import jp.co.soramitsu.schema.definitions.dynamic.extentsions.GenericsExtension
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.stub.FakeType
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -1,9 +1,9 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.*
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.toHex
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class OpaqueCallTest : BaseTypeTest() {
@@ -20,7 +20,7 @@ class OpaqueCallTest : BaseTypeTest() {
 
     @Test
     fun `should decode call`() {
-        val decoded = OpaqueCall.fromHex(runtime, inHex)
+        val decoded = OpaqueCall(runtime).fromHex(inHex)
 
         assertEquals(instance.arguments, decoded.arguments)
         assertEquals(instance.moduleIndex, decoded.moduleIndex)
@@ -29,7 +29,7 @@ class OpaqueCallTest : BaseTypeTest() {
 
     @Test
     fun `should encode call`() {
-        val encoded = OpaqueCall.toHex(runtime, instance)
+        val encoded = OpaqueCall(runtime).toHex(instance)
 
         assertEquals(inHex, encoded)
     }

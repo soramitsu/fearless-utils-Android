@@ -2,15 +2,14 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.Option
+import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
+import jp.co.soramitsu.schema.definitions.types.toHex
+import org.junit.Assert.*
 import org.junit.Test
 
 class OptionTest : BaseTypeTest() {
@@ -28,7 +27,7 @@ class OptionTest : BaseTypeTest() {
     @Test
     fun `should decode optional true`() {
         val inHex = "0x02"
-        val decoded = optionalBoolean.fromHex(runtime, inHex)
+        val decoded = optionalBoolean.fromHex(inHex)
 
         assertEquals(true, decoded)
     }
@@ -38,14 +37,14 @@ class OptionTest : BaseTypeTest() {
         val inHex = "0x05"
 
         assertThrows<EncodeDecodeException> {
-            optionalBoolean.fromHex(runtime, inHex)
+            optionalBoolean.fromHex(inHex)
         }
     }
 
     @Test
     fun `should decode optional false`() {
         val inHex = "0x01"
-        val decoded = optionalBoolean.fromHex(runtime, inHex)
+        val decoded = optionalBoolean.fromHex(inHex)
 
         assertEquals(false, decoded)
     }
@@ -53,7 +52,7 @@ class OptionTest : BaseTypeTest() {
     @Test
     fun `should decode null boolean`() {
         val inHex = "0x00"
-        val decoded = optionalBoolean.fromHex(runtime, inHex)
+        val decoded = optionalBoolean.fromHex(inHex)
 
         assertEquals(null, decoded)
     }
@@ -61,7 +60,7 @@ class OptionTest : BaseTypeTest() {
     @Test
     fun `should decode non-null other type`() {
         val inHex = "0x0109"
-        val decoded = optionalU8.fromHex(runtime, inHex)
+        val decoded = optionalU8.fromHex(inHex)
 
         assertEquals(9.toBigInteger(), decoded)
     }
@@ -69,28 +68,28 @@ class OptionTest : BaseTypeTest() {
     @Test
     fun `should decode null other type`() {
         val inHex = "0x00"
-        val decoded = optionalU8.fromHex(runtime, inHex)
+        val decoded = optionalU8.fromHex(inHex)
 
         assertEquals(null, decoded)
     }
 
     @Test
     fun `should encode non-boolean instance`() {
-        val encoded = optionalU8.toHex(runtime, 9.toBigInteger())
+        val encoded = optionalU8.toHex(9.toBigInteger())
 
         assertEquals("0x0109", encoded)
     }
 
     @Test
     fun `should encode null non-boolean instance`() {
-        val encoded = optionalU8.toHex(runtime, null)
+        val encoded = optionalU8.toHex(null)
 
         assertEquals("0x00", encoded)
     }
 
     @Test
     fun `should encode boolean instance`() {
-        val encoded = optionalBoolean.toHex(runtime, true)
+        val encoded = optionalBoolean.toHex(true)
 
         assertEquals("0x02", encoded)
     }

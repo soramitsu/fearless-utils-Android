@@ -2,9 +2,11 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
+import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.toHex
+import jp.co.soramitsu.schema.extensions.fromHex
+import jp.co.soramitsu.schema.extensions.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigInteger
@@ -18,7 +20,7 @@ class ExtrinsicTest {
 
     @Test
     fun `should decode transfer extrinsic`() {
-        val decoded = Extrinsic.fromHex(runtime, inHex)
+        val decoded = Extrinsic(runtime).fromHex(inHex)
 
         val multiSignature = decoded.signature!!.tryExtractMultiSignature()!!
 
@@ -29,7 +31,7 @@ class ExtrinsicTest {
     fun `should decode batch extrinsic`() {
         val batch = "0x01038400fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d16800b2b0e48ec54dd07af525e605c2d674ef57eef7d9932c3ad16f68c1e41a18ce579a207aa910b22bcddcf0a2eea96d4617fe618dff95de548bbf53e1773416700815009000100008040000340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c630f0000c16ff28623040000340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c630f00106644db8723"
 
-        val decoded = Extrinsic.fromHex(runtime, batch)
+        val decoded = Extrinsic(runtime).fromHex(batch)
 
         assertEquals(16, decoded.call.moduleIndex)
         assertEquals(0, decoded.call.callIndex)
@@ -44,15 +46,13 @@ class ExtrinsicTest {
             arguments = mapOf(
                 "dest" to DictEnum.Entry(
                     name = "Id",
-                    value = jp.co.soramitsu.schema.extensions.fromHex()
+                    value = "fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d168".fromHex()
                 ),
                 "value" to BigInteger("10000000000")
             )
         )
 
-        val signature = MultiSignature(EncryptionType.SR25519,
-            jp.co.soramitsu.schema.extensions.fromHex()
-        )
+        val signature = MultiSignature(EncryptionType.SR25519, signatureInHex.fromHex())
 
         val signedExtras = mapOf(
             SignedExtras.TIP to 0.toBigInteger(),
@@ -62,14 +62,14 @@ class ExtrinsicTest {
 
         val extrinsic = Extrinsic.Instance(
             signature = Extrinsic.Signature.newV28(
-                accountId = jp.co.soramitsu.schema.extensions.fromHex(),
+                accountId = "340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c63".fromHex(),
                 signature = signature,
                 signedExtras = signedExtras
             ),
             call = call
         )
 
-        val encoded = Extrinsic.toHex(runtime, extrinsic)
+        val encoded = Extrinsic(runtime).toHex(extrinsic)
 
         assertEquals(inHex, encoded)
     }
