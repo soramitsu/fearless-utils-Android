@@ -4,9 +4,10 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.schema.definitions.types.Type
+import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.bytes
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.definitions.types.toByteArray
@@ -18,7 +19,7 @@ private val SIGNED_MASK = 0b1000_0000.toUByte()
 private const val TYPE_ADDRESS = "Address"
 private const val TYPE_SIGNATURE = "ExtrinsicSignature"
 
-class Extrinsic(private val context: RuntimeSnapshot) : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
+class Extrinsic(private val metadata: RuntimeMetadata, private val types: Map<String, Type<*>>) : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
 
     class Instance(
         val signature: Signature?,
@@ -42,15 +43,15 @@ class Extrinsic(private val context: RuntimeSnapshot) : Type<Extrinsic.Instance>
 
         val signature = if (isSigned(extrinsicVersion)) {
             Signature(
-                accountIdentifier = addressType(context).decode(scaleCodecReader),
-                signature = signatureType(context).decode(scaleCodecReader),
-                signedExtras = SignedExtras(context).decode(scaleCodecReader, )
+                accountIdentifier = addressType().decode(scaleCodecReader),
+                signature = signatureType().decode(scaleCodecReader),
+                signedExtras = SignedExtras(metadata).decode(scaleCodecReader, )
             )
         } else {
             null
         }
 
-        val call = GenericCall(context).decode(scaleCodecReader)
+        val call = GenericCall(metadata).decode(scaleCodecReader)
 
         return Instance(signature, call)
     }
@@ -61,22 +62,22 @@ class Extrinsic(private val context: RuntimeSnapshot) : Type<Extrinsic.Instance>
     ) {
         val isSigned = value.signature != null
 
-        val extrinsicVersion = context.metadata.extrinsic.version.toInt().toUByte()
+        val extrinsicVersion = metadata.extrinsic.version.toInt().toUByte()
         val encodedVersion = encodedVersion(extrinsicVersion, isSigned).toByte()
 
         val signatureWrapperBytes = if (isSigned) {
             val signature = value.signature!!
 
-            val addressBytes = addressType(context).bytes(signature.accountIdentifier)
-            val signatureBytes = signatureType(context).bytes(signature.signature)
-            val signedExtrasBytes = SignedExtras(context).bytes(signature.signedExtras)
+            val addressBytes = addressType().bytes(signature.accountIdentifier)
+            val signatureBytes = signatureType().bytes(signature.signature)
+            val signedExtrasBytes = SignedExtras(metadata).bytes(signature.signedExtras)
 
             addressBytes + signatureBytes + signedExtrasBytes
         } else {
             byteArrayOf()
         }
 
-        val callBytes = GenericCall(context).toByteArray(value.call)
+        val callBytes = GenericCall(metadata).toByteArray(value.call)
 
         val extrinsicBodyBytes = byteArrayOf(encodedVersion) + signatureWrapperBytes + callBytes
 
@@ -99,13 +100,13 @@ class Extrinsic(private val context: RuntimeSnapshot) : Type<Extrinsic.Instance>
         return extrinsicVersion and SIGNED_MASK != 0.toUByte()
     }
 
-    private fun addressType(context: RuntimeSnapshot): Type<*> {
-        return context.typeRegistry[TYPE_ADDRESS]
+    private fun addressType(): Type<*> {
+        return types[TYPE_ADDRESS]
             ?: requiredTypeNotFound(TYPE_ADDRESS)
     }
 
-    private fun signatureType(context: RuntimeSnapshot): Type<*> {
-        return context.typeRegistry[TYPE_SIGNATURE]
+    private fun signatureType(): Type<*> {
+        return types[TYPE_SIGNATURE]
             ?: requiredTypeNotFound(TYPE_SIGNATURE)
     }
 

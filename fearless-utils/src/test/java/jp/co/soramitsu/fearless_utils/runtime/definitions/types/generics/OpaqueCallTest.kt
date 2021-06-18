@@ -20,7 +20,7 @@ class OpaqueCallTest : BaseTypeTest() {
 
     @Test
     fun `should decode call`() {
-        val decoded = OpaqueCall(runtime).fromHex(inHex)
+        val decoded = OpaqueCall(runtime.metadata).fromHex(inHex)
 
         assertEquals(instance.arguments, decoded.arguments)
         assertEquals(instance.moduleIndex, decoded.moduleIndex)
@@ -29,7 +29,7 @@ class OpaqueCallTest : BaseTypeTest() {
 
     @Test
     fun `should encode call`() {
-        val encoded = OpaqueCall(runtime).toHex(instance)
+        val encoded = OpaqueCall(runtime.metadata).toHex(instance)
 
         assertEquals(inHex, encoded)
     }

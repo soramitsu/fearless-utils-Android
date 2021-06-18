@@ -2,17 +2,14 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.metadata.*
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
-import jp.co.soramitsu.fearless_utils.runtime.metadata.FunctionArgument
-import jp.co.soramitsu.fearless_utils.runtime.metadata.callOrNull
-import jp.co.soramitsu.fearless_utils.runtime.metadata.moduleOrNull
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.scale.dataType.tuple
 import jp.co.soramitsu.schema.scale.dataType.uint8
 
-class GenericCall(private val context: RuntimeSnapshot) : Type<GenericCall.Instance>("GenericCall") {
+class GenericCall(private val metadata: RuntimeMetadata) : Type<GenericCall.Instance>("GenericCall") {
 
     class Instance(val moduleIndex: Int, val callIndex: Int, val arguments: Map<String, Any?>)
 
@@ -59,7 +56,7 @@ class GenericCall(private val context: RuntimeSnapshot) : Type<GenericCall.Insta
         moduleIndex: Int,
         callIndex: Int
     ): Function {
-        return context.metadata.moduleOrNull(moduleIndex)?.callOrNull(callIndex) ?: callNotFound(
+        return metadata.moduleOrNull(moduleIndex)?.callOrNull(callIndex) ?: callNotFound(
             moduleIndex,
             callIndex
         )

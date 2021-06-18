@@ -1,39 +1,13 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.registry
 
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.schema.definitions.types.Type
-import jp.co.soramitsu.schema.definitions.types.composite.Alias
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.BitVec
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Bytes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.CallBytes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EraType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EventRecord
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Extrinsic
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensus
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensusEngineId
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericEvent
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericMultiAddress
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericSeal
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericSealV0
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H160
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H256
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H512
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.OpaqueCall
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SessionKeysSubstrate
-import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.schema.definitions.types.primitives.u128
-import jp.co.soramitsu.schema.definitions.types.primitives.u16
-import jp.co.soramitsu.schema.definitions.types.primitives.u256
-import jp.co.soramitsu.schema.definitions.types.primitives.u32
-import jp.co.soramitsu.schema.definitions.types.primitives.u64
-import jp.co.soramitsu.schema.definitions.types.primitives.u8
-import jp.co.soramitsu.schema.definitions.types.stub.FakeType
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.*
+import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.schema.TypePreset
+import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.Alias
+import jp.co.soramitsu.schema.definitions.types.primitives.*
+import jp.co.soramitsu.schema.definitions.types.stub.FakeType
 
 typealias TypePresetBuilder = MutableMap<String, TypeReference>
 
@@ -68,7 +42,7 @@ fun typePreset(builder: TypePresetBuilder.() -> Unit): TypePreset {
     return createTypePresetBuilder().apply(builder)
 }
 
-fun substratePreParsePreset(context: RuntimeSnapshot): TypePreset = typePreset {
+fun substratePreParsePreset(types: Map<String, Type<*>> = mapOf(), metadata: RuntimeMetadata): TypePreset = typePreset {
     type(BooleanType)
 
     type(u8)
@@ -80,7 +54,7 @@ fun substratePreParsePreset(context: RuntimeSnapshot): TypePreset = typePreset {
 
     type(GenericAccountId)
     type(Null)
-    type(GenericCall(context))
+    type(GenericCall(metadata))
 
     fakeType("GenericBlock")
 
@@ -93,7 +67,7 @@ fun substratePreParsePreset(context: RuntimeSnapshot): TypePreset = typePreset {
     type(Bytes)
     type(BitVec)
 
-    type(Extrinsic(context))
+    type(Extrinsic(metadata, types))
 
     type(CallBytes) // seems to be unused in runtime
     type(EraType)
@@ -109,9 +83,9 @@ fun substratePreParsePreset(context: RuntimeSnapshot): TypePreset = typePreset {
 
     type(GenericMultiAddress(this))
 
-    type(OpaqueCall(context))
+    type(OpaqueCall(metadata))
 
-    type(GenericEvent(context))
+    type(GenericEvent(metadata))
     type(EventRecord(this))
 
     alias("<T::Lookup as StaticLookup>::Source", "LookupSource")

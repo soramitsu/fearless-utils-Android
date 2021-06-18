@@ -44,7 +44,7 @@ class SignedExtrasTest {
             SignedExtras.ERA to Era.Immortal
         )
 
-        val encoded = SignedExtras(runtime).toHex( extras)
+        val encoded = SignedExtras(runtime.metadata).toHex( extras)
 
         assertEquals("0x002804", encoded)
     }
@@ -59,7 +59,7 @@ class SignedExtrasTest {
             SignedExtras.ERA to Era.Immortal // CheckMortality is unused
         )
 
-        val encoded = SignedExtras(runtime).toHex( extras)
+        val encoded = SignedExtras(runtime.metadata).toHex( extras)
 
         assertEquals("0x2804", encoded)
     }
@@ -75,7 +75,7 @@ class SignedExtrasTest {
             SignedExtras.ERA to Era.Immortal
         )
 
-        val encoded = SignedExtras(runtime).toHex( extras)
+        val encoded = SignedExtras(runtime.metadata).toHex( extras)
 
         assertEquals("0x", encoded)
     }
@@ -89,7 +89,7 @@ class SignedExtrasTest {
         )
 
         assertThrows<EncodeDecodeException> {
-            SignedExtras(runtime).toHex( extras)
+            SignedExtras(runtime.metadata).toHex( extras)
         }
     }
 
@@ -99,7 +99,7 @@ class SignedExtrasTest {
 
         val inHex = "0x002804"
 
-        val decoded = SignedExtras(runtime).fromHex( inHex)
+        val decoded = SignedExtras(runtime.metadata).fromHex( inHex)
 
         assertEquals(decoded.size, 3)
     }
@@ -110,7 +110,7 @@ class SignedExtrasTest {
 
         val inHex = "0x2804"
 
-        val decoded = SignedExtras(runtime).fromHex( inHex)
+        val decoded = SignedExtras(runtime.metadata).fromHex( inHex)
 
         assertEquals(decoded.size, 2)
     }
@@ -121,7 +121,7 @@ class SignedExtrasTest {
 
         val inHex = "0x"
 
-        val decoded = SignedExtras(runtime).fromHex( inHex)
+        val decoded = SignedExtras(runtime.metadata).fromHex( inHex)
 
         assertEquals(decoded.size, 0)
     }

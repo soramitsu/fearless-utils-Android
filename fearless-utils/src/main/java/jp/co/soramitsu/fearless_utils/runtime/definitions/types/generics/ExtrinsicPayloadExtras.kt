@@ -2,8 +2,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-
+import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.definitions.types.primitives.Compact
@@ -15,14 +14,14 @@ private const val _MORTALITY = "CheckMortality"
 private const val _NONCE = "CheckNonce"
 private const val _TIP = "ChargeTransactionPayment"
 
-class SignedExtras(context: RuntimeSnapshot) : ExtrinsicPayloadExtras(
+class SignedExtras(metadata: RuntimeMetadata) : ExtrinsicPayloadExtras(
     name = "SignedExtras",
     extrasMapping = mapOf(
         _MORTALITY to EraType,
         _NONCE to Compact("Compact<Index>"),
         _TIP to Compact("Compact<u32>")
     ),
-    context
+    metadata
 ) {
 
     companion object {
@@ -36,7 +35,7 @@ private const val _GENESIS = "CheckGenesis"
 private const val _SPEC_VERSION = "CheckSpecVersion"
 private const val _TX_VERSION = "CheckTxVersion"
 
-class AdditionalExtras(context: RuntimeSnapshot) : ExtrinsicPayloadExtras(
+class AdditionalExtras(metadata: RuntimeMetadata) : ExtrinsicPayloadExtras(
     name = "AdditionalExtras",
     extrasMapping = mapOf(
         _MORTALITY to H256,
@@ -44,7 +43,7 @@ class AdditionalExtras(context: RuntimeSnapshot) : ExtrinsicPayloadExtras(
         _SPEC_VERSION to u32,
         _TX_VERSION to u32
     ),
-    context
+    metadata
 ) {
 
     companion object {
@@ -58,13 +57,13 @@ class AdditionalExtras(context: RuntimeSnapshot) : ExtrinsicPayloadExtras(
 open class ExtrinsicPayloadExtras(
     name: String,
     private val extrasMapping: Map<String, Type<*>>,
-    private val context: RuntimeSnapshot
+    private val metadata: RuntimeMetadata
 ) : Type<ExtrinsicPayloadExtrasInstance>(name) {
 
     override fun decode(
         scaleCodecReader: ScaleCodecReader,
     ): ExtrinsicPayloadExtrasInstance {
-        val enabledSignedExtras = context.metadata.extrinsic.signedExtensions
+        val enabledSignedExtras = metadata.extrinsic.signedExtensions
 
         return enabledSignedExtras.associateWith { name ->
             extrasMapping[name]?.decode(scaleCodecReader)
@@ -75,7 +74,7 @@ open class ExtrinsicPayloadExtras(
         scaleCodecWriter: ScaleCodecWriter,
         value: ExtrinsicPayloadExtrasInstance
     ) {
-        val enabledSignedExtras = context.metadata.extrinsic.signedExtensions
+        val enabledSignedExtras = metadata.extrinsic.signedExtensions
 
         return enabledSignedExtras.forEach { name ->
             extrasMapping[name]?.encodeUnsafe(scaleCodecWriter, value[name])

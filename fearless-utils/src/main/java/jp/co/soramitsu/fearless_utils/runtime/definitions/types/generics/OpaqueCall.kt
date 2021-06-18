@@ -2,12 +2,12 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.fromByteArray
 import jp.co.soramitsu.schema.definitions.types.toByteArray
 
-class OpaqueCall(private val context: RuntimeSnapshot) : Type<GenericCall.Instance>("OpaqueCall") {
+class OpaqueCall(private val metadata: RuntimeMetadata) : Type<GenericCall.Instance>("OpaqueCall") {
 
     override val isFullyResolved = true
 
@@ -16,14 +16,14 @@ class OpaqueCall(private val context: RuntimeSnapshot) : Type<GenericCall.Instan
     ): GenericCall.Instance {
         val bytes = Bytes.decode(scaleCodecReader)
 
-        return GenericCall(context).fromByteArray(bytes)
+        return GenericCall(metadata).fromByteArray(bytes)
     }
 
     override fun encode(
         scaleCodecWriter: ScaleCodecWriter,
         value: GenericCall.Instance
     ) {
-        val callEncoded = GenericCall(context).toByteArray(value)
+        val callEncoded = GenericCall(metadata).toByteArray(value)
 
         return Bytes.encode(scaleCodecWriter, callEncoded)
     }

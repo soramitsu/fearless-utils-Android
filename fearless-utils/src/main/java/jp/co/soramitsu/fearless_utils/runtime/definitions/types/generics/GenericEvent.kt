@@ -2,8 +2,8 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Event
+import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.fearless_utils.runtime.metadata.eventOrNull
 import jp.co.soramitsu.fearless_utils.runtime.metadata.moduleOrNull
 import jp.co.soramitsu.schema.definitions.types.Type
@@ -11,7 +11,7 @@ import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.scale.dataType.tuple
 import jp.co.soramitsu.schema.scale.dataType.uint8
 
-class GenericEvent(val context: RuntimeSnapshot) : Type<GenericEvent.Instance>("GenericEvent") {
+class GenericEvent(val metadata: RuntimeMetadata) : Type<GenericEvent.Instance>("GenericEvent") {
 
     class Instance(val moduleIndex: Int, val eventIndex: Int, val arguments: List<Any?>)
 
@@ -57,7 +57,7 @@ class GenericEvent(val context: RuntimeSnapshot) : Type<GenericEvent.Instance>("
         moduleIndex: Int,
         callIndex: Int
     ): Event {
-        return context.metadata.moduleOrNull(moduleIndex)?.eventOrNull(callIndex) ?: eventNotFound(
+        return metadata.moduleOrNull(moduleIndex)?.eventOrNull(callIndex) ?: eventNotFound(
             moduleIndex,
             callIndex
         )

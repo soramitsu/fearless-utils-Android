@@ -23,14 +23,14 @@ class GenericCallTest : BaseTypeTest() {
 
     @Test
     fun `should encode correct call`() {
-        val encoded = GenericCall(runtime).toHex(instance)
+        val encoded = GenericCall(runtime.metadata).toHex(instance)
 
         assertEquals(inHex, encoded)
     }
 
     @Test
     fun `should decode correct call`() {
-        val decoded = GenericCall(runtime).fromHex(inHex)
+        val decoded = GenericCall(runtime.metadata).fromHex(inHex)
 
         assertEquals(instance.arguments, decoded.arguments)
         assertEquals(instance.moduleIndex, decoded.moduleIndex)
@@ -45,7 +45,7 @@ class GenericCallTest : BaseTypeTest() {
             arguments = emptyMap()
         )
 
-        assertThrows<EncodeDecodeException> { GenericCall(runtime).toHex(invalidInstance) }
+        assertThrows<EncodeDecodeException> { GenericCall(runtime.metadata).toHex(invalidInstance) }
     }
 
     @Test
@@ -59,27 +59,27 @@ class GenericCallTest : BaseTypeTest() {
             )
         )
 
-        assertThrows<EncodeDecodeException> { GenericCall(runtime).toHex(invalidInstance) }
+        assertThrows<EncodeDecodeException> { GenericCall(runtime.metadata).toHex(invalidInstance) }
     }
 
     @Test
     fun `should throw if decoding instance with invalid index`() {
         val inHex = "0x0203"
 
-        assertThrows<EncodeDecodeException> { GenericCall(runtime).fromHex(inHex) }
+        assertThrows<EncodeDecodeException> { GenericCall(runtime.metadata).fromHex(inHex) }
     }
 
     @Test
     fun `should throw if decoding instance with invalid arguments`() {
         val inHex = "0x01000412"
 
-        assertThrows<EncodeDecodeException> { GenericCall(runtime).fromHex(inHex) }
+        assertThrows<EncodeDecodeException> { GenericCall(runtime.metadata).fromHex(inHex) }
     }
 
     @Test
     fun `should validate instance`() {
-        assertTrue(GenericCall(runtime).isValidInstance(instance))
+        assertTrue(GenericCall(runtime.metadata).isValidInstance(instance))
 
-        assertFalse(GenericCall(runtime).isValidInstance(1))
+        assertFalse(GenericCall(runtime.metadata).isValidInstance(1))
     }
 }
