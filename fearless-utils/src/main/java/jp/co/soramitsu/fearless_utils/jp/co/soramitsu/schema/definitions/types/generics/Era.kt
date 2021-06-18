@@ -4,8 +4,9 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.RuntimeSnapshot
 import jp.co.soramitsu.schema.definitions.types.primitives.Primitive
-import jp.co.soramitsu.fearless_utils.scale.dataType.byte
-import jp.co.soramitsu.fearless_utils.scale.dataType.uint16
+import jp.co.soramitsu.schema.extensions.toHex
+import jp.co.soramitsu.schema.scale.dataType.byte
+import jp.co.soramitsu.schema.scale.dataType.uint16
 import kotlin.math.ceil
 import kotlin.math.log2
 import kotlin.math.max
@@ -42,12 +43,12 @@ sealed class Era {
 object EraType : Primitive<Era>("Era") {
 
     override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Era {
-        val firstByte = jp.co.soramitsu.schema.extensions.toHex()
+        val firstByte = byte.read(scaleCodecReader).toHex()
 
         return if (firstByte == "00") {
             Era.Immortal
         } else {
-            val secondByte = jp.co.soramitsu.schema.extensions.toHex()
+            val secondByte = byte.read(scaleCodecReader).toHex()
             val encoded = (secondByte + firstByte).toInt(16)
             val period = 2 shl (encoded % 16)
             val quantizeFactor = max(1, period shr 12)

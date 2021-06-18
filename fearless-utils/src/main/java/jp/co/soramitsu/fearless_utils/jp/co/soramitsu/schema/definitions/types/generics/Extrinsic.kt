@@ -9,8 +9,8 @@ import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.bytes
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.definitions.types.toByteArray
-import jp.co.soramitsu.fearless_utils.scale.dataType.byte
-import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
+import jp.co.soramitsu.schema.scale.dataType.byte
+import jp.co.soramitsu.schema.scale.dataType.compactInt
 
 private val SIGNED_MASK = 0b1000_0000.toUByte()
 

@@ -2,14 +2,12 @@ package jp.co.soramitsu.fearless_utils.jp.co.soramitsu.schema.definitions.types.
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
+import jp.co.soramitsu.fearless_utils.runtime.metadata.FunctionArgument
 import jp.co.soramitsu.schema.RuntimeSnapshot
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.schema.metadata.FunctionArgument
-import jp.co.soramitsu.schema.metadata.callOrNull
-import jp.co.soramitsu.schema.metadata.moduleOrNull
-import jp.co.soramitsu.fearless_utils.scale.dataType.tuple
-import jp.co.soramitsu.fearless_utils.scale.dataType.uint8
+import jp.co.soramitsu.schema.scale.dataType.tuple
+import jp.co.soramitsu.schema.scale.dataType.uint8
 
 object GenericCall : Type<GenericCall.Instance>("GenericCall") {
 

@@ -2,9 +2,9 @@ package jp.co.soramitsu.fearless_utils.jp.co.soramitsu.schema.definitions.types.
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.getOrCreate
 import jp.co.soramitsu.schema.RuntimeSnapshot
-import jp.co.soramitsu.schema.definitions.registry.TypePresetBuilder
-import jp.co.soramitsu.schema.definitions.registry.getOrCreate
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
