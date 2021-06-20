@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParserImpl
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
@@ -37,7 +38,7 @@ class HashMapExtensionTest {
         val defaultReader = JsonReader(getResourceReader("default.json"))
         val defaultTree =
             gson.fromJson<TypeDefinitionsTree>(defaultReader, TypeDefinitionsTree::class.java)
-        val defaultParsed = TypeDefinitionParserImpl.parseBaseDefinitions(defaultTree, substratePreParsePreset())
+        val defaultParsed = TypeDefinitionParserImpl.parseBaseDefinitions(defaultTree.types, substratePreParsePreset(RuntimeSnapshot()))
         val defaultRegistry = TypeRegistry(defaultParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
         val type = defaultRegistry["HashMap<Text, Text>"]
         assertInstance<Vec>(type)

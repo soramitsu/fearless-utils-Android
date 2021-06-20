@@ -23,14 +23,14 @@ class GenericEventTest : BaseTypeTest() {
 
     @Test
     fun `should encode correct event`() {
-        val encoded = GenericEvent(runtime.metadata).toHex(instance)
+        val encoded = GenericEvent(runtime).toHex(instance)
 
         assertEquals(inHex, encoded)
     }
 
     @Test
     fun `should decode correct call`() {
-        val decoded = GenericEvent(runtime.metadata).fromHex(inHex)
+        val decoded = GenericEvent(runtime).fromHex(inHex)
 
         assertEquals(instance.arguments, decoded.arguments)
         assertEquals(instance.moduleIndex, decoded.moduleIndex)
@@ -45,7 +45,7 @@ class GenericEventTest : BaseTypeTest() {
             arguments = emptyList()
         )
 
-        assertThrows<EncodeDecodeException> { GenericEvent(runtime.metadata).toHex(invalidInstance) }
+        assertThrows<EncodeDecodeException> { GenericEvent(runtime).toHex(invalidInstance) }
     }
 
     @Test
@@ -59,27 +59,27 @@ class GenericEventTest : BaseTypeTest() {
             )
         )
 
-        assertThrows<EncodeDecodeException> { GenericEvent(runtime.metadata).toHex(invalidInstance) }
+        assertThrows<EncodeDecodeException> { GenericEvent(runtime).toHex(invalidInstance) }
     }
 
     @Test
     fun `should throw if decoding instance with invalid index`() {
         val inHex = "0x0203"
 
-        assertThrows<EncodeDecodeException> { GenericEvent(runtime.metadata).fromHex(inHex) }
+        assertThrows<EncodeDecodeException> { GenericEvent(runtime).fromHex(inHex) }
     }
 
     @Test
     fun `should throw if decoding instance with invalid arguments`() {
         val inHex = "0x01000412"
 
-        assertThrows<EncodeDecodeException> { GenericEvent(runtime.metadata).fromHex(inHex) }
+        assertThrows<EncodeDecodeException> { GenericEvent(runtime).fromHex(inHex) }
     }
 
     @Test
     fun `should validate instance`() {
-        assertTrue(GenericEvent(runtime.metadata).isValidInstance(instance))
+        assertTrue(GenericEvent(runtime).isValidInstance(instance))
 
-        assertFalse(GenericEvent(runtime.metadata).isValidInstance(1))
+        assertFalse(GenericEvent(runtime).isValidInstance(1))
     }
 }

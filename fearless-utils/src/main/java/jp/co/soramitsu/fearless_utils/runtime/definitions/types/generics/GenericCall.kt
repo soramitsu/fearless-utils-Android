@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.metadata.*
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
 import jp.co.soramitsu.schema.definitions.types.Type
@@ -9,7 +10,7 @@ import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.scale.dataType.tuple
 import jp.co.soramitsu.schema.scale.dataType.uint8
 
-class GenericCall(private val metadata: RuntimeMetadata) : Type<GenericCall.Instance>("GenericCall") {
+class GenericCall(val runtime: RuntimeSnapshot) : Type<GenericCall.Instance>("GenericCall") {
 
     class Instance(val moduleIndex: Int, val callIndex: Int, val arguments: Map<String, Any?>)
 
@@ -56,7 +57,7 @@ class GenericCall(private val metadata: RuntimeMetadata) : Type<GenericCall.Inst
         moduleIndex: Int,
         callIndex: Int
     ): Function {
-        return metadata.moduleOrNull(moduleIndex)?.callOrNull(callIndex) ?: callNotFound(
+        return runtime.metadata.moduleOrNull(moduleIndex)?.callOrNull(callIndex) ?: callNotFound(
             moduleIndex,
             callIndex
         )

@@ -1,41 +1,20 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.metadata.*
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
-import jp.co.soramitsu.schema.DynamicTypeResolver
-import jp.co.soramitsu.schema.definitions.dynamic.extentsions.GenericsExtension
 import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.schema.definitions.types.primitives.u8
 import java.math.BigInteger
 
 abstract class BaseTypeTest {
 
-    fun foo () {
-        val typeRegistry = TypeRegistry(
-            mapOf(),
-            dynamicTypeResolver = DynamicTypeResolver(
-                extensions = DynamicTypeResolver.DEFAULT_COMPOUND_EXTENSIONS + listOf(GenericsExtension)
-            )
-        )
-        var runtimeSnapshot = RuntimeSnapshot(typeRegistry, meta())
-    }
+    protected val runtime: RuntimeSnapshot = RuntimeSnapshot()
+        .also { it.typeRegistry.types = substratePreParsePreset(it) }
+        .also { it.metadata = meta() }
 
-    protected val typeRegistry = TypeRegistry(
-        substratePreParsePreset(),
-        dynamicTypeResolver = DynamicTypeResolver(
-            extensions = DynamicTypeResolver.DEFAULT_COMPOUND_EXTENSIONS + listOf(GenericsExtension)
-        )
-    )
-
-    protected val runtime: RuntimeSnapshot = RuntimeSnapshot(
-        typeRegistry = typeRegistry,
-        metadata = meta()
-    )
-
-    fun meta() : RuntimeMetadata {
+    fun meta(): RuntimeMetadata {
         return RuntimeMetadata(
             runtimeVersion = BigInteger.ONE,
             modules = mapOf(

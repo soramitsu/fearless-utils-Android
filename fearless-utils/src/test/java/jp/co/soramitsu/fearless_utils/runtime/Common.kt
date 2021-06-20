@@ -7,6 +7,7 @@ import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParserImpl
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.createTypePresetBuilder
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadataSchema
@@ -17,18 +18,17 @@ object RealRuntimeProvider {
 
     fun buildRuntime(networkName: String): RuntimeSnapshot {
         val metadataRaw = buildRawMetadata(networkName)
-        val typeRegistry = buildRegistry(networkName)
 
-        val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
-
-        return RuntimeSnapshot(typeRegistry, metadata)
+        return RuntimeSnapshot()
+            .also { it.typeRegistry = buildRegistry(networkName, it)}
+            .also { it.metadata = RuntimeMetadata(it.typeRegistry, metadataRaw) }
     }
 
     fun buildRawMetadata(networkName: String = "kusama") = getFileContentFromResources("${networkName}_metadata").run {
         RuntimeMetadataSchema.read(this)
     }
 
-    fun buildRegistry(networkName: String): TypeRegistry {
+    fun buildRegistry(networkName: String, runtime: RuntimeSnapshot = RuntimeSnapshot()): TypeRegistry {
         val gson = Gson()
         val reader = JsonReader(getResourceReader("default.json"))
         val kusamaReader = JsonReader(getResourceReader("${networkName}.json"))
@@ -38,7 +38,7 @@ object RealRuntimeProvider {
             gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
         val defaultTypeRegistry =
-            TypeDefinitionParserImpl.parseBaseDefinitions(tree, substratePreParsePreset()).typePreset
+            TypeDefinitionParserImpl.parseBaseDefinitions(tree.types, substratePreParsePreset(runtime)).typePreset
         val networkParsed = TypeDefinitionParserImpl.parseNetworkVersioning(
             kusamaTree,
             defaultTypeRegistry

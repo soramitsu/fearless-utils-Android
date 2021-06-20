@@ -13,8 +13,8 @@ interface RequestPreprocessor {
 }
 
 class TypeRegistry(
-    val types: Map<String, TypeReference> = mapOf(),
-    val dynamicTypeResolver: DynamicTypeResolver
+    var types: Map<String, TypeReference> = mapOf(),
+    val dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
 ) {
 
     operator fun get(

@@ -20,7 +20,7 @@ class ExtrinsicTest {
 
     @Test
     fun `should decode transfer extrinsic`() {
-        val decoded = Extrinsic(runtime.metadata, runtime.typeRegistry).fromHex(inHex)
+        val decoded = Extrinsic(runtime).fromHex(inHex)
 
         val multiSignature = decoded.signature!!.tryExtractMultiSignature()!!
 
@@ -31,7 +31,7 @@ class ExtrinsicTest {
     fun `should decode batch extrinsic`() {
         val batch = "0x01038400fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d16800b2b0e48ec54dd07af525e605c2d674ef57eef7d9932c3ad16f68c1e41a18ce579a207aa910b22bcddcf0a2eea96d4617fe618dff95de548bbf53e1773416700815009000100008040000340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c630f0000c16ff28623040000340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c630f00106644db8723"
 
-        val decoded = Extrinsic(runtime.metadata, runtime.typeRegistry).fromHex(batch)
+        val decoded = Extrinsic(runtime).fromHex(batch)
 
         assertEquals(16, decoded.call.moduleIndex)
         assertEquals(0, decoded.call.callIndex)
@@ -69,7 +69,7 @@ class ExtrinsicTest {
             call = call
         )
 
-        val encoded = Extrinsic(runtime.metadata, runtime.typeRegistry).toHex(extrinsic)
+        val encoded = Extrinsic(runtime).toHex(extrinsic)
 
         assertEquals(inHex, encoded)
     }

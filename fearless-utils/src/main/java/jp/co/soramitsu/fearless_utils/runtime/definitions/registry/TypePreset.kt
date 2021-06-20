@@ -1,7 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.registry
 
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.*
-import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.schema.TypePreset
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
@@ -42,7 +42,7 @@ fun typePreset(builder: TypePresetBuilder.() -> Unit): TypePreset {
     return createTypePresetBuilder().apply(builder)
 }
 
-fun substratePreParsePreset(types: Map<String, Type<*>> = mapOf(), metadata: RuntimeMetadata): TypePreset = typePreset {
+fun substratePreParsePreset(runtime: RuntimeSnapshot = RuntimeSnapshot()): TypePreset = typePreset {
     type(BooleanType)
 
     type(u8)
@@ -54,7 +54,7 @@ fun substratePreParsePreset(types: Map<String, Type<*>> = mapOf(), metadata: Run
 
     type(GenericAccountId)
     type(Null)
-    type(GenericCall(metadata))
+    type(GenericCall(runtime))
 
     fakeType("GenericBlock")
 
@@ -67,7 +67,7 @@ fun substratePreParsePreset(types: Map<String, Type<*>> = mapOf(), metadata: Run
     type(Bytes)
     type(BitVec)
 
-    type(Extrinsic(metadata, types))
+    type(Extrinsic(runtime))
 
     type(CallBytes) // seems to be unused in runtime
     type(EraType)
@@ -83,9 +83,9 @@ fun substratePreParsePreset(types: Map<String, Type<*>> = mapOf(), metadata: Run
 
     type(GenericMultiAddress(this))
 
-    type(OpaqueCall(metadata))
+    type(OpaqueCall(runtime))
 
-    type(GenericEvent(metadata))
+    type(GenericEvent(runtime))
     type(EventRecord(this))
 
     alias("<T::Lookup as StaticLookup>::Source", "LookupSource")
