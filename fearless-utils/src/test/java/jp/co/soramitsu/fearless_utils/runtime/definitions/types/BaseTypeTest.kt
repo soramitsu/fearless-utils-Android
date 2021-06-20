@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.metadata.*
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
@@ -11,7 +12,7 @@ import java.math.BigInteger
 abstract class BaseTypeTest {
 
     protected val runtime: RuntimeSnapshot = RuntimeSnapshot()
-        .also { it.typeRegistry.types = substratePreParsePreset(it) }
+        .also { it.typeRegistry = TypeRegistry(substratePreParsePreset(it))  }
         .also { it.metadata = meta() }
 
     fun meta(): RuntimeMetadata {
