@@ -7,7 +7,6 @@ import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParserImpl
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.createTypePresetBuilder
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadataSchema

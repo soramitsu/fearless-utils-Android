@@ -2,12 +2,8 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.assertThrows
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
+import jp.co.soramitsu.schema.TypePresetBuilder
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Bytes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H256
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException

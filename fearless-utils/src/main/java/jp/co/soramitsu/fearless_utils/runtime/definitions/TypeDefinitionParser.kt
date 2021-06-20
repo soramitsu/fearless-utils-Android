@@ -1,11 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
 import com.google.gson.annotations.SerializedName
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.*
-import jp.co.soramitsu.schema.DynamicTypeResolver
-import jp.co.soramitsu.schema.ParseResult
-import jp.co.soramitsu.schema.TypeDefinitionParser
-import jp.co.soramitsu.schema.TypePreset
+import jp.co.soramitsu.schema.*
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.composite.*
