@@ -1,33 +1,22 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.metadata.Event
-import jp.co.soramitsu.fearless_utils.runtime.metadata.ExtrinsicMetadata
+import jp.co.soramitsu.fearless_utils.runtime.metadata.*
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
-import jp.co.soramitsu.fearless_utils.runtime.metadata.FunctionArgument
-import jp.co.soramitsu.fearless_utils.runtime.metadata.Module
-import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
-import jp.co.soramitsu.fearless_utils.runtime.metadata.Storage
+import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
 import java.math.BigInteger
 
 abstract class BaseTypeTest {
 
-    protected val typeRegistry = TypeRegistry(
-        substratePreParsePreset(),
-        dynamicTypeResolver = DynamicTypeResolver(
-            extensions = DynamicTypeResolver.DEFAULT_COMPOUND_EXTENSIONS + listOf(GenericsExtension)
-        )
-    )
+    protected val runtime: RuntimeSnapshot = RuntimeSnapshot()
+        .also { it.typeRegistry = TypeRegistry(substratePreParsePreset(it))  }
+        .also { it.metadata = meta() }
 
-    protected val runtime: RuntimeSnapshot = RuntimeSnapshot(
-        typeRegistry = typeRegistry,
-        metadata = RuntimeMetadata(
+    fun meta(): RuntimeMetadata {
+        return RuntimeMetadata(
             runtimeVersion = BigInteger.ONE,
             modules = mapOf(
                 "A" to Module(
@@ -71,6 +60,6 @@ abstract class BaseTypeTest {
                 signedExtensions = emptyList()
             )
         )
-    )
+    }
 
 }

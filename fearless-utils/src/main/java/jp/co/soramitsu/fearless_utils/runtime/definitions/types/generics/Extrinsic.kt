@@ -5,19 +5,19 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toByteArray
-import jp.co.soramitsu.fearless_utils.scale.dataType.byte
-import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
+import jp.co.soramitsu.schema.definitions.types.Type
+import jp.co.soramitsu.schema.definitions.types.bytes
+import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.schema.definitions.types.toByteArray
+import jp.co.soramitsu.schema.scale.dataType.byte
+import jp.co.soramitsu.schema.scale.dataType.compactInt
 
 private val SIGNED_MASK = 0b1000_0000.toUByte()
 
 private const val TYPE_ADDRESS = "Address"
 private const val TYPE_SIGNATURE = "ExtrinsicSignature"
 
-object Extrinsic : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
+class Extrinsic(private val runtime: RuntimeSnapshot) : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
 
     class Instance(
         val signature: Signature?,
@@ -34,29 +34,28 @@ object Extrinsic : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
 
     override val isFullyResolved: Boolean = true
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Instance {
+    override fun decode(scaleCodecReader: ScaleCodecReader): Instance {
         val length = compactInt.read(scaleCodecReader)
 
         val extrinsicVersion = byte.read(scaleCodecReader).toUByte()
 
         val signature = if (isSigned(extrinsicVersion)) {
             Signature(
-                accountIdentifier = addressType(runtime).decode(scaleCodecReader, runtime),
-                signature = signatureType(runtime).decode(scaleCodecReader, runtime),
-                signedExtras = SignedExtras.decode(scaleCodecReader, runtime)
+                accountIdentifier = addressType().decode(scaleCodecReader),
+                signature = signatureType().decode(scaleCodecReader),
+                signedExtras = SignedExtras(runtime).decode(scaleCodecReader)
             )
         } else {
             null
         }
 
-        val call = GenericCall.decode(scaleCodecReader, runtime)
+        val call = GenericCall(runtime).decode(scaleCodecReader)
 
         return Instance(signature, call)
     }
 
     override fun encode(
         scaleCodecWriter: ScaleCodecWriter,
-        runtime: RuntimeSnapshot,
         value: Instance
     ) {
         val isSigned = value.signature != null
@@ -67,20 +66,20 @@ object Extrinsic : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
         val signatureWrapperBytes = if (isSigned) {
             val signature = value.signature!!
 
-            val addressBytes = addressType(runtime).bytes(runtime, signature.accountIdentifier)
-            val signatureBytes = signatureType(runtime).bytes(runtime, signature.signature)
-            val signedExtrasBytes = SignedExtras.bytes(runtime, signature.signedExtras)
+            val addressBytes = addressType().bytes(signature.accountIdentifier)
+            val signatureBytes = signatureType().bytes(signature.signature)
+            val signedExtrasBytes = SignedExtras(runtime).bytes(signature.signedExtras)
 
             addressBytes + signatureBytes + signedExtrasBytes
         } else {
             byteArrayOf()
         }
 
-        val callBytes = GenericCall.toByteArray(runtime, value.call)
+        val callBytes = GenericCall(runtime).toByteArray(value.call)
 
         val extrinsicBodyBytes = byteArrayOf(encodedVersion) + signatureWrapperBytes + callBytes
 
-        Bytes.encode(scaleCodecWriter, runtime, extrinsicBodyBytes)
+        Bytes.encode(scaleCodecWriter, extrinsicBodyBytes)
     }
 
     override fun isValidInstance(instance: Any?): Boolean {
@@ -99,12 +98,12 @@ object Extrinsic : Type<Extrinsic.Instance>("ExtrinsicsDecoder") {
         return extrinsicVersion and SIGNED_MASK != 0.toUByte()
     }
 
-    private fun addressType(runtime: RuntimeSnapshot): Type<*> {
+    private fun addressType(): Type<*> {
         return runtime.typeRegistry[TYPE_ADDRESS]
             ?: requiredTypeNotFound(TYPE_ADDRESS)
     }
 
-    private fun signatureType(runtime: RuntimeSnapshot): Type<*> {
+    private fun signatureType(): Type<*> {
         return runtime.typeRegistry[TYPE_SIGNATURE]
             ?: requiredTypeNotFound(TYPE_SIGNATURE)
     }

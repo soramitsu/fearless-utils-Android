@@ -2,12 +2,12 @@ package jp.co.soramitsu.fearless_utils.runtime.extrinsic
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.multiAddressFromId
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAccountId
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.chain.RuntimeVersion
+import jp.co.soramitsu.schema.extensions.fromHex
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigInteger

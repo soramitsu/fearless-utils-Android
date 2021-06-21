@@ -1,6 +1,8 @@
 package jp.co.soramitsu.fearless_utils.extensions
 
-import org.junit.Assert.*
+import jp.co.soramitsu.schema.extensions.fromHex
+import jp.co.soramitsu.schema.extensions.toBigInteger
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigInteger
 import java.nio.ByteOrder

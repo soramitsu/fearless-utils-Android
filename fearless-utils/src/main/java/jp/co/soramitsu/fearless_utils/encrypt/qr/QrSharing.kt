@@ -1,7 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt.qr
 
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
+import jp.co.soramitsu.schema.extensions.fromHex
+import jp.co.soramitsu.schema.extensions.toHexString
 
 private const val PREFIX = "substrate"
 

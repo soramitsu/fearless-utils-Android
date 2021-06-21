@@ -1,14 +1,13 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.Tuple
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
+import jp.co.soramitsu.schema.definitions.types.toHex
+import org.junit.Assert.*
 import org.junit.Test
 
 class TupleTest : BaseTypeTest() {
@@ -29,14 +28,14 @@ class TupleTest : BaseTypeTest() {
 
     @Test
     fun `should decode instance`() {
-        val decoded = type.fromHex(runtime, expectedInHex)
+        val decoded = type.fromHex(expectedInHex)
 
         assertEquals(expectedInstance, decoded)
     }
 
     @Test
     fun `should encode instance`() {
-        val encoded = type.toHex(runtime, expectedInstance)
+        val encoded = type.toHex(expectedInstance)
 
         assertEquals(expectedInHex, encoded)
     }

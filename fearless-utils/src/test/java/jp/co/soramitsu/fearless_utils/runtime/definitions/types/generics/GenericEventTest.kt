@@ -2,9 +2,9 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
+import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.toHex
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -23,14 +23,14 @@ class GenericEventTest : BaseTypeTest() {
 
     @Test
     fun `should encode correct event`() {
-        val encoded = GenericEvent.toHex(runtime, instance)
+        val encoded = GenericEvent(runtime).toHex(instance)
 
         assertEquals(inHex, encoded)
     }
 
     @Test
     fun `should decode correct call`() {
-        val decoded = GenericEvent.fromHex(runtime, inHex)
+        val decoded = GenericEvent(runtime).fromHex(inHex)
 
         assertEquals(instance.arguments, decoded.arguments)
         assertEquals(instance.moduleIndex, decoded.moduleIndex)
@@ -45,7 +45,7 @@ class GenericEventTest : BaseTypeTest() {
             arguments = emptyList()
         )
 
-        assertThrows<EncodeDecodeException> { GenericEvent.toHex(runtime, invalidInstance) }
+        assertThrows<EncodeDecodeException> { GenericEvent(runtime).toHex(invalidInstance) }
     }
 
     @Test
@@ -59,27 +59,27 @@ class GenericEventTest : BaseTypeTest() {
             )
         )
 
-        assertThrows<EncodeDecodeException> { GenericEvent.toHex(runtime, invalidInstance) }
+        assertThrows<EncodeDecodeException> { GenericEvent(runtime).toHex(invalidInstance) }
     }
 
     @Test
     fun `should throw if decoding instance with invalid index`() {
         val inHex = "0x0203"
 
-        assertThrows<EncodeDecodeException> { GenericEvent.fromHex(runtime, inHex) }
+        assertThrows<EncodeDecodeException> { GenericEvent(runtime).fromHex(inHex) }
     }
 
     @Test
     fun `should throw if decoding instance with invalid arguments`() {
         val inHex = "0x01000412"
 
-        assertThrows<EncodeDecodeException> { GenericEvent.fromHex(runtime, inHex) }
+        assertThrows<EncodeDecodeException> { GenericEvent(runtime).fromHex(inHex) }
     }
 
     @Test
     fun `should validate instance`() {
-        assertTrue(GenericEvent.isValidInstance(instance))
+        assertTrue(GenericEvent(runtime).isValidInstance(instance))
 
-        assertFalse(GenericEvent.isValidInstance(1))
+        assertFalse(GenericEvent(runtime).isValidInstance(1))
     }
 }

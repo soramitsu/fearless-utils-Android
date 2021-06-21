@@ -3,10 +3,10 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.hash.isPositive
-import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Primitive
-import jp.co.soramitsu.fearless_utils.scale.dataType.compactInt
-import jp.co.soramitsu.fearless_utils.scale.dataType.uint
+
+import jp.co.soramitsu.schema.definitions.types.primitives.Primitive
+import jp.co.soramitsu.schema.scale.dataType.compactInt
+import jp.co.soramitsu.schema.scale.dataType.uint
 import java.math.BigInteger
 import kotlin.math.ceil
 
@@ -16,7 +16,7 @@ object BitVec : Primitive<Bits>("BitVec") {
 
     private val TWO = BigInteger("2")
 
-    override fun decode(scaleCodecReader: ScaleCodecReader, runtime: RuntimeSnapshot): Bits {
+    override fun decode(scaleCodecReader: ScaleCodecReader): Bits {
         val sizeInBits = compactInt.read(scaleCodecReader).toInt()
         val sizeInBytes = sizeInBytes(sizeInBits)
 
@@ -35,7 +35,7 @@ object BitVec : Primitive<Bits>("BitVec") {
         return bits
     }
 
-    override fun encode(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Bits) {
+    override fun encode(scaleCodecWriter: ScaleCodecWriter, value: Bits) {
         val intValue = value.foldIndexed(BigInteger.ZERO) { index, acc, bit ->
             if (bit) {
                 acc + TWO.pow(index)

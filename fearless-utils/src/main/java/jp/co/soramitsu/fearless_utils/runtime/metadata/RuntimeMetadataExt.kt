@@ -1,10 +1,10 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
+
+import jp.co.soramitsu.schema.definitions.types.bytes
+import jp.co.soramitsu.schema.extensions.toHexString
 
 /**
  * @throws NoSuchElementException if module was not found
@@ -85,7 +85,7 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key: Any?): String {
         else -> wrongEntryType()
     }
 
-    val keyEncoded = keyType?.bytes(runtime, key) ?: typeNotResolved(name)
+    val keyEncoded = keyType?.bytes(key) ?: typeNotResolved(name)
 
     val storageKey = moduleHash() + serviceHash() + hasher.hashingFunction(keyEncoded)
 
@@ -105,14 +105,14 @@ fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?) = nullOn
  * @throws IllegalStateException if some of types used for encoding cannot be resolved
  * @throws EncodeDecodeException if error happened during encoding
  */
-fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): String {
+fun StorageEntry.storageKey(key1: Any?, key2: Any?): String {
     if (type !is StorageEntryType.DoubleMap) wrongEntryType()
 
     val key1Type = type.key1 ?: typeNotResolved(name)
     val key2Type = type.key2 ?: typeNotResolved(name)
 
-    val key1Encoded = key1Type.bytes(runtime, key1)
-    val key2Encoded = key2Type.bytes(runtime, key2)
+    val key1Encoded = key1Type.bytes(key1)
+    val key2Encoded = key2Type.bytes(key2)
 
     val key1Hashed = type.key1Hasher.hashingFunction(key1Encoded)
     val key2Hashed = type.key2Hasher.hashingFunction(key2Encoded)
@@ -122,9 +122,9 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): S
     return storageKey.toHexString(withPrefix = true)
 }
 
-fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?, key2: Any?) =
+fun StorageEntry.storageKeyOrNull(key1: Any?, key2: Any?) =
     nullOnException {
-        storageKey(runtime, key1, key2)
+        storageKey(key1, key2)
     }
 
 private fun typeNotResolved(entryName: String): Nothing =

@@ -1,11 +1,11 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.getOrCreate
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
+import jp.co.soramitsu.schema.TypePresetBuilder
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.Struct
+import jp.co.soramitsu.schema.definitions.types.composite.Vec
+import jp.co.soramitsu.schema.definitions.types.primitives.FixedByteArray
+import jp.co.soramitsu.schema.getOrCreate
 
 val GenericConsensusEngineId = FixedByteArray("GenericConsensusEngineId", 4)
 

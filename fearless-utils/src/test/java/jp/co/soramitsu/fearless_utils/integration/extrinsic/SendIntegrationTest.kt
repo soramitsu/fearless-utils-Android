@@ -2,7 +2,6 @@ package jp.co.soramitsu.fearless_utils.integration.extrinsic
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.integration.BaseIntegrationTest
 import jp.co.soramitsu.fearless_utils.integration.WESTEND_URL
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
@@ -12,6 +11,7 @@ import jp.co.soramitsu.fearless_utils.runtime.extrinsic.transfer
 import jp.co.soramitsu.fearless_utils.wsrpc.executeAsync
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.author.SubmitExtrinsicRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.chain.RuntimeVersion
+import jp.co.soramitsu.schema.extensions.fromHex
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Test

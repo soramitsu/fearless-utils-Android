@@ -1,7 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt.qr
 
 import jp.co.soramitsu.fearless_utils.common.assertThrows
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
+import jp.co.soramitsu.schema.extensions.fromHex
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

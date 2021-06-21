@@ -3,31 +3,29 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromByteArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toByteArray
+import jp.co.soramitsu.schema.definitions.types.Type
+import jp.co.soramitsu.schema.definitions.types.fromByteArray
+import jp.co.soramitsu.schema.definitions.types.toByteArray
 
-object OpaqueCall : Type<GenericCall.Instance>("OpaqueCall") {
+class OpaqueCall(val runtime: RuntimeSnapshot) : Type<GenericCall.Instance>("OpaqueCall") {
 
     override val isFullyResolved = true
 
     override fun decode(
-        scaleCodecReader: ScaleCodecReader,
-        runtime: RuntimeSnapshot
+        scaleCodecReader: ScaleCodecReader
     ): GenericCall.Instance {
-        val bytes = Bytes.decode(scaleCodecReader, runtime)
+        val bytes = Bytes.decode(scaleCodecReader)
 
-        return GenericCall.fromByteArray(runtime, bytes)
+        return GenericCall(runtime).fromByteArray(bytes)
     }
 
     override fun encode(
         scaleCodecWriter: ScaleCodecWriter,
-        runtime: RuntimeSnapshot,
         value: GenericCall.Instance
     ) {
-        val callEncoded = GenericCall.toByteArray(runtime, value)
+        val callEncoded = GenericCall(runtime).toByteArray(value)
 
-        return Bytes.encode(scaleCodecWriter, runtime, callEncoded)
+        return Bytes.encode(scaleCodecWriter, callEncoded)
     }
 
     override fun isValidInstance(instance: Any?): Boolean {

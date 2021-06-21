@@ -1,8 +1,8 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
+import jp.co.soramitsu.schema.definitions.types.Type
+import jp.co.soramitsu.schema.scale.EncodableStruct
 import java.math.BigInteger
 
 interface WithName {

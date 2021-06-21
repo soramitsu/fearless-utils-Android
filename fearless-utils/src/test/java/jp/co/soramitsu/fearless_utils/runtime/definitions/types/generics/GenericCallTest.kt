@@ -2,12 +2,10 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.toHex
+import org.junit.Assert.*
 import org.junit.Test
 
 class GenericCallTest : BaseTypeTest() {
@@ -25,14 +23,14 @@ class GenericCallTest : BaseTypeTest() {
 
     @Test
     fun `should encode correct call`() {
-        val encoded = GenericCall.toHex(runtime, instance)
+        val encoded = GenericCall(runtime).toHex(instance)
 
         assertEquals(inHex, encoded)
     }
 
     @Test
     fun `should decode correct call`() {
-        val decoded = GenericCall.fromHex(runtime, inHex)
+        val decoded = GenericCall(runtime).fromHex(inHex)
 
         assertEquals(instance.arguments, decoded.arguments)
         assertEquals(instance.moduleIndex, decoded.moduleIndex)
@@ -47,7 +45,7 @@ class GenericCallTest : BaseTypeTest() {
             arguments = emptyMap()
         )
 
-        assertThrows<EncodeDecodeException> { GenericCall.toHex(runtime, invalidInstance) }
+        assertThrows<EncodeDecodeException> { GenericCall(runtime).toHex(invalidInstance) }
     }
 
     @Test
@@ -61,27 +59,27 @@ class GenericCallTest : BaseTypeTest() {
             )
         )
 
-        assertThrows<EncodeDecodeException> { GenericCall.toHex(runtime, invalidInstance) }
+        assertThrows<EncodeDecodeException> { GenericCall(runtime).toHex(invalidInstance) }
     }
 
     @Test
     fun `should throw if decoding instance with invalid index`() {
         val inHex = "0x0203"
 
-        assertThrows<EncodeDecodeException> { GenericCall.fromHex(runtime, inHex) }
+        assertThrows<EncodeDecodeException> { GenericCall(runtime).fromHex(inHex) }
     }
 
     @Test
     fun `should throw if decoding instance with invalid arguments`() {
         val inHex = "0x01000412"
 
-        assertThrows<EncodeDecodeException> { GenericCall.fromHex(runtime, inHex) }
+        assertThrows<EncodeDecodeException> { GenericCall(runtime).fromHex(inHex) }
     }
 
     @Test
     fun `should validate instance`() {
-        assertTrue(GenericCall.isValidInstance(instance))
+        assertTrue(GenericCall(runtime).isValidInstance(instance))
 
-        assertFalse(GenericCall.isValidInstance(1))
+        assertFalse(GenericCall(runtime).isValidInstance(1))
     }
 }

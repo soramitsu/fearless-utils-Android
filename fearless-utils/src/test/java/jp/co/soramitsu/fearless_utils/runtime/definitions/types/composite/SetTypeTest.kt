@@ -1,13 +1,12 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite
 
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.BaseTypeTest
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import jp.co.soramitsu.schema.definitions.types.TypeReference
+import jp.co.soramitsu.schema.definitions.types.composite.SetType
+import jp.co.soramitsu.schema.definitions.types.fromHex
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
+import jp.co.soramitsu.schema.definitions.types.toHex
+import org.junit.Assert.*
 import org.junit.Test
 
 class SetTypeTest : BaseTypeTest() {
@@ -26,7 +25,7 @@ class SetTypeTest : BaseTypeTest() {
     @Test
     fun `should decode one flag`() {
         val inHex = "0x04"
-        val decoded = type.fromHex(runtime, inHex)
+        val decoded = type.fromHex(inHex)
 
         assertEquals(setOf("C"), decoded)
     }
@@ -34,7 +33,7 @@ class SetTypeTest : BaseTypeTest() {
     @Test
     fun `should decode multiple flags`() {
         val inHex = "0x0d"
-        val decoded = type.fromHex(runtime, inHex)
+        val decoded = type.fromHex(inHex)
 
         assertEquals(setOf("A", "C", "D"), decoded)
     }
@@ -42,7 +41,7 @@ class SetTypeTest : BaseTypeTest() {
     @Test
     fun `should encode one flag`() {
         val instance = setOf("C")
-        val encoded = type.toHex(runtime, instance)
+        val encoded = type.toHex(instance)
 
         assertEquals("0x04", encoded)
     }
@@ -50,7 +49,7 @@ class SetTypeTest : BaseTypeTest() {
     @Test
     fun `should encode multiple flags`() {
         val instance = setOf("A", "C", "D")
-        val encoded = type.toHex(runtime, instance)
+        val encoded = type.toHex(instance)
 
         assertEquals("0x0d", encoded)
     }

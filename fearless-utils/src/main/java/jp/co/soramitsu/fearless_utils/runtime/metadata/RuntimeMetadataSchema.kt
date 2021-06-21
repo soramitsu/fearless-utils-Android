@@ -2,18 +2,18 @@ package jp.co.soramitsu.fearless_utils.runtime.metadata
 
 import jp.co.soramitsu.fearless_utils.hash.Hasher
 import jp.co.soramitsu.fearless_utils.hash.hashConcat
-import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
-import jp.co.soramitsu.fearless_utils.scale.Schema
-import jp.co.soramitsu.fearless_utils.scale.bool
-import jp.co.soramitsu.fearless_utils.scale.byteArray
-import jp.co.soramitsu.fearless_utils.scale.dataType.scalable
-import jp.co.soramitsu.fearless_utils.scale.enum
-import jp.co.soramitsu.fearless_utils.scale.schema
-import jp.co.soramitsu.fearless_utils.scale.string
-import jp.co.soramitsu.fearless_utils.scale.uint32
-import jp.co.soramitsu.fearless_utils.scale.uint8
-import jp.co.soramitsu.fearless_utils.scale.vector
-import jp.co.soramitsu.fearless_utils.scale.dataType.string as stringType
+import jp.co.soramitsu.schema.scale.EncodableStruct
+import jp.co.soramitsu.schema.scale.Schema
+import jp.co.soramitsu.schema.scale.bool
+import jp.co.soramitsu.schema.scale.byteArray
+import jp.co.soramitsu.schema.scale.dataType.scalable
+import jp.co.soramitsu.schema.scale.enum
+import jp.co.soramitsu.schema.scale.schema
+import jp.co.soramitsu.schema.scale.string
+import jp.co.soramitsu.schema.scale.uint32
+import jp.co.soramitsu.schema.scale.uint8
+import jp.co.soramitsu.schema.scale.vector
+import jp.co.soramitsu.schema.scale.dataType.string as stringType
 
 object RuntimeMetadataSchema : Schema<RuntimeMetadataSchema>() {
     val magicNumber by uint32()

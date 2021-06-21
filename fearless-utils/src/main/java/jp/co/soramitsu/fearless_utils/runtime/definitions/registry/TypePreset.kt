@@ -1,8 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.registry
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
+import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.BitVec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.CallBytes
@@ -24,25 +22,20 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H512
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.OpaqueCall
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SessionKeysSubstrate
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u128
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u16
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u256
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u64
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
-
-typealias TypePresetBuilder = MutableMap<String, TypeReference>
-typealias TypePreset = Map<String, TypeReference>
-
-fun TypePreset.newBuilder(): TypePresetBuilder = toMutableMap()
-
-fun TypePresetBuilder.type(type: Type<*>) {
-    val currentRef = getOrCreate(type.name)
-
-    currentRef.value = type
-}
+import jp.co.soramitsu.schema.TypePreset
+import jp.co.soramitsu.schema.TypePresetBuilder
+import jp.co.soramitsu.schema.definitions.types.composite.Alias
+import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.schema.definitions.types.primitives.u128
+import jp.co.soramitsu.schema.definitions.types.primitives.u16
+import jp.co.soramitsu.schema.definitions.types.primitives.u256
+import jp.co.soramitsu.schema.definitions.types.primitives.u32
+import jp.co.soramitsu.schema.definitions.types.primitives.u64
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
+import jp.co.soramitsu.schema.definitions.types.stub.FakeType
+import jp.co.soramitsu.schema.getOrCreate
+import jp.co.soramitsu.schema.type
+import jp.co.soramitsu.schema.typePreset
 
 fun TypePresetBuilder.fakeType(name: String) {
     type(FakeType(name))
@@ -56,18 +49,7 @@ fun TypePresetBuilder.alias(alias: String, original: String) {
     type(typeAlias)
 }
 
-fun TypePresetBuilder.getOrCreate(definition: String) = getOrPut(definition) { TypeReference(null) }
-
-fun TypePresetBuilder.create(definition: String): TypeReference =
-    TypeReference(null).also { put(definition, it) }
-
-fun createTypePresetBuilder(): TypePresetBuilder = mutableMapOf()
-
-fun typePreset(builder: TypePresetBuilder.() -> Unit): TypePreset {
-    return createTypePresetBuilder().apply(builder)
-}
-
-fun substratePreParsePreset(): TypePreset = typePreset {
+fun substratePreParsePreset(runtime: RuntimeSnapshot = RuntimeSnapshot()): TypePreset = typePreset {
     type(BooleanType)
 
     type(u8)
@@ -79,7 +61,7 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     type(GenericAccountId)
     type(Null)
-    type(GenericCall)
+    type(GenericCall(runtime))
 
     fakeType("GenericBlock")
 
@@ -92,7 +74,7 @@ fun substratePreParsePreset(): TypePreset = typePreset {
     type(Bytes)
     type(BitVec)
 
-    type(Extrinsic)
+    type(Extrinsic(runtime))
 
     type(CallBytes) // seems to be unused in runtime
     type(EraType)
@@ -108,9 +90,9 @@ fun substratePreParsePreset(): TypePreset = typePreset {
 
     type(GenericMultiAddress(this))
 
-    type(OpaqueCall)
+    type(OpaqueCall(runtime))
 
-    type(GenericEvent)
+    type(GenericEvent(runtime))
     type(EventRecord(this))
 
     alias("<T::Lookup as StaticLookup>::Source", "LookupSource")

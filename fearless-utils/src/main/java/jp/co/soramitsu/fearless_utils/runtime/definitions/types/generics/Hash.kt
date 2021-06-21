@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
+import jp.co.soramitsu.schema.definitions.types.primitives.FixedByteArray
 
 val H160 = Hash(160)
 val H256 = Hash(256)

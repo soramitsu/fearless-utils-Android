@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.extrinsic
 
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
+import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
 import java.math.BigInteger
 
 fun ExtrinsicBuilder.transfer(recipientAccountId: ByteArray, amount: BigInteger): ExtrinsicBuilder {

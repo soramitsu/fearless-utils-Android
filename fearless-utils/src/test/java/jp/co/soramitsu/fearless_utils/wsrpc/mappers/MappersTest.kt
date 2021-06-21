@@ -2,11 +2,11 @@ package jp.co.soramitsu.fearless_utils.wsrpc.mappers
 
 import com.google.gson.Gson
 import jp.co.soramitsu.fearless_utils.common.assertThrows
-import jp.co.soramitsu.fearless_utils.scale.Schema
-import jp.co.soramitsu.fearless_utils.scale.bool
-import jp.co.soramitsu.fearless_utils.scale.invoke
-import jp.co.soramitsu.fearless_utils.scale.toHexString
-import jp.co.soramitsu.fearless_utils.scale.uint32
+import jp.co.soramitsu.schema.scale.Schema
+import jp.co.soramitsu.schema.scale.bool
+import jp.co.soramitsu.schema.scale.invoke
+import jp.co.soramitsu.schema.scale.toHexString
+import jp.co.soramitsu.schema.scale.uint32
 import jp.co.soramitsu.fearless_utils.wsrpc.exception.RpcException
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcError
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse

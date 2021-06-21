@@ -4,25 +4,18 @@ import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.type
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.typePreset
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.CollectionEnum
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Option
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.SetType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.FixedByteArray
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u64
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
+import jp.co.soramitsu.schema.DynamicTypeResolver
+import jp.co.soramitsu.schema.TypePreset
+import jp.co.soramitsu.schema.definitions.types.composite.*
+import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.schema.definitions.types.primitives.FixedByteArray
+import jp.co.soramitsu.schema.definitions.types.primitives.u64
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
+import jp.co.soramitsu.schema.definitions.types.stub.FakeType
+import jp.co.soramitsu.schema.type
+import jp.co.soramitsu.schema.typePreset
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -365,7 +358,7 @@ class TypeDefinitionParserTest {
         val tree = gson.fromJson(definitions, TypeDefinitionsTree::class.java)
 
         val unknown =
-            TypeDefinitionParser.parseBaseDefinitions(tree, initialTypeRegistry).unknownTypes
+            TypeDefinitionParserImpl.parseBaseDefinitions(tree.types, initialTypeRegistry).unknownTypes
 
         assert("F" in unknown)
     }
@@ -376,7 +369,7 @@ class TypeDefinitionParserTest {
         val reader = JsonReader(getResourceReader("default.json"))
         val tree = gson.fromJson<TypeDefinitionsTree>(reader, TypeDefinitionsTree::class.java)
 
-        val result = TypeDefinitionParser.parseBaseDefinitions(tree, substratePreParsePreset())
+        val result = TypeDefinitionParserImpl.parseBaseDefinitions(tree.types, substratePreParsePreset())
 
         print(result.unknownTypes)
 
@@ -395,13 +388,13 @@ class TypeDefinitionParserTest {
         val kusamaTree =
             gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
-        val defaultParsed = TypeDefinitionParser.parseBaseDefinitions(defaultTree, substratePreParsePreset())
+        val defaultParsed = TypeDefinitionParserImpl.parseBaseDefinitions(defaultTree.types, substratePreParsePreset())
         val defaultRegistry = TypeRegistry(defaultParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
         val keysDefault = defaultRegistry["Keys"]
         assertEquals("SessionKeysSubstrate", keysDefault?.name)
 
-        val kusamaParsed = TypeDefinitionParser.parseNetworkVersioning(
+        val kusamaParsed = TypeDefinitionParserImpl.parseNetworkVersioning(
             kusamaTree,
             defaultParsed.typePreset,
             1057
@@ -430,7 +423,7 @@ class TypeDefinitionParserTest {
         val tree = gson.fromJson(json, TypeDefinitionsTree::class.java)
 
         return TypeRegistry(
-            TypeDefinitionParser.parseBaseDefinitions(tree, typePreset).typePreset,
+            TypeDefinitionParserImpl.parseBaseDefinitions(tree.types, typePreset).typePreset,
             dynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
         )
     }

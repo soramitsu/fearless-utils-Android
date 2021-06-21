@@ -1,8 +1,8 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
-import jp.co.soramitsu.fearless_utils.extensions.fromHex
-import jp.co.soramitsu.fearless_utils.extensions.toHexString
+import jp.co.soramitsu.schema.extensions.fromHex
+import jp.co.soramitsu.schema.extensions.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

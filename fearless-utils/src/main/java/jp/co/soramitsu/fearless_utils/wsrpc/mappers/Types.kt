@@ -1,8 +1,8 @@
 package jp.co.soramitsu.fearless_utils.wsrpc.mappers
 
 import com.google.gson.Gson
-import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
-import jp.co.soramitsu.fearless_utils.scale.Schema
+import jp.co.soramitsu.schema.scale.EncodableStruct
+import jp.co.soramitsu.schema.scale.Schema
 import jp.co.soramitsu.fearless_utils.wsrpc.exception.RpcException
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 
