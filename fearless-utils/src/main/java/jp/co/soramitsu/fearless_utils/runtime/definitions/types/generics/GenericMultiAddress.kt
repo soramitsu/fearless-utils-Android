@@ -1,10 +1,10 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.schema.TypePresetBuilder
-import jp.co.soramitsu.schema.getOrCreate
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
 import jp.co.soramitsu.schema.definitions.types.primitives.Compact
+import jp.co.soramitsu.schema.getOrCreate
 
 const val MULTI_ADDRESS_ID = "Id"
 

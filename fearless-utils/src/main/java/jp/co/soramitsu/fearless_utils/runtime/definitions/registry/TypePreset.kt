@@ -1,11 +1,41 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.registry
 
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.*
-import jp.co.soramitsu.schema.*
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.BitVec
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Bytes
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.CallBytes
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EraType
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.EventRecord
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Extrinsic
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensus
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericConsensusEngineId
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericEvent
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericMultiAddress
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericSeal
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericSealV0
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H160
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H256
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.H512
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.OpaqueCall
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SessionKeysSubstrate
+import jp.co.soramitsu.schema.TypePreset
+import jp.co.soramitsu.schema.TypePresetBuilder
 import jp.co.soramitsu.schema.definitions.types.composite.Alias
-import jp.co.soramitsu.schema.definitions.types.primitives.*
+import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
+import jp.co.soramitsu.schema.definitions.types.primitives.u128
+import jp.co.soramitsu.schema.definitions.types.primitives.u16
+import jp.co.soramitsu.schema.definitions.types.primitives.u256
+import jp.co.soramitsu.schema.definitions.types.primitives.u32
+import jp.co.soramitsu.schema.definitions.types.primitives.u64
+import jp.co.soramitsu.schema.definitions.types.primitives.u8
 import jp.co.soramitsu.schema.definitions.types.stub.FakeType
+import jp.co.soramitsu.schema.getOrCreate
+import jp.co.soramitsu.schema.type
+import jp.co.soramitsu.schema.typePreset
 
 fun TypePresetBuilder.fakeType(name: String) {
     type(FakeType(name))

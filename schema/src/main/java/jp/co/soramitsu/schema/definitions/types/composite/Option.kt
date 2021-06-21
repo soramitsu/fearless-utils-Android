@@ -3,8 +3,8 @@ package jp.co.soramitsu.schema.definitions.types.composite
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.definitions.types.TypeReference
-import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.schema.definitions.types.primitives.BooleanType
 
 class Option(
     name: String,

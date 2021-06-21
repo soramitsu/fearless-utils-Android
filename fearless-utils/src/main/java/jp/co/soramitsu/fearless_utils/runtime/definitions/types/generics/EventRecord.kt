@@ -1,10 +1,10 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import jp.co.soramitsu.schema.TypePresetBuilder
-import jp.co.soramitsu.schema.getOrCreate
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.composite.Struct
 import jp.co.soramitsu.schema.definitions.types.composite.Vec
+import jp.co.soramitsu.schema.getOrCreate
 
 @Suppress("FunctionName")
 fun EventRecord(typePresetBuilder: TypePresetBuilder) = Struct(

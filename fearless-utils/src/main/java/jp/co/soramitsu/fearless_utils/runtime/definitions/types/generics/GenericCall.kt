@@ -3,8 +3,10 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.metadata.*
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
+import jp.co.soramitsu.fearless_utils.runtime.metadata.FunctionArgument
+import jp.co.soramitsu.fearless_utils.runtime.metadata.callOrNull
+import jp.co.soramitsu.fearless_utils.runtime.metadata.moduleOrNull
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.schema.scale.dataType.tuple
@@ -62,7 +64,6 @@ class GenericCall(val runtime: RuntimeSnapshot) : Type<GenericCall.Instance>("Ge
             callIndex
         )
     }
-
 
     private fun callNotFound(moduleIndex: Int, callIndex: Int): Nothing {
         throw EncodeDecodeException("No call found for index ($moduleIndex, $callIndex)")

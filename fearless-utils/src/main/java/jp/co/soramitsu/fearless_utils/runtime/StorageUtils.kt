@@ -1,9 +1,9 @@
 package jp.co.soramitsu.fearless_utils.runtime
 
-import jp.co.soramitsu.schema.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.hash.Hasher
 import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.hash.hashConcat
+import jp.co.soramitsu.schema.extensions.toHexString
 
 typealias HashFunction = (ByteArray) -> ByteArray
 

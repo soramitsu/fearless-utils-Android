@@ -3,11 +3,10 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.schema.TypePresetBuilder
-import jp.co.soramitsu.schema.getOrCreate
-
 import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
 import jp.co.soramitsu.schema.definitions.types.errors.EncodeDecodeException
+import jp.co.soramitsu.schema.getOrCreate
 import jp.co.soramitsu.schema.scale.dataType.byte
 import jp.co.soramitsu.schema.scale.utils.directWrite
 

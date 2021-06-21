@@ -61,7 +61,7 @@ open class ExtrinsicPayloadExtras(
 ) : Type<ExtrinsicPayloadExtrasInstance>(name) {
 
     override fun decode(
-        scaleCodecReader: ScaleCodecReader,
+        scaleCodecReader: ScaleCodecReader
     ): ExtrinsicPayloadExtrasInstance {
         val enabledSignedExtras = runtime.metadata.extrinsic.signedExtensions
 

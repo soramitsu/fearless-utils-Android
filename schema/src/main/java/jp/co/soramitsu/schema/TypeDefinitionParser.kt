@@ -5,7 +5,7 @@ interface TypeDefinitionParser {
         types: Map<String, Any>,
         typePreset: TypePreset,
         dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
-    ) : ParseResult
+    ): ParseResult
 }
 
 class ParseResult(

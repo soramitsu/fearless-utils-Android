@@ -43,7 +43,7 @@ class Extrinsic(private val runtime: RuntimeSnapshot) : Type<Extrinsic.Instance>
             Signature(
                 accountIdentifier = addressType().decode(scaleCodecReader),
                 signature = signatureType().decode(scaleCodecReader),
-                signedExtras = SignedExtras(runtime).decode(scaleCodecReader, )
+                signedExtras = SignedExtras(runtime).decode(scaleCodecReader)
             )
         } else {
             null

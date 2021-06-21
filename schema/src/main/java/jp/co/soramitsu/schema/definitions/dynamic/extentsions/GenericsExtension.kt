@@ -4,7 +4,6 @@ import jp.co.soramitsu.schema.definitions.dynamic.DynamicTypeExtension
 import jp.co.soramitsu.schema.definitions.dynamic.TypeProvider
 import jp.co.soramitsu.schema.definitions.types.Type
 
-
 private val GENERIC_REGEX = "^([^<]*)<(.+)>\$".toRegex() // PartName<SubType>
 
 private const val RAW_TYPE_GROUP_INDEX = 1 // first one will be the entire typeDef, the second one will be raw type

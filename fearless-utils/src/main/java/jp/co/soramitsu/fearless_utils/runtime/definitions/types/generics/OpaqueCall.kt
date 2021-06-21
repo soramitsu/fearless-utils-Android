@@ -3,7 +3,6 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
-import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.fromByteArray
 import jp.co.soramitsu.schema.definitions.types.toByteArray
@@ -13,7 +12,7 @@ class OpaqueCall(val runtime: RuntimeSnapshot) : Type<GenericCall.Instance>("Opa
     override val isFullyResolved = true
 
     override fun decode(
-        scaleCodecReader: ScaleCodecReader,
+        scaleCodecReader: ScaleCodecReader
     ): GenericCall.Instance {
         val bytes = Bytes.decode(scaleCodecReader)
 

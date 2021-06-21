@@ -1,10 +1,22 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
 import com.google.gson.annotations.SerializedName
-import jp.co.soramitsu.schema.*
+import jp.co.soramitsu.schema.DynamicTypeResolver
+import jp.co.soramitsu.schema.ParseResult
+import jp.co.soramitsu.schema.TypeDefinitionParser
+import jp.co.soramitsu.schema.TypePreset
+import jp.co.soramitsu.schema.TypePresetBuilder
+import jp.co.soramitsu.schema.create
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
-import jp.co.soramitsu.schema.definitions.types.composite.*
+import jp.co.soramitsu.schema.definitions.types.composite.Alias
+import jp.co.soramitsu.schema.definitions.types.composite.CollectionEnum
+import jp.co.soramitsu.schema.definitions.types.composite.DictEnum
+import jp.co.soramitsu.schema.definitions.types.composite.SetType
+import jp.co.soramitsu.schema.definitions.types.composite.Struct
+import jp.co.soramitsu.schema.getOrCreate
+import jp.co.soramitsu.schema.newBuilder
+import jp.co.soramitsu.schema.type
 import java.math.BigInteger
 
 class TypeDefinitionsTree(

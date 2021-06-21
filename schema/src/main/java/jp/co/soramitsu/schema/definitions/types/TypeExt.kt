@@ -33,7 +33,7 @@ fun <I> Type<I>.fromByteArray(byteArray: ByteArray): I {
  * @throws EncodeDecodeException
  */
 fun <I> Type<I>.fromHex(hex: String): I {
-    return ensureUnifiedException { fromByteArray( hex.fromHex()) }
+    return ensureUnifiedException { fromByteArray(hex.fromHex()) }
 }
 
 fun <I> Type<I>.fromByteArrayOrNull(byteArray: ByteArray): I? {

@@ -2,11 +2,9 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-
 import jp.co.soramitsu.schema.definitions.types.primitives.Primitive
-import jp.co.soramitsu.schema.scale.dataType.byteArraySized
 import jp.co.soramitsu.schema.extensions.fromHex
-
+import jp.co.soramitsu.schema.scale.dataType.byteArraySized
 
 object CallBytes : Primitive<String>("CallBytes") {
 

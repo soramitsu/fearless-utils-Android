@@ -1,20 +1,19 @@
 package jp.co.soramitsu.schema.definitions.dynamic.extentsions
 
-
+import jp.co.soramitsu.schema.definitions.dynamic.DynamicTypeExtension
+import jp.co.soramitsu.schema.definitions.dynamic.TypeProvider
 import jp.co.soramitsu.schema.definitions.splitTuple
+import jp.co.soramitsu.schema.definitions.types.Type
+import jp.co.soramitsu.schema.definitions.types.TypeReference
 import jp.co.soramitsu.schema.definitions.types.composite.FixedArray
 import jp.co.soramitsu.schema.definitions.types.composite.Option
 import jp.co.soramitsu.schema.definitions.types.composite.Tuple
+import jp.co.soramitsu.schema.definitions.types.composite.Vec
+import jp.co.soramitsu.schema.definitions.types.generics.ResultType
 import jp.co.soramitsu.schema.definitions.types.primitives.Compact
 import jp.co.soramitsu.schema.definitions.types.primitives.DynamicByteArray
 import jp.co.soramitsu.schema.definitions.types.primitives.FixedByteArray
 import jp.co.soramitsu.schema.definitions.types.primitives.u8
-import jp.co.soramitsu.schema.definitions.dynamic.DynamicTypeExtension
-import jp.co.soramitsu.schema.definitions.dynamic.TypeProvider
-import jp.co.soramitsu.schema.definitions.types.Type
-import jp.co.soramitsu.schema.definitions.types.TypeReference
-import jp.co.soramitsu.schema.definitions.types.composite.Vec
-import jp.co.soramitsu.schema.definitions.types.generics.ResultType
 
 object VectorExtension : WrapperExtension() {
     override val wrapperName = "Vec"
