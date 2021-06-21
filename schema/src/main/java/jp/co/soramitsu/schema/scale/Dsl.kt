@@ -2,24 +2,7 @@
 
 package jp.co.soramitsu.schema.scale
 
-import jp.co.soramitsu.schema.scale.dataType.DataType
-import jp.co.soramitsu.schema.scale.dataType.EnumType
-import jp.co.soramitsu.schema.scale.dataType.boolean
-import jp.co.soramitsu.schema.scale.dataType.byte
-import jp.co.soramitsu.schema.scale.dataType.byteArray
-import jp.co.soramitsu.schema.scale.dataType.byteArraySized
-import jp.co.soramitsu.schema.scale.dataType.compactInt
-import jp.co.soramitsu.schema.scale.dataType.list
-import jp.co.soramitsu.schema.scale.dataType.long
-import jp.co.soramitsu.schema.scale.dataType.scalable
-import jp.co.soramitsu.schema.scale.dataType.string
-import jp.co.soramitsu.schema.scale.dataType.tuple
-import jp.co.soramitsu.schema.scale.dataType.uint128
-import jp.co.soramitsu.schema.scale.dataType.uint16
-import jp.co.soramitsu.schema.scale.dataType.uint32
-import jp.co.soramitsu.schema.scale.dataType.uint64
-import jp.co.soramitsu.schema.scale.dataType.uint8
-import jp.co.soramitsu.schema.scale.dataType.union
+import jp.co.soramitsu.schema.scale.dataType.*
 import java.math.BigInteger
 import kotlin.reflect.KClass
 

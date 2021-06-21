@@ -4,7 +4,6 @@ import jp.co.soramitsu.schema.definitions.types.composite.Alias
 
 class CyclicAliasingException : Exception()
 
-//todo possibly no need in core
 /**
  * @throws CyclicAliasingException
  */
