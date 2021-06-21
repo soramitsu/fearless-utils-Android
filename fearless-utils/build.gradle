@@ -48,11 +48,11 @@ cargo {
     targets = ["arm", "arm64", "x86", "x86_64"]
 }
 
-//tasks.whenTaskAdded { task ->
-//    if ((task.name == 'javaPreCompileDebug' || task.name == 'javaPreCompileRelease')) {
-//        task.dependsOn 'cargoBuild'
-//    }
-//}
+tasks.whenTaskAdded { task ->
+    if ((task.name == 'javaPreCompileDebug' || task.name == 'javaPreCompileRelease')) {
+        task.dependsOn 'cargoBuild'
+    }
+}
 
 task deleteJar(type: Delete) {
     delete 'libs/jars/libfearless.jar'

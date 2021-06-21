@@ -1,11 +1,11 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.registry
 
-import jp.co.soramitsu.schema.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.preprocessors.RemoveGenericNoisePreprocessor
+import jp.co.soramitsu.schema.DynamicTypeResolver
 import jp.co.soramitsu.schema.definitions.types.Type
 import jp.co.soramitsu.schema.definitions.types.TypeReference
-import jp.co.soramitsu.schema.definitions.types.skipAliases
 import jp.co.soramitsu.schema.definitions.types.resolvedOrNull
+import jp.co.soramitsu.schema.definitions.types.skipAliases
 
 interface RequestPreprocessor {
 

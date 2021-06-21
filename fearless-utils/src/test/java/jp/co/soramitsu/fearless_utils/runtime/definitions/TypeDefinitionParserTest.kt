@@ -4,7 +4,8 @@ import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.common.getResourceReader
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.*
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.schema.DynamicTypeResolver
 import jp.co.soramitsu.schema.TypePreset
 import jp.co.soramitsu.schema.definitions.types.composite.*
