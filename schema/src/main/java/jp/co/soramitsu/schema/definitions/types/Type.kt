@@ -26,6 +26,9 @@ class TypeReference(var value: Type<*>?) {
     private fun resolveRecursive() = value?.isFullyResolved ?: false
 
     private fun isInRecursion() = resolutionInProgress
+    override fun toString(): String {
+        return "TypeReference(value=$value, resolutionInProgress=$resolutionInProgress)"
+    }
 }
 
 abstract class Type<InstanceType>(val name: String) {

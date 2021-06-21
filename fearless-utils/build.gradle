@@ -79,7 +79,6 @@ dependencies {
     implementation wsDep
     implementation gsonDep
     implementation web3jDep
-    implementation gsonDep
     implementation apacheXercesDep
     implementation xxHashDep
 

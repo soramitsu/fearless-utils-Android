@@ -11,4 +11,10 @@ interface TypeDefinitionParser {
 class ParseResult(
     val typePreset: TypePreset,
     val unknownTypes: List<String>
-)
+
+
+) {
+    override fun toString(): String {
+        return "ParseResult(typePreset=$typePreset, unknownTypes=$unknownTypes)"
+    }
+}

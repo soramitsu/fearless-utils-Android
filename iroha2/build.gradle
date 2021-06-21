@@ -9,6 +9,9 @@ java {
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     implementation project(":schema")
+    implementation gsonDep
     implementation "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
 }
