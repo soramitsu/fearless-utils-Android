@@ -2,4 +2,3 @@ include ':fearless-utils'
 include ':app'
 rootProject.name = "fearless-utils-android"
 include ':schema'
-include ':iroha2'
