@@ -2,13 +2,14 @@ package jp.co.soramitsu.fearless_utils.runtime
 
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.hash.Hasher
+import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b128Concat
 import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.hash.hashConcat
 
 typealias HashFunction = (ByteArray) -> ByteArray
 
 enum class IdentifierHasher(val hasher: HashFunction) {
-    Blake2b128concat(Hasher.blake2b128::hashConcat),
+    Blake2b128concat({ it.blake2b128Concat() }),
     TwoX64Concat(Hasher.xxHash64::hashConcat)
 }
 

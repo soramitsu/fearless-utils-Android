@@ -1,7 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
-import jp.co.soramitsu.fearless_utils.hash.Hasher
+import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import net.i2p.crypto.eddsa.EdDSAEngine
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
@@ -44,7 +44,11 @@ object Signer {
         return SignatureWrapper.Other(signature = sign)
     }
 
-    fun verifySr25519(message: ByteArray, signature: ByteArray, publicKeyBytes: ByteArray): Boolean {
+    fun verifySr25519(
+        message: ByteArray,
+        signature: ByteArray,
+        publicKeyBytes: ByteArray
+    ): Boolean {
         return Sr25519.verify(signature, message, publicKeyBytes)
     }
 
@@ -84,7 +88,7 @@ object Signer {
         val privateKey = BigInteger(Hex.toHexString(keypair.privateKey), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
 
-        val messageHash = Hasher.blake2b256.digest(message)
+        val messageHash = message.blake2b256()
 
         val sign = Sign.signMessage(messageHash, ECKeyPair(privateKey, publicKey), false)
 

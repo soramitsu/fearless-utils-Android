@@ -133,7 +133,7 @@ class JsonSeedDecoderTest {
     }
 
     @Test
-    @Ignore("sr25519 is not supported in unit tests")
+//    @Ignore("sr25519 is not supported in unit tests")
     fun `should not extract seed from sr25519 crypto`() {
         val result = decoder.decode(VALID_JSON_SR25519, VALID_PASSWORD)
 
