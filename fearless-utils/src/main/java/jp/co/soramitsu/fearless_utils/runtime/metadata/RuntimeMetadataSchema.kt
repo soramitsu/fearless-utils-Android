@@ -1,6 +1,9 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
 import jp.co.soramitsu.fearless_utils.hash.Hasher
+import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b128
+import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b128Concat
+import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import jp.co.soramitsu.fearless_utils.hash.hashConcat
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import jp.co.soramitsu.fearless_utils.scale.Schema
@@ -83,9 +86,9 @@ object DoubleMapSchema : Schema<DoubleMapSchema>() {
 }
 
 enum class StorageHasher(val hashingFunction: (ByteArray) -> ByteArray) {
-    Blake2_128(Hasher.blake2b128::digest),
-    Blake2_256(Hasher.blake2b256::digest),
-    Blake2_128Concat(Hasher.blake2b128::hashConcat),
+    Blake2_128({ it.blake2b128() }),
+    Blake2_256({ it.blake2b256() }),
+    Blake2_128Concat({ it.blake2b128Concat() }),
     Twox128(Hasher.xxHash128::hash),
     Twox256(Hasher.xxHash256::hash),
     Twox64Concat(Hasher.xxHash64::hashConcat),
@@ -136,8 +139,12 @@ object ExtrinsicMetadataSchema : Schema<ExtrinsicMetadataSchema>() {
     val signedExtensions by vector(stringType)
 }
 
-fun EncodableStruct<RuntimeMetadataSchema>.module(name: String) = get(RuntimeMetadataSchema.modules).find { it[ModuleMetadataSchema.name] == name }
+fun EncodableStruct<RuntimeMetadataSchema>.module(name: String) =
+    get(RuntimeMetadataSchema.modules).find { it[ModuleMetadataSchema.name] == name }
 
-fun EncodableStruct<ModuleMetadataSchema>.call(name: String) = get(ModuleMetadataSchema.calls)?.find { it[FunctionMetadataSchema.name] == name }
+fun EncodableStruct<ModuleMetadataSchema>.call(name: String) =
+    get(ModuleMetadataSchema.calls)?.find { it[FunctionMetadataSchema.name] == name }
 
-fun EncodableStruct<ModuleMetadataSchema>.storage(name: String) = get(ModuleMetadataSchema.storage)?.get(StorageMetadataSchema.entries)?.find { it[StorageEntryMetadataSchema.name] == name }
+fun EncodableStruct<ModuleMetadataSchema>.storage(name: String) =
+    get(ModuleMetadataSchema.storage)?.get(StorageMetadataSchema.entries)
+        ?.find { it[StorageEntryMetadataSchema.name] == name }

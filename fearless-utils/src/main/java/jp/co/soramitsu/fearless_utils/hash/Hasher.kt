@@ -4,9 +4,13 @@ import net.jpountz.xxhash.XXHashFactory
 import org.bouncycastle.jcajce.provider.digest.Blake2b
 
 object Hasher {
-    val blake2b256 = Blake2b.Blake2b256()
-    val blake2b128 = Blake2b128()
-    val blake2b512 = Blake2b.Blake2b512()
+    private val blake2bLock = Any()
+
+    private val blake2b256 = Blake2b.Blake2b256()
+
+    private val blake2b128 = Blake2b128()
+
+    private val blake2b512 = Blake2b.Blake2b512()
 
     val xxHash64 = XXHashFactory.safeInstance().hash64()
     val xxHash128 = XXHash(128, xxHash64)
@@ -16,7 +20,11 @@ object Hasher {
     fun ByteArray.xxHash128() = xxHash128.hash(this)
     fun ByteArray.xxHash256() = xxHash256.hash(this)
 
-    fun ByteArray.blake2b128() = blake2b128.digest(this)
-    fun ByteArray.blake2b256() = blake2b256.digest(this)
-    fun ByteArray.blake2b512() = blake2b512.digest(this)
+    fun ByteArray.blake2b128() = withBlake2bLock { blake2b128.digest(this) }
+    fun ByteArray.blake2b256() = withBlake2bLock { blake2b256.digest(this) }
+    fun ByteArray.blake2b512() = withBlake2bLock { blake2b512.digest(this) }
+
+    fun ByteArray.blake2b128Concat() = withBlake2bLock { blake2b128.hashConcat(this) }
+
+    private inline fun <T> withBlake2bLock(action: () -> T) = synchronized(blake2bLock, action)
 }
