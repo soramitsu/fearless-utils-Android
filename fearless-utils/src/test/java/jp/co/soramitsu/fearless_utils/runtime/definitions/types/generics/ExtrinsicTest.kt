@@ -7,6 +7,8 @@ import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
+import jp.co.soramitsu.fearless_utils.runtime.metadata.call
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigInteger
@@ -33,16 +35,18 @@ class ExtrinsicTest {
 
         val decoded = Extrinsic.fromHex(runtime, batch)
 
-        assertEquals(16, decoded.call.moduleIndex)
-        assertEquals(0, decoded.call.callIndex)
+        assertEquals(16 to 0, decoded.call.function.index)
         assertEquals(2, (decoded.call.arguments["calls"] as List<*>).size)
     }
 
     @Test
     fun `should encode transfer extrinsic`() {
+        val module = runtime.metadata.module("Balances")
+        val function = module.call("transfer_keep_alive")
+
         val call = GenericCall.Instance(
-            moduleIndex = 4,
-            callIndex = 3,
+            module,
+            function,
             arguments = mapOf(
                 "dest" to DictEnum.Entry(
                     name = "Id",

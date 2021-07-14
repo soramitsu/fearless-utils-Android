@@ -47,7 +47,7 @@ abstract class BaseTypeTest {
                                 )
                             ),
                             documentation = emptyList(),
-                            index = 0 to 0
+                            index = 1 to 0
                         )
                     ),
                     events = mapOf(
@@ -58,7 +58,7 @@ abstract class BaseTypeTest {
                                 u8
                             ),
                             documentation = emptyList(),
-                            index = 0 to 0
+                            index = 1 to 0
                         )
                     ),
                     constants = emptyMap(),

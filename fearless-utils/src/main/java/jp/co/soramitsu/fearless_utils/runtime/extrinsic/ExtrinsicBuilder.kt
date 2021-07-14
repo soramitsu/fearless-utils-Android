@@ -44,7 +44,10 @@ class ExtrinsicBuilder(
         callIndex: Int,
         args: Map<String, Any?>
     ): ExtrinsicBuilder {
-        calls.add(GenericCall.Instance(moduleIndex, callIndex, args))
+        val module = runtime.metadata.module(moduleIndex)
+        val function = module.call(callIndex)
+
+        calls.add(GenericCall.Instance(module, function, args))
 
         return this
     }
@@ -54,10 +57,10 @@ class ExtrinsicBuilder(
         callName: String,
         arguments: Map<String, Any?>
     ): ExtrinsicBuilder {
-        val call = runtime.metadata.module(moduleName).call(callName)
-        val (moduleIndex, callIndex) = call.index
+        val module = runtime.metadata.module(moduleName)
+        val function = module.call(callName)
 
-        calls.add(GenericCall.Instance(moduleIndex, callIndex, arguments))
+        calls.add(GenericCall.Instance(module, function, arguments))
 
         return this
     }
@@ -119,12 +122,12 @@ class ExtrinsicBuilder(
     }
 
     private fun wrapInBatch(): GenericCall.Instance {
-        val batchCall = runtime.metadata.module("Utility").call("batch")
-        val (moduleIndex, callIndex) = batchCall.index
+        val batchModule = runtime.metadata.module("Utility")
+        val batchFunction = batchModule.call("batch")
 
         return GenericCall.Instance(
-            moduleIndex = moduleIndex,
-            callIndex = callIndex,
+            module = batchModule,
+            function = batchFunction,
             arguments = mapOf(
                 "calls" to calls
             )

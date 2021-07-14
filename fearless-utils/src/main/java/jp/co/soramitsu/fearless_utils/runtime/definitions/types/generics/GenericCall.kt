@@ -7,6 +7,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
 import jp.co.soramitsu.fearless_utils.runtime.metadata.FunctionArgument
+import jp.co.soramitsu.fearless_utils.runtime.metadata.Module
 import jp.co.soramitsu.fearless_utils.runtime.metadata.callOrNull
 import jp.co.soramitsu.fearless_utils.runtime.metadata.moduleOrNull
 import jp.co.soramitsu.fearless_utils.scale.dataType.tuple
@@ -14,7 +15,7 @@ import jp.co.soramitsu.fearless_utils.scale.dataType.uint8
 
 object GenericCall : Type<GenericCall.Instance>("GenericCall") {
 
-    class Instance(val moduleIndex: Int, val callIndex: Int, val arguments: Map<String, Any?>)
+    class Instance(val module: Module, val function: Function, val arguments: Map<String, Any?>)
 
     private val indexCoder = tuple(uint8, uint8)
 
@@ -24,14 +25,14 @@ object GenericCall : Type<GenericCall.Instance>("GenericCall") {
         val (moduleIndex, callIndex) = indexCoder.read(scaleCodecReader)
             .run { first.toInt() to second.toInt() }
 
-        val call = getCallOrThrow(runtime, moduleIndex, callIndex)
+        val (module, function) = getModuleAndFunctionOrThrow(runtime, moduleIndex, callIndex)
 
-        val arguments = call.arguments.associate { argumentDefinition ->
+        val arguments = function.arguments.associate { argumentDefinition ->
             argumentDefinition.name to argumentDefinition.typeOrThrow()
                 .decode(scaleCodecReader, runtime)
         }
 
-        return Instance(moduleIndex, callIndex, arguments)
+        return Instance(module, function, arguments)
     }
 
     override fun encode(
@@ -39,11 +40,11 @@ object GenericCall : Type<GenericCall.Instance>("GenericCall") {
         runtime: RuntimeSnapshot,
         value: Instance
     ) = with(value) {
-        val call = getCallOrThrow(runtime, moduleIndex, callIndex)
+        val callIndex = value.function.index.run { first.toUByte() to second.toUByte() }
 
-        indexCoder.write(scaleCodecWriter, moduleIndex.toUByte() to callIndex.toUByte())
+        indexCoder.write(scaleCodecWriter, callIndex)
 
-        call.arguments.forEach { argumentDefinition ->
+        function.arguments.forEach { argumentDefinition ->
             argumentDefinition.typeOrThrow()
                 .encodeUnsafe(scaleCodecWriter, runtime, arguments[argumentDefinition.name])
         }
@@ -56,15 +57,16 @@ object GenericCall : Type<GenericCall.Instance>("GenericCall") {
     private fun FunctionArgument.typeOrThrow() =
         type ?: throw EncodeDecodeException("Argument $name is not resolved")
 
-    private fun getCallOrThrow(
+    private fun getModuleAndFunctionOrThrow(
         runtime: RuntimeSnapshot,
         moduleIndex: Int,
         callIndex: Int
-    ): Function {
-        return runtime.metadata.moduleOrNull(moduleIndex)?.callOrNull(callIndex) ?: callNotFound(
-            moduleIndex,
-            callIndex
-        )
+    ): Pair<Module, Function> {
+        val module =
+            runtime.metadata.moduleOrNull(moduleIndex) ?: callNotFound(moduleIndex, callIndex)
+        val call = module.callOrNull(callIndex) ?: callNotFound(moduleIndex, callIndex)
+
+        return module to call
     }
 
     private fun callNotFound(moduleIndex: Int, callIndex: Int): Nothing {
