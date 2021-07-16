@@ -1,7 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions
 
 internal fun String.splitTuple(): List<String> {
-    val innerPart = replace(" ", "").removeSurrounding("(", ")")
+    val innerPart = replace(Regex("\\s"), "").removeSurrounding("(", ")")
 
     val result = mutableListOf<String>()
     var bracketsCount = 0
