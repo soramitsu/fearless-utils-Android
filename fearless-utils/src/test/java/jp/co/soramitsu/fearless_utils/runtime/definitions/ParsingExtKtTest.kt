@@ -38,4 +38,18 @@ class ParsingExtKtTest {
 
         assertEquals(listOf("ParaId", "Option<(CollatorId,Retriable)>"), splitted)
     }
+
+    @Test
+    fun `spaces at the end (from Karura metadata)`() {
+        val splitted = "(ParaId, InboundStatus, Vec<(RelayBlockNumber, XcmpMessageFormat)>,)    ".splitTuple()
+
+        assertEquals(listOf("ParaId", "InboundStatus", "Vec<(RelayBlockNumber,XcmpMessageFormat)>"), splitted)
+    }
+
+    @Test
+    fun `newline at the end (from Karura metadata)`() {
+        val splitted = "(ParaId,InboundStatus,Vec<(RelayBlockNumber,XcmpMessageFormat)>,)\n".splitTuple()
+
+        assertEquals(listOf("ParaId", "InboundStatus", "Vec<(RelayBlockNumber,XcmpMessageFormat)>"), splitted)
+    }
 }
