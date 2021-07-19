@@ -9,6 +9,7 @@ import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import jp.co.soramitsu.fearless_utils.scale.Schema
 import jp.co.soramitsu.fearless_utils.scale.bool
 import jp.co.soramitsu.fearless_utils.scale.byteArray
+import jp.co.soramitsu.fearless_utils.scale.dataType.EnumType
 import jp.co.soramitsu.fearless_utils.scale.dataType.scalable
 import jp.co.soramitsu.fearless_utils.scale.enum
 import jp.co.soramitsu.fearless_utils.scale.schema
@@ -58,7 +59,8 @@ object StorageEntryMetadataSchema : Schema<StorageEntryMetadataSchema>() {
     val type by enum(
         stringType, // plain
         scalable(MapSchema),
-        scalable(DoubleMapSchema)
+        scalable(DoubleMapSchema),
+        scalable(NMapSchema)
     )
 
     val default by byteArray() // vector<u8>
@@ -83,6 +85,12 @@ object DoubleMapSchema : Schema<DoubleMapSchema>() {
     val key2 by string()
     val value by string()
     val key2Hasher by enum(StorageHasher::class)
+}
+
+object NMapSchema : Schema<NMapSchema>() {
+    val keys by vector(stringType)
+    val hashers by vector(EnumType(StorageHasher::class.java))
+    val value by string()
 }
 
 enum class StorageHasher(val hashingFunction: (ByteArray) -> ByteArray) {

@@ -41,6 +41,16 @@ class MetadataTest {
     }
 
     @Test
+    fun `should decode metadata with NMap`() {
+        val inHex = getFileContentFromResources("statemine_metadata")
+
+        val metadataRaw = RuntimeMetadataSchema.read(inHex)
+        val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
+
+        assertInstance<StorageEntryType.NMap>(metadata.module("Assets").storage("Approvals").type)
+    }
+
+    @Test
     fun `connect metadata with real type registry`() {
         val metadataRaw = RealRuntimeProvider.buildRawMetadata()
         val kusamaTypeRegistry = RealRuntimeProvider.buildRegistry("kusama")
