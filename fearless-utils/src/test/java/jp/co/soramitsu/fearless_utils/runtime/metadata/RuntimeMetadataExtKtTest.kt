@@ -12,11 +12,12 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
-private val MODULE_NAME = "Test".encodeToByteArray()
-private val TEST_NAME = "Test".encodeToByteArray()
+private val MODULE_NAME = "Test"
+private val CALL_NAME = "Test"
 
 private val PREFIX =
-    (MODULE_NAME.xxHash128() + TEST_NAME.xxHash128()).toHexString(withPrefix = true)
+    (MODULE_NAME.encodeToByteArray().xxHash128() + CALL_NAME.encodeToByteArray().xxHash128())
+        .toHexString(withPrefix = true)
 
 @RunWith(MockitoJUnitRunner::class)
 class RuntimeMetadataExtKtTest {
@@ -103,8 +104,8 @@ class RuntimeMetadataExtKtTest {
         val mock = Mockito.mock(StorageEntry::class.java)
 
         Mockito.`when`(mock.type).thenReturn(storageEntryType)
-        Mockito.`when`(mock.moduleName).thenReturn("Test")
-        Mockito.`when`(mock.name).thenReturn("Test")
+        Mockito.`when`(mock.moduleName).thenReturn(MODULE_NAME)
+        Mockito.`when`(mock.name).thenReturn(CALL_NAME)
 
         return mock
     }

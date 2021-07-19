@@ -5,7 +5,6 @@ import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.useScaleWriter
 import java.io.ByteArrayOutputStream
 
 /**
@@ -121,7 +120,7 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, vararg keys: Any?): String
     return keyOutputStream.toByteArray().toHexString(withPrefix = true)
 }
 
-fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, vararg keys: Any?) : String? {
+fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, vararg keys: Any?): String? {
     return nullOnException { storageKey(runtime, keys) }
 }
 
