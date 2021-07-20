@@ -9,7 +9,6 @@ import jp.co.soramitsu.fearless_utils.exceptions.Bip39Exception
 import org.spongycastle.crypto.digests.SHA512Digest
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator
 import org.spongycastle.crypto.params.KeyParameter
-import java.lang.Exception
 import java.security.SecureRandom
 import java.text.Normalizer
 import java.text.Normalizer.normalize
@@ -20,6 +19,8 @@ class Bip39 {
 
     companion object {
         private const val SEED_PREFIX = "mnemonic"
+
+        private val DELIMITER_REGEX = "[\\s,]+".toRegex()
     }
 
     fun generateMnemonic(length: MnemonicLength): String {
@@ -34,7 +35,7 @@ class Bip39 {
     }
 
     fun generateEntropy(mnemonic: String): ByteArray {
-        val words = normalize(mnemonic, Normalizer.Form.NFKD).split(' ')
+        val words = splitMnemonic(mnemonic)
         if (words.size % 3 != 0) {
             throw Bip39Exception()
         }
@@ -71,6 +72,16 @@ class Bip39 {
             throw Bip39Exception()
 
         return entropyBytes
+    }
+
+    private fun splitMnemonic(original: String): List<String> {
+        val normalized = normalize(original, Normalizer.Form.NFKD)
+
+        val startIndex = normalized.indexOfFirst { it.isLetter() }
+        val endIndex = normalized.indexOfLast { it.isLetter() }
+
+        return normalized.substring(startIndex, endIndex + 1)
+            .split(DELIMITER_REGEX)
     }
 
     private fun lpad(str: String, padString: String, length: Int): String {
