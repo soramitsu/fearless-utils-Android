@@ -128,6 +128,7 @@ sealed class StorageEntryType(
             is EncodableStruct<*> -> when (value.schema) {
                 MapSchema -> Map(typeRegistry, value)
                 DoubleMapSchema -> DoubleMap(typeRegistry, value)
+                NMapSchema -> NMap(typeRegistry, value)
                 else -> cannotConstruct(value)
             }
             else -> cannotConstruct(value)
@@ -182,6 +183,21 @@ sealed class StorageEntryType(
             key1 = typeRegistry[struct[DoubleMapSchema.key1]],
             key2 = typeRegistry[struct[DoubleMapSchema.key2]],
             value = typeRegistry[struct[DoubleMapSchema.value]]
+        )
+    }
+
+    class NMap(
+        val keys: List<Type<*>?>,
+        val hashers: List<StorageHasher>,
+        value: Type<*>?
+    ) : StorageEntryType(value) {
+        constructor(
+            typeRegistry: TypeRegistry,
+            struct: EncodableStruct<*>
+        ) : this(
+            keys = struct[NMapSchema.keys].map { typeRegistry[it] },
+            hashers = struct[NMapSchema.hashers],
+            value = typeRegistry[struct[NMapSchema.value]]
         )
     }
 }

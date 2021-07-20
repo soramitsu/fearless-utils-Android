@@ -5,6 +5,7 @@ import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash128
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
+import java.io.ByteArrayOutputStream
 
 /**
  * @throws NoSuchElementException if module was not found
@@ -70,62 +71,58 @@ fun StorageEntry.storageKey(): String {
 fun StorageEntry.storageKeyOrNull() = nullOnException { storageKey() }
 
 /**
- * Constructs a key for storage with one argument.
- * This either fill be a full key for [StorageEntryType.Map] entries,
- * or a prefix key for [StorageEntryType.DoubleMap] entries
- *
- * @throws IllegalArgumentException if storage entry has [StorageEntryType.Plain]  type
- * @throws IllegalStateException if some of types used for encoding cannot be resolved
- * @throws EncodeDecodeException if error happened during encoding
+ * Dimension of [StorageEntryType] is an number of arguments of which the key is formed
  */
-fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key: Any?): String {
-    val (keyType, hasher) = when (type) {
-        is StorageEntryType.Map -> type.key to type.hasher
-        is StorageEntryType.DoubleMap -> type.key1 to type.key1Hasher
-        else -> wrongEntryType()
-    }
-
-    val keyEncoded = keyType?.bytes(runtime, key) ?: typeNotResolved(name)
-
-    val storageKey = moduleHash() + serviceHash() + hasher.hashingFunction(keyEncoded)
-
-    return storageKey.toHexString(withPrefix = true)
-}
-
-fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?) = nullOnException {
-    storageKey(runtime, key1)
+fun StorageEntryType.dimension() = when (this) {
+    is StorageEntryType.Plain -> 0
+    is StorageEntryType.Map -> 1
+    is StorageEntryType.DoubleMap -> 2
+    is StorageEntryType.NMap -> keys.size
 }
 
 /**
- **
- * Constructs a key for storage with two arguments.
- * This will be full key for [StorageEntryType.DoubleMap] entries,
+ * Constructs a key for storage with supplied arguments.
  *
- * @throws IllegalArgumentException if storage entry has [StorageEntryType.Plain] or [StorageEntryType.Map] type
+ * If [StorageEntryType.dimension] is equal to the number of arguments, then result will be the full storage key
+ * If [StorageEntryType.dimension] is greater then the number of arguments, then result will be the prefix key
+ *
+ * @throws IllegalArgumentException if [StorageEntryType.dimension] is less than the number of arguments
  * @throws IllegalStateException if some of types used for encoding cannot be resolved
  * @throws EncodeDecodeException if error happened during encoding
  */
-fun StorageEntry.storageKey(runtime: RuntimeSnapshot, key1: Any?, key2: Any?): String {
-    if (type !is StorageEntryType.DoubleMap) wrongEntryType()
+fun StorageEntry.storageKey(runtime: RuntimeSnapshot, vararg keys: Any?): String {
+    // keys size can be less then dimension to retrieve by prefix
+    if (keys.size > type.dimension()) wrongEntryType()
 
-    val key1Type = type.key1 ?: typeNotResolved(name)
-    val key2Type = type.key2 ?: typeNotResolved(name)
+    val keysWithHashers = when (type) {
+        is StorageEntryType.Plain -> emptyList()
+        is StorageEntryType.Map -> listOf(type.key to type.hasher)
+        is StorageEntryType.DoubleMap -> listOf(
+            type.key1 to type.key1Hasher,
+            type.key2 to type.key2Hasher
+        )
+        is StorageEntryType.NMap -> type.keys.zip(type.hashers)
+    }
 
-    val key1Encoded = key1Type.bytes(runtime, key1)
-    val key2Encoded = key2Type.bytes(runtime, key2)
+    val keyOutputStream = ByteArrayOutputStream()
 
-    val key1Hashed = type.key1Hasher.hashingFunction(key1Encoded)
-    val key2Hashed = type.key2Hasher.hashingFunction(key2Encoded)
+    keyOutputStream.write(moduleHash())
+    keyOutputStream.write(serviceHash())
 
-    val storageKey = moduleHash() + serviceHash() + key1Hashed + key2Hashed
+    keys.forEachIndexed { index, key ->
+        val (keyType, keyHasher) = keysWithHashers[index]
 
-    return storageKey.toHexString(withPrefix = true)
+        val keyEncoded = keyType?.bytes(runtime, key) ?: typeNotResolved(name)
+
+        keyOutputStream.write(keyHasher.hashingFunction(keyEncoded))
+    }
+
+    return keyOutputStream.toByteArray().toHexString(withPrefix = true)
 }
 
-fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, key1: Any?, key2: Any?) =
-    nullOnException {
-        storageKey(runtime, key1, key2)
-    }
+fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, vararg keys: Any?): String? {
+    return nullOnException { storageKey(runtime, keys) }
+}
 
 private fun typeNotResolved(entryName: String): Nothing =
     throw IllegalStateException("Cannot resolve key or value type for storage entry `$entryName`")
