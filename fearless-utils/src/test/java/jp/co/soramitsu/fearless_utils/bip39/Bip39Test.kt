@@ -1,5 +1,7 @@
 package jp.co.soramitsu.fearless_utils.bip39
 
+import jp.co.soramitsu.fearless_utils.extensions.fromHex
+import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -11,6 +13,9 @@ import org.spongycastle.util.encoders.Hex
 class Bip39Test {
 
     private lateinit var bip39: Bip39
+
+    private val expectedEntropyHex = "2a5ecdeb7466f14d3c06d5aa5c6d433d"
+    private val expectedMnemonic = "clean wait kiss trip humor pledge useless survey prevent toddler express knock"
 
     @Before
     fun setUp() {
@@ -31,24 +36,22 @@ class Bip39Test {
 
     @Test
     fun generateEntropy() {
-        val expectedEntropyHex = "2a5ecdeb7466f14d3c06d5aa5c6d433d"
-        val mnemonic =
-            "clean wait kiss trip humor pledge useless survey prevent toddler express knock"
-
-        val entropy = bip39.generateEntropy(mnemonic)
-
-        assertEquals(expectedEntropyHex, Hex.toHexString(entropy))
+        runMnemonicDecodingTest(expectedMnemonic)
     }
 
     @Test
     fun generateMnemonicFromEntropy() {
-        val entropyHex = "2a5ecdeb7466f14d3c06d5aa5c6d433d"
-        val expectedMnemonic =
-            "clean wait kiss trip humor pledge useless survey prevent toddler express knock"
-
-        val mnemonic = bip39.generateMnemonic(Hex.decode(entropyHex))
+        val mnemonic = bip39.generateMnemonic(expectedEntropyHex.fromHex())
 
         assertEquals(expectedMnemonic, mnemonic)
+    }
+
+    @Test
+    fun `should generate mnemonic from input with extra special symbols`() {
+        runMnemonicDecodingTest(" clean wait kiss trip humor pledge useless survey prevent toddler express knock")
+        runMnemonicDecodingTest("\t clean wait kiss trip humor pledge useless survey prevent toddler express knock")
+        runMnemonicDecodingTest("\n clean wait kiss trip humor pledge useless survey prevent toddler express knock")
+        runMnemonicDecodingTest("clean, wait\t kiss    trip,    humor\n pledge useless survey prevent toddler express knock")
     }
 
     @Test
@@ -61,5 +64,11 @@ class Bip39Test {
         val seed = bip39.generateSeed(bip39.generateEntropy(mnemonic), passphrase)
 
         assertEquals(expectedSeed, Hex.toHexString(seed))
+    }
+
+    private fun runMnemonicDecodingTest(input: String) {
+        val entropy = bip39.generateEntropy(input)
+
+        assertEquals(expectedEntropyHex, entropy.toHexString())
     }
 }
