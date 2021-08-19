@@ -1,6 +1,6 @@
 # Fearless Wallet native Android (Kotlin/Java) library
 
-Fearless Wallet utils Android is a native Android library to help developers built native mobile apps for Substrate-based networks, e.g. Polkadot, Kusama, and Westend.
+Fearless Wallet utils Android is a native Android library to help developers build native mobile apps for Substrate-based networks, e.g. Polkadot, Kusama, and Westend.
 
 # Table of contents
 
@@ -27,17 +27,17 @@ Fearless Wallet utils Android is a native Android library to help developers bui
 
 ## Bip39
 
-Bip39 is the algorithm which provides an opportunity to use a list of words, called mnemonic, instead of raw 32 byte seed. Library provides `Bip39` class to work with mnemonics:
+Bip39 is the algorithm which provides an opportunity to use a list of words, called mnemonic, instead of a raw 32 byte seed. Library provides `Bip39` class to work with mnemonics:
 
 ``` kotlin
 val bip39 = Bip39()
 
 val newMnemonic = bip39.generateMnemonic(length = MnemonicLength.TWELVE) // twelve words
 val entropy = bip39.generateEntropy(newMnemonic)
-val theSameMnemonic = bip39.generateMnemonic(entropy) 
+val theSameMnemonic = bip39.generateMnemonic(entropy)
 
 ```
-To generate seed, `passphrase` is needed. Techincally, it is a decoded derivation path (see [Junction Decoder](#junction-decoder))
+To generate a seed, a `passphrase` is needed. Technically, it is a decoded derivation path (see [Junction Decoder](#junction-decoder))
 
 ``` kotlin
 val seed = bip39.generateSeed(entropy, passphrase)
@@ -47,7 +47,7 @@ val seed = bip39.generateSeed(entropy, passphrase)
 Library provides support for decoding/encoding account information using JSON format, compatible with Polkadot.js
 
 ### Import
-Using `JsonSeedDecoder` you can perform decoding of the imported json:
+Using `JsonSeedDecoder` you can perform decoding of the imported JSON:
 
 ``` kotlin
 val decoder = JsonSeedDecoder(..)
@@ -57,16 +57,16 @@ decoder.decode(myJson, password) // performs full decoding. Slower
 ```
 
 ### Export
-Using `JsonSeedEncoder` you can generate json out of account information:
+Using `JsonSeedEncoder` you can generate JSON out of account information:
 
 ``` kotlin
 val encoder = JsonSeedEncoder(..)
 
-val json = encoder.generate(keypar, seed, password, name, encryptionType, genesis, addressByte)
+val json = encoder.generate(keypair, seed, password, name, encryptionType, genesis, addressByte)
 ```
 
 ## Extensions
-Library provides several extensions, that implement most common operations
+Library provides several extensions, that implement most common operations.
 ### Hex
 
 ``` kotlin
@@ -108,7 +108,7 @@ val drawable =  generator.getSvgImage(accountId, sizeInPixels)
 val derivationPath: String = ...
 val decoder = JunctionDecoder()
 
-val passphrase = decoder.getPassword(derivationPath) // retrieve passphrase to use in enropy -> seed generation
+val passphrase = decoder.getPassword(derivationPath) // retrieve passphrase to use in entropy -> seed generation
 val decodedPath = decoder.decodeDerivationPath(derivationPath)
 ```
 
@@ -117,10 +117,10 @@ val decodedPath = decoder.decodeDerivationPath(derivationPath)
 You can create storage keys easily:
 
 ``` kotlin
-val accountId: ByteArray = .. 
+val accountId: ByteArray = ..
 
 val bondedKey = Module.Staking.Bonded.storageKey(bytes)
-val accountInfoKey = Modyle.System.Account.storageKey(bytes)
+val accountInfoKey = Module.System.Account.storageKey(bytes)
 ```
 
 If you're missing some specific service/module, you can define it by your own:
@@ -142,7 +142,7 @@ If you're missing some specific service/module, you can define it by your own:
 
 ## Scale
 
-Library provides a convinient dsl to deal with scale encoding/decoding. Orinial codec reference: [Link](https://substrate.dev/docs/en/knowledgebase/advanced/codec).
+Library provides a convenient DSL to deal with scale encoding/decoding. Original codec reference: [Link](https://substrate.dev/docs/en/knowledgebase/advanced/codec).
 ### Define a schema
 
 ``` kotlin
@@ -180,22 +180,22 @@ Library provides the support for the following data types:
 * Primitives: `bool`, `string`
 * Arrays:
     * `sizedByteArray(n)` - only content is encoded/decoded), size is thus known in advance
-    * `byteArray` - size can vary, so the size is also encoded/decoded alsongside with the content
-* Compound types: 
+    * `byteArray` - size can vary, so the size is also encoded/decoded alongside with the content
+* Compound types:
     * `vector<D>` - List of objects of the some data type
     * `optional<D>` - Nullable container for other data type
     * `pair<D1, D2>`
     * `enum(D1, D2, D3...)` - like union in C, stores only one value at once, but this value can have different data type
-    * `enum<E : Enum>` - for classical kotlin enum 
+    * `enum<E : Enum>` - for classical Kotlin enum
 
 ### Custom Data Types
-If the decoding/endcoding cannot be done using standart data types, you can create your own by extending `DataType<T>`:
+If the decoding/encoding cannot be done using standart data types, you can create your own by extending `DataType<T>`:
 ``` kotlin
 object Delimiter : DataType<Byte>() {
     override fun conformsType(value: Any?): Boolean {
         return value is Byte && value == 0
     }
-    
+
     override fun read(reader: ScaleCodecReader): Byte {
         val read = reader.readByte()
 
@@ -209,7 +209,7 @@ object Delimiter : DataType<Byte>() {
     }
 }
 ```
-And use it in yout schema using `custom()` keyword:
+And use it in your schema using `custom()` keyword:
 ``` kotlin
 object CustomTypeTest : Schema<CustomTypeTest>() {
     val delimiter by custom(Delimiter)
@@ -247,10 +247,10 @@ val accountId = encoder.decode(address)
 
 ## WSRPC
 
-Library provides an implementation of `SocketService`, which simplifies communction with the node: it provides a seamless error recovery, subscription mechanism.
+Library provides an implementation of `SocketService`, which simplifies communication with the node: it provides a seamless error recovery, subscription mechanism.
 
-### Ininitialize socket
-To create a socket service, you need to provide several parameters: 
+### Initialize socket
+To create a socket service, you need to provide several parameters:
 
 ``` kotlin
 val reconnector = Reconnector(..) // to configure reconnect strategy and scheduling executor
@@ -292,19 +292,19 @@ socketService.subscribe(runtimeRequest, object : SocketService.ResponseListener<
 
 During setup of `Reconnector`, you can specify a `ReconnectStrategy`. There are several of them bundled with library:
 * `ConstantReconnectStrategy`
-* `LinearReconnectStrategy` 
+* `LinearReconnectStrategy`
 * `ExponentialReconnectStrategy`. This is a default reconnect strategy.
 
 You can create your own strategy by implementing `ReconnectStrategy` interface.
 
 ### Delivery type
 
-While sending request, you can specify a `DeliveryType`. Currently, there are 3 of them:
+While sending a request, you can specify a `DeliveryType`. Currently, there are 3 of them:
 * `AT_LEAST_ONCE` - attempts to send request until succeeded. This is a default delivery type.
 * `AT_MOST_ONCE` - send request once, reports error if attempt failed.
 * `ON_RECONNECT` - similar to `AT_LEAST_ONCE`, but remembers request and sends it on each reconnect. Currently used for subscription initiation.
 
-### Using with corotuines
+### Using with coroutines
 
 Library has a out-of-box support for coroutines:
 
@@ -326,7 +326,7 @@ The mappers for most common types are provided:
 * `pojo` - for json values
 * `pojoList` - for list of json values
 
-All mappers returns a `nullable` result by default. You can add `nonNull()` modifier to change this behavior. In case of null result, the `RpcException` will be thrown.
+All mappers return a `nullable` result by default. You can add `nonNull()` modifier to change this behavior. In case of null result, the `RpcException` will be thrown.
 
 #### Usage
 
@@ -334,5 +334,5 @@ All mappers returns a `nullable` result by default. You can add `nonNull()` modi
 scale().nonNull().map(response, gson)
 
 // or with coroutines adapter
-socketService.executeAsync(request, deliveryType, mapper = scale().nonNull()) 
+socketService.executeAsync(request, deliveryType, mapper = scale().nonNull())
 ```
