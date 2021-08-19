@@ -13,8 +13,11 @@ inline fun <T, R> Iterable<T>.tryFindNonNull(transform: (T) -> R?): R? {
     return null
 }
 
-fun ByteArray.toBigInteger(byteOrder: ByteOrder = ByteOrder.BIG_ENDIAN): BigInteger {
-    val preprocessed = if (byteOrder == ByteOrder.LITTLE_ENDIAN) reversedArray() else this
+private const val UNSIGNED_SIGNUM = 1
 
-    return BigInteger(preprocessed)
+fun ByteArray.fromUnsignedBytes(byteOrder: ByteOrder = ByteOrder.BIG_ENDIAN): BigInteger {
+    // Big Integer accepts big endian numbers
+    val ordered = if (byteOrder == ByteOrder.LITTLE_ENDIAN) reversedArray() else this
+
+    return BigInteger(UNSIGNED_SIGNUM, ordered)
 }
