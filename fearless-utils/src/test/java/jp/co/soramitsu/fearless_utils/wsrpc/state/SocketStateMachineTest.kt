@@ -455,7 +455,7 @@ class SocketStateMachineTest {
     }
 
     @Test
-    fun `should resend AT_MOST_ONCE and ON_RECONNECT requests on url switch`() {
+    fun `should resend AT_LEAST_ONCE and ON_RECONNECT requests on url switch`() {
         var state = moveToConnected()
 
         val atLeastOnce = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
