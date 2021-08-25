@@ -3,8 +3,6 @@ package jp.co.soramitsu.fearless_utils.wsrpc.state
 import jp.co.soramitsu.fearless_utils.wsrpc.request.DeliveryType
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 import jp.co.soramitsu.fearless_utils.wsrpc.subscription.response.SubscriptionChange
-import java.lang.Exception
-import kotlin.coroutines.cancellation.CancellationException
 
 typealias Transition = Pair<SocketStateMachine.State, List<SocketStateMachine.SideEffect>>
 
@@ -71,7 +69,7 @@ object SocketStateMachine {
 
         class Start(val url: String) : Event()
 
-        class SwitchUrl(val url: String): Event()
+        class SwitchUrl(val url: String) : Event()
 
         override fun toString(): String = javaClass.simpleName
     }
