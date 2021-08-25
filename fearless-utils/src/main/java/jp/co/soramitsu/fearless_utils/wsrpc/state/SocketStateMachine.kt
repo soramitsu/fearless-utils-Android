@@ -20,7 +20,7 @@ object SocketStateMachine {
         val initiatorId: Int
     }
 
-    object ConnectionSwitchedException : Exception("Connection url was switched")
+    object ConnectionClosedException : Exception("Connection was closed")
 
     sealed class State {
         data class WaitingForReconnect(
@@ -44,6 +44,11 @@ object SocketStateMachine {
         ) : State()
 
         object Disconnected : State()
+
+        data class Paused(
+            val url: String,
+            internal val pendingSendables: Set<Sendable>
+        ) : State()
 
         override fun toString(): String = javaClass.simpleName
     }
@@ -70,6 +75,10 @@ object SocketStateMachine {
         class Start(val url: String) : Event()
 
         class SwitchUrl(val url: String) : Event()
+
+        object Pause : Event()
+
+        object Resume : Event()
 
         override fun toString(): String = javaClass.simpleName
     }
@@ -135,7 +144,12 @@ object SocketStateMachine {
                     is Event.SwitchUrl -> {
                         applySwitchUrlSideEffects(event.url, sideEffects)
 
-                        State.Connecting(state.url, state.attempt, state.pendingSendables)
+                        State.Connecting(event.url, state.attempt, state.pendingSendables)
+                    }
+                    is Event.Pause -> {
+                        applyPauseEffects(sideEffects)
+
+                        State.Paused(url = state.url, pendingSendables = state.pendingSendables)
                     }
                     else -> state
                 }
@@ -173,7 +187,12 @@ object SocketStateMachine {
                     is Event.SwitchUrl -> {
                         applySwitchUrlSideEffects(event.url, sideEffects)
 
-                        State.Connecting(state.url, state.attempt, state.pendingSendables)
+                        State.Connecting(event.url, state.attempt, state.pendingSendables)
+                    }
+                    is Event.Pause -> {
+                        applyPauseEffects(sideEffects)
+
+                        State.Paused(url = state.url, pendingSendables = state.pendingSendables)
                     }
                     else -> state
                 }
@@ -262,12 +281,21 @@ object SocketStateMachine {
                     is Event.Stop -> handleStop(sideEffects)
                     is Event.SwitchUrl -> {
                         val toResend = getRequestsToResendAndReportErrorToOthers(
-                            state, sideEffects, ConnectionSwitchedException
+                            state, sideEffects, ConnectionClosedException
                         )
 
                         applySwitchUrlSideEffects(event.url, sideEffects)
 
                         State.Connecting(url = event.url, pendingSendables = toResend)
+                    }
+                    is Event.Pause -> {
+                        val toResend = getRequestsToResendAndReportErrorToOthers(
+                            state, sideEffects, ConnectionClosedException
+                        )
+
+                        applyPauseEffects(sideEffects)
+
+                        State.Paused(url = state.url, pendingSendables = toResend)
                     }
                     else -> state
                 }
@@ -280,11 +308,30 @@ object SocketStateMachine {
 
                         State.Connecting(event.url)
                     }
-                    is Event.SwitchUrl -> {
-                        sideEffects += SideEffect.Connect(event.url)
+                    else -> state
+                }
+            }
 
-                        State.Connecting(event.url)
+            is State.Paused -> {
+                when (event) {
+                    is Event.Send -> state.copy(
+                            pendingSendables = state.pendingSendables + event.sendable
+                        )
+
+                    is Event.Cancel -> state.copy(
+                        pendingSendables = state.pendingSendables - event.sendable
+                    )
+
+                    is Event.Stop -> State.Disconnected // do not emit Disconnect Side Effect since connection is already stopped
+
+                    is Event.SwitchUrl -> State.Paused(event.url, state.pendingSendables)
+
+                    is Event.Resume -> {
+                        sideEffects += SideEffect.Connect(state.url)
+
+                        State.Connecting(url = state.url, pendingSendables = state.pendingSendables)
                     }
+
                     else -> state
                 }
             }
@@ -326,6 +373,10 @@ object SocketStateMachine {
 
     private fun applySwitchUrlSideEffects(url: String, sideEffects: MutableList<SideEffect>) {
         sideEffects += listOf(SideEffect.Disconnect, SideEffect.Connect(url))
+    }
+
+    private fun applyPauseEffects(sideEffects: MutableList<SideEffect>) {
+        sideEffects += SideEffect.Disconnect
     }
 
     private fun Set<Sendable>.filterByDeliveryType(deliveryType: DeliveryType): Set<Sendable> =

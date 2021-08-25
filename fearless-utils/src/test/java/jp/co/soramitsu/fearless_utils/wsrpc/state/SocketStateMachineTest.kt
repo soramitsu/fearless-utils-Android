@@ -21,7 +21,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
-import kotlin.coroutines.cancellation.CancellationException
 
 private const val URL = "TEST"
 private const val SWITCH_URL = "SWITCHED"
@@ -444,7 +443,7 @@ class SocketStateMachineTest {
 
         val expectedLog = listOf(
             CONNECT_SIDE_EFFECT, SendSendables(sendables),
-            RespondSendablesError(sendables, SocketStateMachine.ConnectionSwitchedException),
+            RespondSendablesError(sendables, SocketStateMachine.ConnectionClosedException),
             Disconnect, Connect(SWITCH_URL)
         )
 
@@ -473,6 +472,189 @@ class SocketStateMachineTest {
             State.Connecting(SWITCH_URL, attempt = 0, pendingSendables = setOf(onReconnect, atLeastOnce)),
             state
         )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should change url while waiting for reconnect`() {
+        val sendable = singleTestSendable(DeliveryType.AT_MOST_ONCE)
+        val sendables = setOf(sendable)
+
+        var state: State = State.WaitingForReconnect(URL, pendingSendables = sendables)
+
+        state = transition(state, Event.SwitchUrl(SWITCH_URL))
+
+        val expectedLog = listOf(Disconnect, Connect(SWITCH_URL))
+
+        assertEquals(
+            State.Connecting(SWITCH_URL, attempt = 0, pendingSendables = sendables),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should pause from waiting to reconnect`() {
+        val sendable = singleTestSendable(DeliveryType.AT_MOST_ONCE)
+        val sendables = setOf(sendable)
+
+        var state: State = State.WaitingForReconnect(URL, pendingSendables = sendables)
+
+        state = transition(state, Event.Pause)
+
+        val expectedLog = listOf(Disconnect)
+
+        assertEquals(
+            State.Paused(URL, pendingSendables = sendables),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should switch url while connecting`() {
+        val sendable = singleTestSendable(DeliveryType.AT_MOST_ONCE)
+        val sendables = setOf(sendable)
+
+        var state: State = State.Connecting(URL, pendingSendables = sendables)
+
+        state = transition(state, Event.SwitchUrl(SWITCH_URL))
+
+        val expectedLog = listOf(Disconnect, Connect(SWITCH_URL))
+
+        assertEquals(
+            State.Connecting(SWITCH_URL, pendingSendables = sendables),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should pause from connecting`() {
+        val sendable = singleTestSendable(DeliveryType.AT_MOST_ONCE)
+        val sendables = setOf(sendable)
+
+        var state: State = State.Connecting(URL, pendingSendables = sendables)
+
+        state = transition(state, Event.Pause)
+
+        val expectedLog = listOf(Disconnect)
+
+        assertEquals(
+            State.Paused(URL, pendingSendables = sendables),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should pause from connected reporting errors to AT_MOST_ONCE requests`() {
+        val atLeastOnce = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
+        val onReconnect = singleTestSendable(DeliveryType.ON_RECONNECT)
+        val atMostOnce = singleTestSendable(DeliveryType.AT_MOST_ONCE)
+
+        val sendables = setOf(atLeastOnce, onReconnect, atMostOnce)
+
+        var state: State = State.Connected(
+            URL,
+            toResendOnReconnect = emptySet(),
+            waitingForResponse = sendables,
+            subscriptions = emptySet()
+        )
+
+        state = transition(state, Event.Pause)
+
+        val expectedLog = listOf(
+            RespondSendablesError(setOf(atMostOnce), SocketStateMachine.ConnectionClosedException),
+            Disconnect
+        )
+
+        assertEquals(
+            State.Paused(URL, pendingSendables = setOf(onReconnect, atLeastOnce)),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should add request to pending when paused`() {
+        val atLeastOnce = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
+
+        var state: State = State.Paused(URL, pendingSendables = emptySet())
+
+        state = transition(state, Event.Send(atLeastOnce))
+
+        val expectedLog = emptyList<SideEffect>()
+
+        assertEquals(
+            State.Paused(URL, pendingSendables = setOf(atLeastOnce)),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should cancel request while paused`() {
+        val atLeastOnce = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
+
+        var state: State = State.Paused(URL, pendingSendables = setOf(atLeastOnce))
+
+        state = transition(state, Event.Cancel(atLeastOnce))
+
+        val expectedLog = emptyList<SideEffect>()
+
+        assertEquals(
+            State.Paused(URL, pendingSendables = emptySet()),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should stop while paused`() {
+        var state: State = State.Paused(URL, pendingSendables = emptySet())
+
+        state = transition(state, Event.Stop)
+
+        val expectedLog = emptyList<SideEffect>()
+
+        assertEquals(State.Disconnected, state)
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should change url while paused`() {
+        var state: State = State.Paused(URL, pendingSendables = emptySet())
+
+        state = transition(state, Event.SwitchUrl(SWITCH_URL))
+
+        val expectedLog = emptyList<SideEffect>()
+
+        assertEquals(State.Paused(SWITCH_URL, pendingSendables = emptySet()), state)
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should resume when paused`() {
+        var state: State = State.Paused(URL, pendingSendables = emptySet())
+
+        state = transition(state, Event.Resume)
+
+        val expectedLog = listOf(Connect(URL))
+
+        assertEquals(State.Connecting(URL, pendingSendables = emptySet()), state)
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should ignore other events when paused`() {
+        val initialState = State.Paused(URL, pendingSendables = emptySet())
+
+        val newState = transition(initialState, Event.Start(SWITCH_URL), Event.Connected, Event.Pause)
+
+        val expectedLog = emptyList<SideEffect>()
+
+        assertEquals(initialState, newState)
         assertEquals(expectedLog, sideEffectLog)
     }
 
