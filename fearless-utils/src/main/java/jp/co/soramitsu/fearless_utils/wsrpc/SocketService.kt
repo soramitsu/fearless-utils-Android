@@ -36,21 +36,51 @@ class SocketService(
 
     private val stateContainer = ObservableState(initialState = State.Disconnected)
 
-    @Synchronized
-    fun switchUrl(url: String) {
-        updateState(Event.SwitchUrl(url))
-    }
-
     fun started() = stateContainer.getState() !is State.Disconnected
 
-    @Synchronized
+    /**
+     * Initiate new connection to the given url.
+     * Only has effect when called from [SocketStateMachine.State.Disconnected] state.
+     * Meaning, this is the first method that should be called after create [SocketService] instance
+     */
     fun start(url: String) {
         updateState(Event.Start(url))
     }
 
-    @Synchronized
+    /**
+     * Closes connection and forgets about all requests and subscriptions.
+     * Should be used when socket connection is no longer needed.
+     */
     fun stop() {
         updateState(Event.Stop)
+    }
+
+    /**
+     * Seamlessly switches connection url saving all pending & active requests or subscriptions
+     * Should be used instead of
+     * ```
+     *     stop()
+     *     start(newURl)
+     * ```
+     */
+    fun switchUrl(url: String) {
+        updateState(Event.SwitchUrl(url))
+    }
+
+    /**
+     * Closes connection but saves all subscriptions and [DeliveryType.AT_LEAST_ONCE] requests.
+     * Reports [ConnectionClosedException] to [DeliveryType.AT_MOST_ONCE] requests.
+     */
+    fun pause() {
+        updateState(Event.Pause)
+    }
+
+    /**
+     * Resumes connection from [SocketStateMachine.State.Paused] state,
+     * recovering all subscriptions and [DeliveryType.AT_LEAST_ONCE] requests
+     */
+    fun resume() {
+        updateState(Event.Resume)
     }
 
     fun addStateObserver(observer: StateObserver) = stateContainer.addObserver(observer)
