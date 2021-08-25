@@ -36,10 +36,9 @@ class SocketService(
 
     private val stateContainer = ObservableState(initialState = State.Disconnected)
 
+    @Synchronized
     fun switchUrl(url: String) {
-        stop()
-
-        start(url)
+        updateState(Event.SwitchUrl(url))
     }
 
     fun started() = stateContainer.getState() !is State.Disconnected

@@ -21,8 +21,10 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.junit.MockitoJUnitRunner
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val URL = "TEST"
+private const val SWITCH_URL = "SWITCHED"
 
 val emptyConnectedState = State.Connected(
     url = URL,
@@ -426,6 +428,49 @@ class SocketStateMachineTest {
 
         assertEquals(
             State.WaitingForReconnect(URL, attempt = 0, pendingSendables = emptySet()),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should report error to AT_MOST_ONCE request on url switch and do not resend them`() {
+        var state = moveToConnected()
+
+        val sendable = singleTestSendable(DeliveryType.AT_MOST_ONCE)
+        val sendables = setOf(sendable)
+
+        state = transition(state, Event.Send(sendable), Event.SwitchUrl(SWITCH_URL))
+
+        val expectedLog = listOf(
+            CONNECT_SIDE_EFFECT, SendSendables(sendables),
+            RespondSendablesError(sendables, SocketStateMachine.ConnectionSwitchedException),
+            Disconnect, Connect(SWITCH_URL)
+        )
+
+        assertEquals(
+            State.Connecting(SWITCH_URL, attempt = 0, pendingSendables = emptySet()),
+            state
+        )
+        assertEquals(expectedLog, sideEffectLog)
+    }
+
+    @Test
+    fun `should resend AT_MOST_ONCE and ON_RECONNECT requests on url switch`() {
+        var state = moveToConnected()
+
+        val atLeastOnce = singleTestSendable(DeliveryType.AT_LEAST_ONCE)
+        val onReconnect =  singleTestSendable(DeliveryType.ON_RECONNECT)
+
+        state = transition(state, Event.Send(onReconnect), Event.Send(atLeastOnce), Event.SwitchUrl(SWITCH_URL))
+
+        val expectedLog = listOf(
+            CONNECT_SIDE_EFFECT, SendSendables(setOf(onReconnect)), SendSendables(setOf(atLeastOnce)),
+            Disconnect, Connect(SWITCH_URL)
+        )
+
+        assertEquals(
+            State.Connecting(SWITCH_URL, attempt = 0, pendingSendables = setOf(onReconnect, atLeastOnce)),
             state
         )
         assertEquals(expectedLog, sideEffectLog)
