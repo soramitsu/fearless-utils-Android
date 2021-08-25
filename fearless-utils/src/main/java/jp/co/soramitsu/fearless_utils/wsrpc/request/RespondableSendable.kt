@@ -4,7 +4,6 @@ import jp.co.soramitsu.fearless_utils.wsrpc.SocketService
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.RuntimeRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.response.RpcResponse
 import jp.co.soramitsu.fearless_utils.wsrpc.state.SocketStateMachine
-import kotlinx.coroutines.flow.MutableSharedFlow
 
 internal class RespondableSendable(
     val request: RuntimeRequest,
