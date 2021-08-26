@@ -80,6 +80,14 @@ class SocketStateMachineTest {
     }
 
     @Test
+    fun `should start remain paused`() {
+        val state = moveToStart(remainPaused = true)
+
+        assertEquals(state, State.Paused(pendingSendables = emptySet(), url = URL))
+        assertEquals(emptyList<SideEffect>(), sideEffectLog)
+    }
+
+    @Test
     fun `should connect`() {
         val state = moveToConnected()
 
@@ -213,14 +221,14 @@ class SocketStateMachineTest {
     fun `should ignore invalid transition from connecting`() {
         val state = State.Connecting(URL, pendingSendables = emptySet())
 
-        val newState = transition(state, Event.Start(URL))
+        val newState = transition(state, Event.Start(URL, remainPaused = false))
 
         assertEquals(state, newState)
     }
 
     @Test
     fun `should ignore invalid transition from connected`() {
-        val newState = transition(emptyConnectedState, Event.Start(URL))
+        val newState = transition(emptyConnectedState, Event.Start(URL, remainPaused = false))
 
         assertEquals(emptyConnectedState, newState)
     }
@@ -650,7 +658,10 @@ class SocketStateMachineTest {
     fun `should ignore other events when paused`() {
         val initialState = State.Paused(URL, pendingSendables = emptySet())
 
-        val newState = transition(initialState, Event.Start(SWITCH_URL), Event.Connected, Event.Pause)
+        val newState = transition(
+            initialState, Event.Start(SWITCH_URL, remainPaused = false),
+            Event.Connected, Event.Pause
+        )
 
         val expectedLog = emptyList<SideEffect>()
 
@@ -664,16 +675,19 @@ class SocketStateMachineTest {
         return transition(started, Event.Connected)
     }
 
-    private fun moveToStart(): State {
+    private fun moveToStart(remainPaused: Boolean = false): State {
         val initial = SocketStateMachine.initialState()
 
-        return transition(initial, Event.Start(URL))
+        return transition(initial, Event.Start(URL, remainPaused))
     }
 
     private fun moveToWaitingForReconnect(): State {
         val initial = SocketStateMachine.initialState()
 
-        return transition(initial, Event.Start(URL), Event.ConnectionError(TEST_EXCEPTION))
+        return transition(
+            initial, Event.Start(URL, remainPaused = false),
+            Event.ConnectionError(TEST_EXCEPTION)
+        )
     }
 
     private fun assertSideAffectLogWithConnect() =

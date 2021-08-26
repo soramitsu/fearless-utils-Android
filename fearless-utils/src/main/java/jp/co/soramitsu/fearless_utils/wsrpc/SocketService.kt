@@ -42,9 +42,13 @@ class SocketService(
      * Initiate new connection to the given url.
      * Only has effect when called from [SocketStateMachine.State.Disconnected] state.
      * Meaning, this is the first method that should be called after create [SocketService] instance
+     *
+     * @param url - url to connect to
+     * @param remainPaused - true if socket should start in [SocketStateMachine.State.Paused] state,
+     * delaying connection until [resume] is called
      */
-    fun start(url: String) {
-        updateState(Event.Start(url))
+    fun start(url: String, remainPaused: Boolean = false) {
+        updateState(Event.Start(url, remainPaused))
     }
 
     /**
