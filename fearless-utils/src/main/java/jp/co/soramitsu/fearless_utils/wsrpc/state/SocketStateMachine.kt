@@ -47,7 +47,7 @@ object SocketStateMachine {
 
         data class Paused(
             val url: String,
-            internal val pendingSendables: Set<Sendable>
+            internal val pendingSendables: Set<Sendable> = emptySet()
         ) : State()
 
         override fun toString(): String = javaClass.simpleName
@@ -72,7 +72,7 @@ object SocketStateMachine {
 
         object Stop : Event()
 
-        class Start(val url: String) : Event()
+        class Start(val url: String, val remainPaused: Boolean) : Event()
 
         class SwitchUrl(val url: String) : Event()
 
@@ -304,9 +304,13 @@ object SocketStateMachine {
             is State.Disconnected -> {
                 when (event) {
                     is Event.Start -> {
-                        sideEffects += SideEffect.Connect(event.url)
+                        if (event.remainPaused) {
+                            State.Paused(url = event.url)
+                        } else {
+                            sideEffects += SideEffect.Connect(event.url)
 
-                        State.Connecting(event.url)
+                            State.Connecting(event.url)
+                        }
                     }
                     else -> state
                 }
