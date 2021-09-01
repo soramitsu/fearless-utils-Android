@@ -1,116 +1,88 @@
 package jp.co.soramitsu.fearless_utils.junction
 
-import io.emeraldpay.polkaj.scale.ScaleCodecWriter
-import org.spongycastle.jcajce.provider.digest.Blake2b
-import org.spongycastle.util.encoders.Hex
-import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
-class JunctionDecoder {
+abstract class JunctionDecoder {
+
+    sealed class DecodingError : Exception() {
+        object InvalidStart : DecodingError()
+        object EmptyPath : DecodingError()
+        object EmptyPassphrase : DecodingError()
+        object EmptyJunction : DecodingError()
+        object MultiplePassphrase : DecodingError()
+    }
+
+    class DecodeResult(
+        val password: String?,
+        val junctions: List<Junction>
+    )
 
     companion object {
-        private const val HEX_ALPHABET = "0123456789abcdef"
+        const val SOFT_SEPARATOR = "/"
+        const val HARD_SEPARATOR = "//"
+        const val PASSWORD_SEPARATOR = "///"
     }
 
-    fun getPassword(path: String): String {
-        if (path.contains("///")) {
-            return path.substring(path.indexOf("///")).substring(3)
+    fun decode(path: String): DecodeResult {
+        require(path.startsWith(SOFT_SEPARATOR)) {
+            DecodingError.InvalidStart
         }
 
-        return ""
-    }
+        val passwordComponents = path.split(PASSWORD_SEPARATOR)
 
-    fun decodeDerivationPath(derivationPath: String): List<Junction> {
-        val path = if (derivationPath.contains("///")) {
-            derivationPath.substring(0, derivationPath.indexOf("///"))
+        val junctionsPath = passwordComponents.firstOrNull() ?: throw DecodingError.EmptyPath
+
+        require(passwordComponents.size <= 2) {
+            DecodingError.MultiplePassphrase
+        }
+
+        val password = if (passwordComponents.size == 2) {
+            passwordComponents.last()
         } else {
-            derivationPath
+            null
         }
 
-        val chaincodes = mutableListOf<Junction>()
+        password?.let {
+            require(password.isNotEmpty()) {
+                DecodingError.EmptyPassphrase
+            }
+        }
 
-        if (path.isNotEmpty()) {
-            var slashCount = 0
-            var currentType = JunctionType.NONE
-            val currentJunctionBuilder = StringBuilder()
+        return DecodeResult(password = password, junctions = parseJunctionsFromPath(junctionsPath))
+    }
 
-            path.forEach { c ->
-                if (c == '/') {
-                    if (currentType != JunctionType.NONE) {
-                        chaincodes.add(
-                            Junction(
-                                currentType,
-                                proccessBytes(decodeJunction(currentJunctionBuilder.toString()))
-                            )
-                        )
-                        slashCount = 0
-                        currentType = JunctionType.NONE
-                        currentJunctionBuilder.clear()
-                    }
-                    slashCount++
-                } else {
-                    when (slashCount) {
-                        1 -> {
-                            currentType = JunctionType.SOFT
-                        }
+    private fun parseJunctionsFromPath(junctionsPath: String): List<Junction> {
+        return junctionsPath.split(HARD_SEPARATOR)
+            .map { component ->
+                val junctions = mutableListOf<Junction>()
 
-                        2 -> {
-                            currentType = JunctionType.HARD
-                        }
-                    }
+                val subComponents = component.split(SOFT_SEPARATOR)
 
-                    currentJunctionBuilder.append(c)
+                val hardJunction = subComponents.firstOrNull() ?: throw DecodingError.EmptyJunction
+
+                if (hardJunction.isNotEmpty()) {
+                    junctions.add(decodeJunction(hardJunction, JunctionType.HARD))
                 }
-            }
 
-            chaincodes.add(
-                Junction(
-                    currentType,
-                    proccessBytes(decodeJunction(currentJunctionBuilder.toString()))
-                )
-            )
-        }
+                val softJunctions = subComponents.drop(1).map {
+                    decodeJunction(it, JunctionType.SOFT)
+                }
 
-        return chaincodes
+                junctions.addAll(softJunctions)
+
+                junctions
+            }.flatten()
     }
 
-    private fun decodeJunction(junction: String): ByteArray {
-        junction.toLongOrNull()?.let {
-            val bytes = ByteArray(8)
-            ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).putLong(it)
-            return bytes
-        }
+    protected abstract fun decodeJunction(rawJunction: String, type: JunctionType): Junction
+}
 
-        return if (isHexString(junction)) {
-            Hex.decode(junction)
-        } else {
-            val buf = ByteArrayOutputStream()
-            ScaleCodecWriter(buf).writeString(junction)
-            buf.toByteArray()
-        }
+@OptIn(ExperimentalContracts::class)
+private fun require(condition: Boolean, lazyException: () -> Exception) {
+    contract {
+        returns() implies condition
     }
 
-    private fun proccessBytes(bytes: ByteArray): ByteArray {
-        if (bytes.size < 32) {
-            val newBytes = ByteArray(32)
-            bytes.copyInto(newBytes)
-            return newBytes
-        }
-
-        if (bytes.size > 32) {
-            return Blake2b.Blake2b256().digest(bytes)
-        }
-
-        return bytes
-    }
-
-    private fun isHexString(hexaDecimal: String): Boolean {
-        for (char in hexaDecimal) {
-            if (!HEX_ALPHABET.contains(char)) {
-                return false
-            }
-        }
-        return true
-    }
+    if (!condition) throw lazyException()
 }

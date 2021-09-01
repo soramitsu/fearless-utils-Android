@@ -2,10 +2,12 @@ package jp.co.soramitsu.fearless_utils.extensions
 
 import org.junit.Assert.*
 import org.junit.Test
+import org.web3j.abi.datatypes.Uint
 import java.math.BigInteger
 import java.nio.ByteOrder
 
-class BigIntegerToUnsignedTest {
+@ExperimentalUnsignedTypes
+class KotlinExtensionsTest {
 
     @Test
     fun `should create little endian big int`() {
@@ -26,5 +28,24 @@ class BigIntegerToUnsignedTest {
         val bytes = "0x6a3f7f".fromHex()
 
         assertEquals(BigInteger("6963071"), bytes.fromUnsignedBytes(ByteOrder.BIG_ENDIAN))
+    }
+
+    @Test
+    fun `should convert UInt to byte array`() {
+        val testCases = listOf(
+            UInt.MIN_VALUE to "00000000",
+            0u to "00000000",
+            1u to "00000001",
+            2u to "00000002",
+            255u to "000000ff",
+            UInt.MAX_VALUE to "ffffffff"
+        )
+
+        testCases.forEach { (uint, expected) ->
+            val toUnsignedBytes = uint.toUnsignedBytes()
+            val actual = toUnsignedBytes.joinToString(separator = "") { "%02x".format(it) }
+
+            assertEquals(expected, actual)
+        }
     }
 }

@@ -3,8 +3,8 @@ package jp.co.soramitsu.fearless_utils.encrypt
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.exceptions.JunctionTypeException
-import jp.co.soramitsu.fearless_utils.junction.JunctionDecoder
 import jp.co.soramitsu.fearless_utils.junction.JunctionType
+import jp.co.soramitsu.fearless_utils.junction.SubstrateJunctionDecoder
 import net.i2p.crypto.eddsa.EdDSAKey
 import net.i2p.crypto.eddsa.EdDSASecurityProvider
 import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable
@@ -29,7 +29,7 @@ class KeypairFactory {
         Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
     }
 
-    private val junctionDecoder = JunctionDecoder()
+    private val junctionDecoder = SubstrateJunctionDecoder()
 
     fun generate(encryptionType: EncryptionType, seed: ByteArray, derivationPath: String = ""): Keypair {
         var previousKeypair = when (encryptionType) {
@@ -39,9 +39,9 @@ class KeypairFactory {
         }
 
         if (derivationPath.isNotEmpty()) {
-            val junctions = junctionDecoder.decodeDerivationPath(derivationPath)
+            val decodeResult = junctionDecoder.decode(derivationPath)
             var currentSeed = seed
-            junctions.forEach {
+            decodeResult.junctions.forEach {
                 previousKeypair = when (encryptionType) {
                     EncryptionType.SR25519 -> {
                         if (it.type == JunctionType.SOFT) {
