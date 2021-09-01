@@ -2,14 +2,14 @@ package jp.co.soramitsu.fearless_utils.encrypt.json
 
 import com.google.gson.Gson
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
-import jp.co.soramitsu.fearless_utils.encrypt.KeypairFactory
 import jp.co.soramitsu.fearless_utils.encrypt.Sr25519
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.IncorrectPasswordException
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.InvalidJsonException
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.Sr25519Keypair
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.SubstrateKeypairFactory
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountData
 import jp.co.soramitsu.fearless_utils.encrypt.model.ImportAccountMeta
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
-import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.model.NetworkTypeIdentifier
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.addressByteOrNull
@@ -22,10 +22,7 @@ sealed class JsonSeedDecodingException : Exception() {
     class UnsupportedEncryptionTypeException : JsonSeedDecodingException()
 }
 
-class JsonSeedDecoder(
-    private val gson: Gson,
-    private val keypairFactory: KeypairFactory
-) {
+class JsonSeedDecoder(private val gson: Gson) {
 
     fun extractImportMetaData(json: String): ImportAccountMeta {
         val jsonData = decodeJson(json)
@@ -95,7 +92,7 @@ class JsonSeedDecoder(
                 val privateAndNonce = Sr25519.fromEd25519Bytes(privateKeyCompressed)
                 val publicKey = secret.copyOfRange(85, 117)
 
-                val keypair = Keypair(
+                val keypair = Sr25519Keypair(
                     privateAndNonce.copyOfRange(0, 32),
                     publicKey,
                     privateAndNonce.copyOfRange(32, 64)
@@ -106,14 +103,14 @@ class JsonSeedDecoder(
 
             EncryptionType.ED25519 -> {
                 val seed = secret.copyOfRange(16, 48)
-                val keypair = keypairFactory.generate(cryptoType, seed)
+                val keypair = SubstrateKeypairFactory.generate(cryptoType, seed)
 
                 keypair to seed
             }
 
             EncryptionType.ECDSA -> {
                 val seed = secret.copyOfRange(16, 48)
-                val keys = keypairFactory.generate(cryptoType, seed)
+                val keys = SubstrateKeypairFactory.generate(cryptoType, seed)
 
                 keys to seed
             }

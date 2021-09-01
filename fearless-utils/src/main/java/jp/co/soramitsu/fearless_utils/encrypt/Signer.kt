@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
-import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.Keypair
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.Sr25519Keypair
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import net.i2p.crypto.eddsa.EdDSAEngine
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
@@ -30,15 +31,19 @@ object Signer {
         keypair: Keypair
     ): SignatureWrapper {
         return when (encryptionType) {
-            EncryptionType.SR25519 -> signSr25519(message, keypair)
+            EncryptionType.SR25519 -> {
+                require(keypair is Sr25519Keypair) {
+                    "Sr25519Keypair is needed to sign with SR25519"
+                }
+
+                signSr25519(message, keypair)
+            }
             EncryptionType.ED25519 -> signEd25519(message, keypair)
             EncryptionType.ECDSA -> signEcdsa(message, keypair)
         }
     }
 
-    private fun signSr25519(message: ByteArray, keypair: Keypair): SignatureWrapper {
-        require(keypair.nonce != null)
-
+    private fun signSr25519(message: ByteArray, keypair: Sr25519Keypair): SignatureWrapper {
         val sign = Sr25519.sign(keypair.publicKey, keypair.privateKey + keypair.nonce, message)
 
         return SignatureWrapper.Other(signature = sign)

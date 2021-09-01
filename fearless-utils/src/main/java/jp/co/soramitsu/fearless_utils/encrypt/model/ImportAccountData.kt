@@ -1,6 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt.model
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.Keypair
 
 class ImportAccountData(
     val keypair: Keypair,

@@ -1,5 +1,6 @@
-package jp.co.soramitsu.fearless_utils.encrypt
+package jp.co.soramitsu.fearless_utils.encrypt.keypair
 
+import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import org.spongycastle.jce.ECNamedCurveTable
 import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.Sign
@@ -19,4 +20,10 @@ object ECDSAUtils {
         val y: ByteArray = point.yCoord.encoded
         return Hex.toHexString(byteArrayOf(0x00) + x + y).toBigInteger(16)
     }
+}
+
+fun ECDSAUtils.derivePublicKey(privateKeyOrSeed: ByteArray) : ByteArray {
+    val privateKeyInt = BigInteger(privateKeyOrSeed.toHexString(), 16)
+
+    return compressedPublicKeyFromPrivate(privateKeyInt)
 }

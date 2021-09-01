@@ -2,6 +2,7 @@
 
 package jp.co.soramitsu.fearless_utils.junction
 
+import jp.co.soramitsu.fearless_utils.extensions.requireOrException
 import jp.co.soramitsu.fearless_utils.extensions.toUnsignedBytes
 import java.lang.Exception
 
@@ -19,7 +20,7 @@ class BIP32JunctionDecoder : JunctionDecoder() {
         val numericJunction = rawJunction.toUIntOrNull()
             ?: throw DecodingError.InvalidBIP32Junction
 
-        require(numericJunction < HARD_KEY_FLAG) {
+        requireOrException(numericJunction < HARD_KEY_FLAG) {
             DecodingError.InvalidBIP32HardJunction
         }
 

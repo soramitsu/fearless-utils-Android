@@ -1,7 +1,6 @@
 package jp.co.soramitsu.fearless_utils.junction
 
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
+import jp.co.soramitsu.fearless_utils.extensions.requireOrException
 
 abstract class JunctionDecoder {
 
@@ -25,7 +24,7 @@ abstract class JunctionDecoder {
     }
 
     fun decode(path: String): DecodeResult {
-        require(path.startsWith(SOFT_SEPARATOR)) {
+        requireOrException(path.startsWith(SOFT_SEPARATOR)) {
             DecodingError.InvalidStart
         }
 
@@ -33,7 +32,7 @@ abstract class JunctionDecoder {
 
         val junctionsPath = passwordComponents.firstOrNull() ?: throw DecodingError.EmptyPath
 
-        require(passwordComponents.size <= 2) {
+        requireOrException(passwordComponents.size <= 2) {
             DecodingError.MultiplePassphrase
         }
 
@@ -44,7 +43,7 @@ abstract class JunctionDecoder {
         }
 
         password?.let {
-            require(password.isNotEmpty()) {
+            requireOrException(password.isNotEmpty()) {
                 DecodingError.EmptyPassphrase
             }
         }
@@ -76,13 +75,4 @@ abstract class JunctionDecoder {
     }
 
     protected abstract fun decodeJunction(rawJunction: String, type: JunctionType): Junction
-}
-
-@OptIn(ExperimentalContracts::class)
-private fun require(condition: Boolean, lazyException: () -> Exception) {
-    contract {
-        returns() implies condition
-    }
-
-    if (!condition) throw lazyException()
 }
