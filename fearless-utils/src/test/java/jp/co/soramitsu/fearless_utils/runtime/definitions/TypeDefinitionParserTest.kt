@@ -3,7 +3,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
 import jp.co.soramitsu.fearless_utils.common.assertInstance
-import jp.co.soramitsu.fearless_utils.common.getResourceReader
+import jp.co.soramitsu.fearless_utils.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry

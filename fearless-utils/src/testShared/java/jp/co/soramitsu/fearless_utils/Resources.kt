@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.common
+package jp.co.soramitsu.fearless_utils
 
 import java.io.BufferedReader
 import java.io.InputStreamReader

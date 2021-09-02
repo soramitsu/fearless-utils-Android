@@ -1,10 +1,10 @@
 package jp.co.soramitsu.fearless_utils.encrypt.keypair.ethereum
 
 import com.google.gson.Gson
-import jp.co.soramitsu.fearless_utils.common.getResourceReader
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.SeedTestCase
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
+import jp.co.soramitsu.fearless_utils.getResourceReader
 import jp.co.soramitsu.fearless_utils.junction.BIP32JunctionDecoder
 import org.junit.Assert.*
 import org.junit.Test

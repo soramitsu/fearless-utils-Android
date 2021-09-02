@@ -2,8 +2,8 @@ package jp.co.soramitsu.fearless_utils.runtime
 
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
-import jp.co.soramitsu.fearless_utils.common.getFileContentFromResources
-import jp.co.soramitsu.fearless_utils.common.getResourceReader
+import jp.co.soramitsu.fearless_utils.getFileContentFromResources
+import jp.co.soramitsu.fearless_utils.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParser
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
@@ -12,7 +12,6 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadataSchema
-import org.junit.Assert
 
 object RealRuntimeProvider {
 
@@ -25,9 +24,10 @@ object RealRuntimeProvider {
         return RuntimeSnapshot(typeRegistry, metadata)
     }
 
-    fun buildRawMetadata(networkName: String = "kusama") = getFileContentFromResources("${networkName}_metadata").run {
-        RuntimeMetadataSchema.read(this)
-    }
+    fun buildRawMetadata(networkName: String = "kusama") =
+        getFileContentFromResources("${networkName}_metadata").run {
+            RuntimeMetadataSchema.read(this)
+        }
 
     fun buildRegistry(networkName: String): TypeRegistry {
         val gson = Gson()

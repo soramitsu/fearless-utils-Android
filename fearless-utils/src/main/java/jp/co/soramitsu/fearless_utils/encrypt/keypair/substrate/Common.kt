@@ -24,7 +24,7 @@ abstract class OtherSubstrateKeypairFactory(
 
             val newSeed = (prefix + parent.seed + junction.chaincode).blake2b256()
 
-            return Ed25519SubstrateKeypairFactory.deriveFromSeed(newSeed)
+            return deriveFromSeed(newSeed)
         } else {
             throw KeypairFactory.SoftDerivationNotSupported()
         }
