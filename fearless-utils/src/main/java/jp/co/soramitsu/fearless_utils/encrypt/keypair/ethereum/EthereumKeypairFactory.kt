@@ -9,15 +9,9 @@ import java.security.Security
 
 object EthereumKeypairFactory {
 
-    init {
-        //TODO dublicated inserts
-        Security.addProvider(EdDSASecurityProvider())
-        Security.addProvider(BouncyCastleProvider())
-    }
-
     private val junctionDecoder = BIP32JunctionDecoder()
 
-    fun generate(seed: ByteArray, derivationPath: String? = null): Keypair {
+    fun generate(seed: ByteArray, derivationPath: String = ""): Keypair {
         return Bip32KeypairFactory.generate(junctionDecoder, seed, derivationPath)
     }
 }

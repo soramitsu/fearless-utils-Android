@@ -5,11 +5,11 @@ import jp.co.soramitsu.fearless_utils.junction.JunctionDecoder
 internal fun <K : Keypair> KeypairFactory<K>.generate(
     junctionDecoder: JunctionDecoder,
     seed: ByteArray,
-    derivationPath: String?
+    derivationPath: String
 ): K {
     val parentKeypair = deriveFromSeed(seed)
 
-    if (derivationPath == null) return parentKeypair
+    if (derivationPath.isEmpty()) return parentKeypair
 
     val decodeResult = junctionDecoder.decode(derivationPath)
 

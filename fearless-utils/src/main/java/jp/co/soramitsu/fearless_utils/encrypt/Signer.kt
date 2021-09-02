@@ -20,10 +20,10 @@ import java.security.Signature
 
 object Signer {
 
-    init {
-        Security.addProvider(EdDSASecurityProvider())
-        Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
-    }
+//    init {
+//        Security.addProvider(EdDSASecurityProvider())
+//        Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
+//    }
 
     fun sign(
         encryptionType: EncryptionType,

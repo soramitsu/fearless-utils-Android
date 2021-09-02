@@ -12,7 +12,7 @@ private val LONG_WRITER = CompactULongWriter()
 fun BigInteger.toUnsignedBytes(): ByteArray {
     var bytes = toByteArray()
 
-    if (bytes.first() == 0.toByte()) {
+    if (bytes.first() == 0.toByte() && bytes.size > 1) {
         bytes = bytes.drop(1).toByteArray()
     }
 

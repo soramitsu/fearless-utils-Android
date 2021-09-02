@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.encrypt.keypair.ethereum
 
-import jp.co.soramitsu.fearless_utils.encrypt.hmacSHA256
+import jp.co.soramitsu.fearless_utils.encrypt.hmacSHA512
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.ECDSAUtils
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.KeypairFactory
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.derivePublicKey
@@ -8,7 +8,7 @@ import jp.co.soramitsu.fearless_utils.extensions.fromUnsignedBytes
 import jp.co.soramitsu.fearless_utils.extensions.requireOrException
 import jp.co.soramitsu.fearless_utils.junction.Junction
 import jp.co.soramitsu.fearless_utils.junction.JunctionType
-import java.lang.Exception
+import jp.co.soramitsu.fearless_utils.scale.utils.toUnsignedBytes
 import java.math.BigInteger
 
 
@@ -28,7 +28,7 @@ object Bip32KeypairFactory : KeypairFactory<Bip32ExtendedKeyPair> {
     }
 
     override fun deriveFromSeed(seed: ByteArray): Bip32ExtendedKeyPair {
-        val hmacResult = seed.hmacSHA256(secret = INITIAL_SEED)
+        val hmacResult = seed.hmacSHA512(secret = INITIAL_SEED)
 
         val privateKey = hmacResult.sliceArray(0 until PRIVATE_KEY_SIZE)
         val chainCode = hmacResult.sliceArray(PRIVATE_KEY_SIZE until hmacResult.size)
@@ -46,7 +46,7 @@ object Bip32KeypairFactory : KeypairFactory<Bip32ExtendedKeyPair> {
         parent: Bip32ExtendedKeyPair,
         junction: Junction
     ): Bip32ExtendedKeyPair {
-        val sourceData = when(junction.type) {
+        val sourceData = when (junction.type) {
             JunctionType.HARD -> {
                 val padding = byteArrayOf(0)
 
@@ -57,7 +57,7 @@ object Bip32KeypairFactory : KeypairFactory<Bip32ExtendedKeyPair> {
             }
         }
 
-        val hmacResult = sourceData.hmacSHA256(secret = parent.chaincode)
+        val hmacResult = sourceData.hmacSHA512(secret = parent.chaincode)
 
         val privateKeySourceData = hmacResult.sliceArray(0 until PRIVATE_KEY_SIZE)
         val childChainCode = hmacResult.sliceArray(PRIVATE_KEY_SIZE until hmacResult.size)
@@ -75,7 +75,7 @@ object Bip32KeypairFactory : KeypairFactory<Bip32ExtendedKeyPair> {
             DerivationError.InvalidChildKey
         }
 
-        var privateKey = privateKeyInt.toByteArray()
+        var privateKey = privateKeyInt.toUnsignedBytes()
 
         if (privateKey.size < PRIVATE_KEY_SIZE) {
             val padding = ByteArray(PRIVATE_KEY_SIZE - privateKey.size)

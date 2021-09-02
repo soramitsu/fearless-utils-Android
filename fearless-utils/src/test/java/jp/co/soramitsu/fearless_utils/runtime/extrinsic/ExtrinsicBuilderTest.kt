@@ -1,7 +1,7 @@
 package jp.co.soramitsu.fearless_utils.runtime.extrinsic
 
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
-import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.BaseKeypair
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
@@ -12,7 +12,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigInteger
 
-private val KEYPAIR = Keypair(
+private val KEYPAIR = BaseKeypair(
     publicKey = "fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d168".fromHex(),
     privateKey = "f3923eea431177cd21906d4308aea61c037055fb00575cae687217c6d8b2397f".fromHex()
 )
@@ -24,7 +24,7 @@ class ExtrinsicBuilderTest {
     @Test
     fun `should build single sora transfer extrinsic`() {
         val soraRuntime = RealRuntimeProvider.buildRuntime("sora2")
-        val soraKeypair = Keypair(
+        val soraKeypair = BaseKeypair(
             privateKey = "dd9b35e3288c2e2667313532f825f60fc5e8523b16d8e3ddc0b0ff5200b4c145".fromHex(),
             publicKey = "83ba494b62a40d20c370e5381230d74b4e8906d0334a91777baef57c9a935467".fromHex()
         )

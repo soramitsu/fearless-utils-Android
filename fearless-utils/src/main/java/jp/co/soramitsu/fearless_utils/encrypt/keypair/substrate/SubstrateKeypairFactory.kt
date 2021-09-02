@@ -11,22 +11,22 @@ import java.security.Security
 
 object SubstrateKeypairFactory {
 
-    init {
-        Security.addProvider(EdDSASecurityProvider())
-        Security.addProvider(BouncyCastleProvider())
-    }
+//    init {
+//        Security.addProvider(EdDSASecurityProvider())
+//        Security.addProvider(BouncyCastleProvider())
+//    }
 
     private val junctionDecoder = SubstrateJunctionDecoder()
 
     private fun <K : Keypair> KeypairFactory<K>.generate(
         seed: ByteArray,
-        derivationPath: String?
+        derivationPath: String
     ): K = generate(junctionDecoder, seed, derivationPath)
 
     fun generate(
         encryptionType: EncryptionType,
         seed: ByteArray,
-        derivationPath: String? = null
+        derivationPath: String = ""
     ): Keypair = when (encryptionType) {
         EncryptionType.SR25519 -> Sr25519SubstrateKeypairFactory.generate(seed, derivationPath)
         EncryptionType.ED25519 -> Ed25519SubstrateKeypairFactory.generate(seed, derivationPath)
