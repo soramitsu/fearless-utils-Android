@@ -16,7 +16,7 @@ class SignerTest {
     fun `should sign message ED25519`() {
         val messageHex = "this is a message"
 
-        val keypair = SubstrateKeypairFactory.generate(EncryptionType.ED25519, TestData.SEED_BYTES, "")
+        val keypair = SubstrateKeypairFactory.generate(EncryptionType.ED25519, TestData.SEED_BYTES)
 
         val result = Signer.sign(EncryptionType.ED25519, messageHex.toByteArray(), keypair)
 

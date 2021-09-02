@@ -10,7 +10,7 @@ private val HARD_BYTE = 0x80u.toByte()
 
 class BIP32JunctionDecoderTest : JunctionTest() {
 
-    override val decoder: JunctionDecoder = BIP32JunctionDecoder()
+    override val decoder: JunctionDecoder = BIP32JunctionDecoder
 
     @Test
     fun `single soft`() = performTest(

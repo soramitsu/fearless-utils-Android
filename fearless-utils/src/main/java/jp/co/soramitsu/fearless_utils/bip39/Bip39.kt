@@ -139,11 +139,11 @@ class Bip39 {
         }
     }
 
-    fun generateSeed(entropy: ByteArray, passphrase: String): ByteArray {
+    fun generateSeed(entropy: ByteArray, passphrase: String? = null): ByteArray {
         val generator = PKCS5S2ParametersGenerator(SHA512Digest())
         generator.init(
             entropy,
-            normalize("$SEED_PREFIX$passphrase", Normalizer.Form.NFKD).toByteArray(),
+            normalize("$SEED_PREFIX${passphrase.orEmpty()}", Normalizer.Form.NFKD).toByteArray(),
             2048
         )
         val key = generator.generateDerivedMacParameters(512) as KeyParameter

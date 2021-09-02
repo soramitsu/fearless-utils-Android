@@ -15,15 +15,14 @@ import org.spongycastle.util.encoders.Hex
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Sign
 import java.math.BigInteger
-import java.security.Security
 import java.security.Signature
 
 object Signer {
 
-//    init {
-//        Security.addProvider(EdDSASecurityProvider())
-//        Security.addProvider(org.spongycastle.jce.provider.BouncyCastleProvider())
-//    }
+    init {
+        SecurityProviders.requireEdDSA
+        SecurityProviders.requireBouncyCastle
+    }
 
     fun sign(
         encryptionType: EncryptionType,

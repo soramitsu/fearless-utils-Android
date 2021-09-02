@@ -9,7 +9,7 @@ import java.lang.Exception
 private const val HARD_KEY_FLAG = 0x80000000u
 
 @OptIn(ExperimentalUnsignedTypes::class)
-class BIP32JunctionDecoder : JunctionDecoder() {
+object BIP32JunctionDecoder : JunctionDecoder() {
     
     sealed class DecodingError: Exception() {
         object InvalidBIP32Junction : Exception()

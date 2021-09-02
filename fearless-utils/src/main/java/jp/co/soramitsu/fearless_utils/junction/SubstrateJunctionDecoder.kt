@@ -9,7 +9,7 @@ import java.nio.ByteOrder
 
 private const val CHAINCODE_LENGTH = 32
 
-class SubstrateJunctionDecoder : JunctionDecoder() {
+object SubstrateJunctionDecoder : JunctionDecoder() {
 
     override fun decodeJunction(rawJunction: String, type: JunctionType): Junction {
         val chainCode = normalize(serialize(rawJunction))

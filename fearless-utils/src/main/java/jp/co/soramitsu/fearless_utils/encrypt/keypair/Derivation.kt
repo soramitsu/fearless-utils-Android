@@ -1,19 +1,14 @@
 package jp.co.soramitsu.fearless_utils.encrypt.keypair
 
-import jp.co.soramitsu.fearless_utils.junction.JunctionDecoder
+import jp.co.soramitsu.fearless_utils.junction.Junction
 
 internal fun <K : Keypair> KeypairFactory<K>.generate(
-    junctionDecoder: JunctionDecoder,
     seed: ByteArray,
-    derivationPath: String
+    junctions: List<Junction>
 ): K {
     val parentKeypair = deriveFromSeed(seed)
 
-    if (derivationPath.isEmpty()) return parentKeypair
-
-    val decodeResult = junctionDecoder.decode(derivationPath)
-
-    return decodeResult.junctions.fold(parentKeypair) { currentKeyPair, junction ->
+    return junctions.fold(parentKeypair) { currentKeyPair, junction ->
         deriveChild(currentKeyPair, junction)
     }
 }

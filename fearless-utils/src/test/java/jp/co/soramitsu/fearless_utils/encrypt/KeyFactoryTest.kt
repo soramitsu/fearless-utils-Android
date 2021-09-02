@@ -12,7 +12,7 @@ class KeyFactoryTest {
 
     @Test
     fun `should generate keypair`() {
-        val keypair = SubstrateKeypairFactory.generate(EncryptionType.ED25519, TestData.SEED_BYTES, "")
+        val keypair = SubstrateKeypairFactory.generate(EncryptionType.ED25519, TestData.SEED_BYTES)
 
         val actualPrivate = Hex.toHexString(keypair.privateKey)
         val actualPublic = Hex.toHexString(keypair.publicKey)

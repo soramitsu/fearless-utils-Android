@@ -7,7 +7,7 @@ import org.spongycastle.util.encoders.Hex
 
 class SubstrateJunctionDecoderTest : JunctionTest() {
 
-    override val decoder: JunctionDecoder = SubstrateJunctionDecoder()
+    override val decoder: JunctionDecoder = SubstrateJunctionDecoder
 
     @Test
     fun `single soft`() = performTest(
