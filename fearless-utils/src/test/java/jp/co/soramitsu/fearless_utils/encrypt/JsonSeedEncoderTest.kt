@@ -1,12 +1,12 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
+import jp.co.soramitsu.fearless_utils.TestData
 import jp.co.soramitsu.fearless_utils.common.TestAddressBytes
 import jp.co.soramitsu.fearless_utils.common.TestGeneses
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecoder
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedEncoder
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.SubstrateKeypairFactory
-import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Ignore

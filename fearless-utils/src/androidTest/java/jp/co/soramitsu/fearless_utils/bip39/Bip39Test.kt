@@ -8,6 +8,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class Bip39AndroidTest : Bip39Test() {
 
+    /*
+     Sr25519 cannot run on local machine since gradle rust plugin does not work with desktop targets
+     To overcome, run tests on android device
+     */
     @Test
     fun shouldRunSr25519Tests() {
         performSpecTests("crypto/sr25519HDKD.json", EncryptionType.SR25519)

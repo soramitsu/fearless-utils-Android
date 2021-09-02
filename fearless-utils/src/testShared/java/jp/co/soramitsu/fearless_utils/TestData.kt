@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.encrypt
+package jp.co.soramitsu.fearless_utils
 
 import org.bouncycastle.util.encoders.Hex
 

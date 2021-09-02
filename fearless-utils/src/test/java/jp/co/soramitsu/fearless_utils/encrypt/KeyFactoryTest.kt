@@ -1,5 +1,6 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
+import jp.co.soramitsu.fearless_utils.TestData
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.SubstrateKeypairFactory
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert.assertEquals
