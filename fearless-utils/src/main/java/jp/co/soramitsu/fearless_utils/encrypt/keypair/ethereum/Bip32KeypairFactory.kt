@@ -11,10 +11,9 @@ import jp.co.soramitsu.fearless_utils.junction.JunctionType
 import jp.co.soramitsu.fearless_utils.scale.utils.toUnsignedBytes
 import java.math.BigInteger
 
-
 object Bip32KeypairFactory : KeypairFactory<Bip32ExtendedKeyPair> {
 
-    private val PRIVATE_KEY_SIZE = 32
+    private const val PRIVATE_KEY_SIZE = 32
 
     private val INITIAL_SEED = "Bitcoin seed".encodeToByteArray()
 

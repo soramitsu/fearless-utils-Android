@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.bip39
+package jp.co.soramitsu.fearless_utils.mnemonic
 
 import com.google.gson.annotations.SerializedName
 

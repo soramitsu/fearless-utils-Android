@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.bip39
+package jp.co.soramitsu.fearless_utils.mnemonic
 
 import com.google.gson.Gson
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
@@ -6,11 +6,11 @@ import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.SubstrateKeypair
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.getResourceReader
 import jp.co.soramitsu.fearless_utils.junction.SubstrateJunctionDecoder
+import jp.co.soramitsu.fearless_utils.mnemonic.substrate.SubstrateSeedFactory
 import org.junit.Assert
 
-abstract class Bip39Test {
+abstract class SubstrateSeedFactoryTest {
 
-    val bip39 = Bip39()
     val gson = Gson()
 
     protected fun performSpecTests(
@@ -28,11 +28,10 @@ abstract class Bip39Test {
             val derivationPath = derivationPathRaw
                 ?.let { SubstrateJunctionDecoder.decode(testCase.path) }
 
-            val actualEntropy = bip39.generateEntropy(testCase.mnemonic)
-            val actualSeed = bip39.generateSeed(actualEntropy, derivationPath?.password)
+            val result = SubstrateSeedFactory.deriveSeed(testCase.mnemonic, derivationPath?.password)
 
             val actualKeypair = SubstrateKeypairFactory.generate(
-                seed = actualSeed,
+                seed = result.seed,
                 junctions = derivationPath?.junctions.orEmpty(),
                 encryptionType = encryptionType
             )

@@ -1,12 +1,9 @@
-package jp.co.soramitsu.fearless_utils.bip39
+package jp.co.soramitsu.fearless_utils.mnemonic
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
-class Bip39AndroidTest : Bip39Test() {
+class AndroidSubstrateSeedFactoryTest : SubstrateSeedFactoryTest() {
 
     /*
      Sr25519 cannot run on local machine since gradle rust plugin does not work with desktop targets
