@@ -90,5 +90,4 @@ object Bip32KeypairFactory : KeypairFactory<Bip32ExtendedKeyPair> {
             chaincode = childChainCode
         )
     }
-
 }

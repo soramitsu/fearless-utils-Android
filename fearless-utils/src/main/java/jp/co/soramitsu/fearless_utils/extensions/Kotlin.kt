@@ -1,6 +1,5 @@
 package jp.co.soramitsu.fearless_utils.extensions
 
-import org.web3j.abi.datatypes.Uint
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -25,7 +24,7 @@ fun ByteArray.fromUnsignedBytes(byteOrder: ByteOrder = ByteOrder.BIG_ENDIAN): Bi
 }
 
 @ExperimentalUnsignedTypes
-fun UInt.toUnsignedBytes(order: ByteOrder = ByteOrder.BIG_ENDIAN) : ByteArray {
+fun UInt.toUnsignedBytes(order: ByteOrder = ByteOrder.BIG_ENDIAN): ByteArray {
     return ByteBuffer.allocate(Int.SIZE_BYTES).also {
         it.order(order)
         it.putInt(this.toInt())

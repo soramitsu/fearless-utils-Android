@@ -1,12 +1,10 @@
 package jp.co.soramitsu.fearless_utils.mnemonic
 
-
-
 class Mnemonic(
 
     val words: String,
 
-    val wordList : List<String>,
+    val wordList: List<String>,
 
     val entropy: ByteArray
 ) {
@@ -19,5 +17,3 @@ class Mnemonic(
         TWENTY_FOUR(32);
     }
 }
-
-

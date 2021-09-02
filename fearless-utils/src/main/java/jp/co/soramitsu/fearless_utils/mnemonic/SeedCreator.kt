@@ -6,7 +6,6 @@ import org.spongycastle.crypto.params.KeyParameter
 import java.text.Normalizer
 import java.text.Normalizer.normalize
 
-
 internal object SeedCreator {
 
     private const val SEED_PREFIX = "mnemonic"

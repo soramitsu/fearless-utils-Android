@@ -1,7 +1,6 @@
 package jp.co.soramitsu.fearless_utils.mnemonic.ethereum
 
 import com.google.gson.Gson
-import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.ethereum.EthereumKeypairFactory
 import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.getResourceReader

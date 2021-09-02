@@ -2,12 +2,12 @@ package jp.co.soramitsu.fearless_utils.mnemonic
 
 import io.github.novacrypto.SecureCharBuffer
 import io.github.novacrypto.bip39.MnemonicGenerator
-import java.security.SecureRandom
-import java.util.Arrays
 import io.github.novacrypto.hashing.Sha256
 import jp.co.soramitsu.fearless_utils.exceptions.Bip39Exception
+import java.security.SecureRandom
 import java.text.Normalizer
 import java.text.Normalizer.normalize
+import java.util.Arrays
 import kotlin.math.floor
 
 private val DELIMITER_REGEX = "[\\s,]+".toRegex()
@@ -149,4 +149,3 @@ internal object MnemonicCreator {
         }
     }
 }
-

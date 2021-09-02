@@ -22,7 +22,7 @@ object ECDSAUtils {
     }
 }
 
-fun ECDSAUtils.derivePublicKey(privateKeyOrSeed: ByteArray) : ByteArray {
+fun ECDSAUtils.derivePublicKey(privateKeyOrSeed: ByteArray): ByteArray {
     val privateKeyInt = BigInteger(privateKeyOrSeed.toHexString(), 16)
 
     return compressedPublicKeyFromPrivate(privateKeyInt)

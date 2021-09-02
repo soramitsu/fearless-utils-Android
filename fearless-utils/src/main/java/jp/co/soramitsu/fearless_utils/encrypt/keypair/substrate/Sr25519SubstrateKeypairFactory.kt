@@ -20,7 +20,7 @@ internal object Sr25519SubstrateKeypairFactory : KeypairFactory<Sr25519Keypair> 
     }
 
     override fun deriveChild(parent: Sr25519Keypair, junction: Junction): Sr25519Keypair {
-        return when(junction.type)  {
+        return when (junction.type) {
             JunctionType.SOFT -> deriveSr25519SoftKeypair(junction.chaincode, parent)
             JunctionType.HARD -> deriveSr25519HardKeypair(junction.chaincode, parent)
         }

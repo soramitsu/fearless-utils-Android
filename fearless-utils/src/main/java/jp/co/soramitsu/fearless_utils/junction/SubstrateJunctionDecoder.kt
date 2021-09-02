@@ -32,7 +32,6 @@ object SubstrateJunctionDecoder : JunctionDecoder() {
         }
     }
 
-
     private fun normalize(bytes: ByteArray): ByteArray = when {
         bytes.size < CHAINCODE_LENGTH -> ByteArray(CHAINCODE_LENGTH).apply {
             bytes.copyInto(this)
