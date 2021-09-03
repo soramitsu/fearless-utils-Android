@@ -8,6 +8,7 @@ import jp.co.soramitsu.fearless_utils.common.assertThrows
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecoder
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.IncorrectPasswordException
 import jp.co.soramitsu.fearless_utils.encrypt.json.JsonSeedDecodingException.InvalidJsonException
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.SubstrateKeypairFactory
 import jp.co.soramitsu.fearless_utils.encrypt.model.NetworkTypeIdentifier
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder
 import org.bouncycastle.util.encoders.Hex
@@ -49,9 +50,8 @@ private const val NOT_JSON = "not json"
 @RunWith(MockitoJUnitRunner::class)
 class JsonSeedDecoderTest {
     private val gson = Gson()
-    private val keypairFactory = KeypairFactory()
 
-    private val decoder = JsonSeedDecoder(gson, keypairFactory)
+    private val decoder = JsonSeedDecoder(gson)
 
     @Test
     fun `should decode valid json with correct password`() {

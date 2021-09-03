@@ -40,6 +40,16 @@ android {
     }
 
     ndkVersion "21.3.6528147"
+
+    sourceSets {
+        test {
+            java.srcDirs += "$projectDir/src/testShared/java"
+        }
+
+        androidTest {
+            java.srcDirs += "$projectDir/src/testShared/java"
+        }
+    }
 }
 
 cargo {
@@ -87,6 +97,10 @@ dependencies {
 
     testImplementation jUnitDep
     testImplementation mockitoDep
+
+    androidTestImplementation androidTestRunnerDep
+    androidTestImplementation androidTestRulesDep
+    androidTestImplementation androidJunitDep
 }
 
 def computeVersionName() {

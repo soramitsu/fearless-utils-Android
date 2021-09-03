@@ -1,5 +1,7 @@
 package jp.co.soramitsu.fearless_utils.encrypt
 
+import jp.co.soramitsu.fearless_utils.TestData
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.SubstrateKeypairFactory
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -9,11 +11,9 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 class KeyFactoryTest {
 
-    private val keypairFactory = KeypairFactory()
-
     @Test
     fun `should generate keypair`() {
-        val keypair = keypairFactory.generate(EncryptionType.ED25519, TestData.SEED_BYTES, "")
+        val keypair = SubstrateKeypairFactory.generate(EncryptionType.ED25519, TestData.SEED_BYTES)
 
         val actualPrivate = Hex.toHexString(keypair.privateKey)
         val actualPublic = Hex.toHexString(keypair.publicKey)

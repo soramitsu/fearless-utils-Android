@@ -3,8 +3,9 @@ package jp.co.soramitsu.fearless_utils.encrypt.json
 import com.google.gson.Gson
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.Sr25519
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.Keypair
+import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.Sr25519Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.model.JsonAccountData
-import jp.co.soramitsu.fearless_utils.encrypt.model.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.xsalsa20poly1305.SecretBox
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAddress
 import org.spongycastle.crypto.generators.SCrypt
@@ -78,7 +79,7 @@ class JsonSeedEncoder(
     }
 
     private fun sr25519Secret(keypair: Keypair): ByteArray {
-        requireNotNull(keypair.nonce)
+        require(keypair is Sr25519Keypair)
 
         val ed25519BytesSecret = Sr25519.toEd25519Bytes(keypair.privateKey + keypair.nonce)
 
