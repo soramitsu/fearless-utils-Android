@@ -1,6 +1,6 @@
 package jp.co.soramitsu.fearless_utils.encrypt.keypair
 
-import jp.co.soramitsu.fearless_utils.junction.Junction
+import jp.co.soramitsu.fearless_utils.encrypt.junction.Junction
 
 internal interface KeypairFactory<K : Keypair> {
 
