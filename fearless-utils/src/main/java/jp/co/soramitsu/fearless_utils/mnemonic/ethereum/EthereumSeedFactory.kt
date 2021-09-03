@@ -7,8 +7,6 @@ import jp.co.soramitsu.fearless_utils.mnemonic.SeedFactory
 
 object EthereumSeedFactory : SeedFactory {
 
-    private const val SEED_LENGTH = 64
-
     override fun createSeed(length: Mnemonic.Length, password: String?): SeedFactory.Result {
         val mnemonic = MnemonicCreator.randomMnemonic(length)
         val seed = SeedCreator.deriveSeed(mnemonic.words.encodeToByteArray(), password)
@@ -21,9 +19,5 @@ object EthereumSeedFactory : SeedFactory {
         val seed = SeedCreator.deriveSeed(mnemonic.words.encodeToByteArray(), password)
 
         return SeedFactory.Result(seed, mnemonic)
-    }
-
-    private fun SeedCreator.deriveSeed(entropy: ByteArray, password: String?): ByteArray {
-        return deriveSeed(entropy, seedLength = SEED_LENGTH, password)
     }
 }

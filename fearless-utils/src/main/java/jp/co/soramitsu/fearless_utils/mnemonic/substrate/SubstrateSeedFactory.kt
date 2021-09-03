@@ -7,8 +7,6 @@ import jp.co.soramitsu.fearless_utils.mnemonic.SeedFactory
 
 object SubstrateSeedFactory : SeedFactory {
 
-    private const val SEED_LENGTH = 32
-
     override fun createSeed(length: Mnemonic.Length, password: String?): SeedFactory.Result {
         val mnemonic = MnemonicCreator.randomMnemonic(length)
         val seed = SeedCreator.deriveSeed(mnemonic.entropy, password)
@@ -21,9 +19,5 @@ object SubstrateSeedFactory : SeedFactory {
         val seed = SeedCreator.deriveSeed(mnemonic.entropy, password)
 
         return SeedFactory.Result(seed, mnemonic)
-    }
-
-    private fun SeedCreator.deriveSeed(entropy: ByteArray, password: String?): ByteArray {
-        return deriveSeed(entropy, seedLength = SEED_LENGTH, password)
     }
 }

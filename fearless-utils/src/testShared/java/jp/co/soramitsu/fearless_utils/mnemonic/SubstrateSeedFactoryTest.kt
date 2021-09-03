@@ -30,8 +30,10 @@ abstract class SubstrateSeedFactoryTest {
 
             val result = SubstrateSeedFactory.deriveSeed(testCase.mnemonic, derivationPath?.password)
 
+            val seed32 = result.seed.copyOf(newSize = 32)
+
             val actualKeypair = SubstrateKeypairFactory.generate(
-                seed = result.seed,
+                seed = seed32,
                 junctions = derivationPath?.junctions.orEmpty(),
                 encryptionType = encryptionType
             )

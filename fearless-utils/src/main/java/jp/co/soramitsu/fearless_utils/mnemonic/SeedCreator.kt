@@ -9,10 +9,10 @@ import java.text.Normalizer.normalize
 internal object SeedCreator {
 
     private const val SEED_PREFIX = "mnemonic"
+    private const val FULL_SEED_LENGTH = 64
 
     fun deriveSeed(
         entropy: ByteArray,
-        seedLength: Int,
         passphrase: String? = null
     ): ByteArray {
         val generator = PKCS5S2ParametersGenerator(SHA512Digest())
@@ -21,7 +21,7 @@ internal object SeedCreator {
             normalize("${SEED_PREFIX}${passphrase.orEmpty()}", Normalizer.Form.NFKD).toByteArray(),
             2048
         )
-        val key = generator.generateDerivedMacParameters(512) as KeyParameter
-        return key.key.copyOfRange(0, seedLength)
+        val key = generator.generateDerivedMacParameters(FULL_SEED_LENGTH * 8) as KeyParameter
+        return key.key.copyOfRange(0, FULL_SEED_LENGTH)
     }
 }
