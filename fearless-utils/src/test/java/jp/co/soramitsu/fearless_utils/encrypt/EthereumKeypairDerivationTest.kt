@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.encrypt.seed.ethereum
+package jp.co.soramitsu.fearless_utils.encrypt
 
 import com.google.gson.Gson
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.ethereum.EthereumKeypairFactory
@@ -6,10 +6,11 @@ import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.getResourceReader
 import jp.co.soramitsu.fearless_utils.encrypt.junction.BIP32JunctionDecoder
 import jp.co.soramitsu.fearless_utils.encrypt.mnemonic.MnemonicTestCase
+import jp.co.soramitsu.fearless_utils.encrypt.seed.ethereum.EthereumSeedFactory
 import org.junit.Assert
 import org.junit.Test
 
-class EthereumSeedFactoryTest {
+class EthereumKeypairDerivationTest {
 
     val gson = Gson()
 

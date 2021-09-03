@@ -1,9 +1,8 @@
-package jp.co.soramitsu.fearless_utils.encrypt.mnemonic
+package jp.co.soramitsu.fearless_utils.encrypt
 
-import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import org.junit.Test
 
-class AndroidSubstrateSeedFactoryTest : SubstrateSeedFactoryTest() {
+class AndroidSubstrateKeypairDerivationTest : SubstrateKeypairDerivationTest() {
 
     /*
      Sr25519 cannot run on local machine since gradle rust plugin does not work with desktop targets

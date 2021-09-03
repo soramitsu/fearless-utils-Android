@@ -11,8 +11,8 @@ private const val HARD_KEY_FLAG = 0x80000000u
 object BIP32JunctionDecoder : JunctionDecoder() {
 
     sealed class DecodingError : Exception() {
-        object InvalidBIP32Junction : Exception()
-        object InvalidBIP32HardJunction : Exception()
+        object InvalidBIP32Junction : DecodingError()
+        object InvalidBIP32HardJunction : DecodingError()
     }
 
     override fun decodeJunction(rawJunction: String, type: JunctionType): Junction {
