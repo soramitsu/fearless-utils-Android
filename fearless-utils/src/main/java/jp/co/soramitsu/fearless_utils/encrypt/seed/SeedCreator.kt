@@ -1,4 +1,4 @@
-package jp.co.soramitsu.fearless_utils.encrypt.mnemonic
+package jp.co.soramitsu.fearless_utils.encrypt.seed
 
 import org.spongycastle.crypto.digests.SHA512Digest
 import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator
@@ -18,7 +18,7 @@ internal object SeedCreator {
         val generator = PKCS5S2ParametersGenerator(SHA512Digest())
         generator.init(
             entropy,
-            normalize("${SEED_PREFIX}${passphrase.orEmpty()}", Normalizer.Form.NFKD).toByteArray(),
+            normalize("$SEED_PREFIX${passphrase.orEmpty()}", Normalizer.Form.NFKD).toByteArray(),
             2048
         )
         val key = generator.generateDerivedMacParameters(FULL_SEED_LENGTH * 8) as KeyParameter

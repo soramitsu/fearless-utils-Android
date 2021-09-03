@@ -1,4 +1,6 @@
-package jp.co.soramitsu.fearless_utils.encrypt.mnemonic
+package jp.co.soramitsu.fearless_utils.encrypt.seed
+
+import jp.co.soramitsu.fearless_utils.encrypt.mnemonic.Mnemonic
 
 interface SeedFactory {
 
