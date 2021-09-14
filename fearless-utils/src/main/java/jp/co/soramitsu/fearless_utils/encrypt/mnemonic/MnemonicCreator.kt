@@ -13,7 +13,7 @@ import kotlin.math.floor
 private val DELIMITER_REGEX = "[\\s,]+".toRegex()
 private val SPACE = EnglishWordList.INSTANCE.space.toString()
 
-internal object MnemonicCreator {
+object MnemonicCreator {
 
     fun randomMnemonic(length: Mnemonic.Length): Mnemonic = SecureCharBuffer().use { secure ->
         val entropy = ByteArray(length.byteLength)
