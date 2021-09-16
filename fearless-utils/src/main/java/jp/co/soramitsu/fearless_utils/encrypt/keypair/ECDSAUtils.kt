@@ -13,12 +13,19 @@ object ECDSAUtils {
         return point.getEncoded(true)
     }
 
-    fun decompressPubKey(compKey: ByteArray): BigInteger {
+    fun decompressedAsInt(compressedKey: ByteArray): BigInteger {
+        val decompressedArray = decompressed(compressedKey)
+
+        return Hex.toHexString(byteArrayOf(0x00) + decompressedArray).toBigInteger(16)
+    }
+
+    fun decompressed(compressedKey: ByteArray): ByteArray {
         val spec = ECNamedCurveTable.getParameterSpec("secp256k1")
-        val point = spec.curve.decodePoint(compKey)
+        val point = spec.curve.decodePoint(compressedKey)
         val x: ByteArray = point.xCoord.encoded
         val y: ByteArray = point.yCoord.encoded
-        return Hex.toHexString(byteArrayOf(0x00) + x + y).toBigInteger(16)
+
+        return x + y
     }
 }
 
