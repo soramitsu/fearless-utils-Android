@@ -2,7 +2,6 @@ package jp.co.soramitsu.fearless_utils.extensions
 
 import org.junit.Assert.*
 import org.junit.Test
-import org.web3j.abi.datatypes.Uint
 import java.math.BigInteger
 import java.nio.ByteOrder
 
