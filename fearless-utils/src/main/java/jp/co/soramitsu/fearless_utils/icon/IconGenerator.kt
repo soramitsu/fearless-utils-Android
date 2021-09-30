@@ -25,8 +25,13 @@ class IconGenerator {
         private const val RADIUS = 5
     }
 
-    fun getSvgImage(id: ByteArray, sizeInPixels: Int, isAlternative: Boolean = false): PictureDrawable {
-        val circles = generateIconCircles(id, isAlternative)
+    fun getSvgImage(
+        id: ByteArray,
+        sizeInPixels: Int,
+        isAlternative: Boolean = false,
+        backgroundColor: Int = "eeeeee".toInt(radix = 16)
+    ): PictureDrawable {
+        val circles = generateIconCircles(id, isAlternative, backgroundColor)
 
         val stringBuilder = StringBuilder()
         stringBuilder.append("<svg ")
@@ -42,7 +47,12 @@ class IconGenerator {
         return PictureDrawable(svg.renderToPicture())
     }
 
-    private fun generateIconCircles(id: ByteArray, isAlternative: Boolean = false): List<Circle> {
+    private fun generateIconCircles(
+        id: ByteArray,
+        isAlternative: Boolean = false,
+        backgroundColor: Int
+    ): List<Circle> {
+
         val r1 = if (isAlternative) {
             MAIN_RADIUS / 8 * 5
         } else {
@@ -88,8 +98,10 @@ class IconGenerator {
         val colors = scheme.colors.mapIndexed { index, _ -> palette[scheme.colors[if (index < 18) (index + rot) % 18 else 18]] }
         var index = 0
 
+        val mainCircleColor = "#${backgroundColor.toString(radix = 16)}"
+
         return mutableListOf(
-            Circle(MAIN_RADIUS, MAIN_RADIUS, "#eeeeee", MAIN_RADIUS.toInt()),
+            Circle(MAIN_RADIUS, MAIN_RADIUS, mainCircleColor, MAIN_RADIUS.toInt()),
             Circle(MAIN_RADIUS, MAIN_RADIUS - r1, colors[index++], RADIUS),
             Circle(MAIN_RADIUS, MAIN_RADIUS - ro2, colors[index++], RADIUS),
             Circle(MAIN_RADIUS - rroot3o4, MAIN_RADIUS - r3o4, colors[index++], RADIUS),
