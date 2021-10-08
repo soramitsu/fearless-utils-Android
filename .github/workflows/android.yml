@@ -20,11 +20,8 @@ jobs:
         distribution: 'adopt'
         cache: gradle
 
-    - uses: actions/checkout@v2
-    - uses: nttld/setup-ndk@v1
-      with:
-        ndk-version: r21d
-      #run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" --sdk_root=${ANDROID_SDK_ROOT}
+    - name: Install NDK
+      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" --sdk_root=${ANDROID_SDK_ROOT}
 
     - name: Install rust dependencies
       run: rustup target add armv7-linux-androideabi | rustup target add aarch64-linux-android | rustup target add i686-linux-android | rustup target add x86_64-linux-android | rustup target add x86_64-unknown-linux-gnu
