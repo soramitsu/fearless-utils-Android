@@ -27,11 +27,17 @@ jobs:
       uses: wei/wget@v1
       with:
         args: --quiet --output-document=android-ndk.zip "http://dl.google.com/android/repository/android-ndk-r21d-linux-x86_64.zip"
+    
+    - name: Create folder
+      run: mkdir --parents /usr/local/lib/android/sdk/ndk/23.0.7599858/
+      
+    - name: Unzip
+      uses: montudor/action-zip@v1
+      with:
+        args: unzip -q android-ndk.zip -d /usr/local/lib/android/sdk/ndk/
         
-    - name: Install NDK 21 in NDK 23 folder
-      run: mkdir --parents /usr/local/lib/android/sdk/ndk/23.0.7599858/ && \
-          unzip -q android-ndk.zip -d /usr/local/lib/android/sdk/ndk/ && \
-          rm --force android-ndk.zip
+    - name: Delete zip
+      run: rm --force android-ndk.zip
 
     - name: Assert
       run: ls /usr/local/lib/android/sdk/ndk/23.0.7599858/toolchains/llvm/prebuilt/linux-x86_64/bin/
