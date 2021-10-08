@@ -24,7 +24,7 @@ jobs:
       run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" --sdk_root=${ANDROID_SDK_ROOT}
 
     - name: Install rust dependencies
-      run: rustup target add armv7-linux-androideabi | rustup target add aarch64-linux-android
+      run: rustup target add armv7-linux-androideabi | rustup target add aarch64-linux-android | rustup target add i686-linux-android
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
