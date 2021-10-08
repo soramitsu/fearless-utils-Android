@@ -23,10 +23,13 @@ jobs:
     - name: Install NDK 21
       run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" --sdk_root=/usr/local/lib/android/sdk/
       
+    - name: Download NDK 21
+      uses: wei/wget@v1
+      with:
+        args: --quiet --output-document=android-ndk.zip "http://dl.google.com/android/repository/android-ndk-r21d-linux-x86_64.zip"
+        
     - name: Install NDK 21 in NDK 23 folder
-      run: wget --quiet --output-document=android-ndk.zip \
-          "http://dl.google.com/android/repository/android-ndk-r21d-linux-x86_64.zip" && \
-          mkdir --parents /usr/local/lib/android/sdk/ndk/23.0.7599858/ && \
+      run: mkdir --parents /usr/local/lib/android/sdk/ndk/23.0.7599858/ && \
           unzip -q android-ndk.zip -d /usr/local/lib/android/sdk/ndk/ && \
           rm --force android-ndk.zip
 
