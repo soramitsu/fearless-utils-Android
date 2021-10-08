@@ -20,21 +20,21 @@ jobs:
 #         distribution: 'adopt'
 #         cache: gradle
 
-    - name: Install NDK 21
-      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" --sdk_root=/usr/local/lib/android/sdk/
+#     - name: Install NDK 21
+#       run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" --sdk_root=/usr/local/lib/android/sdk/
       
     - name: Download NDK 21
       uses: wei/wget@v1
       with:
         args: --quiet --output-document=android-ndk.zip "http://dl.google.com/android/repository/android-ndk-r21d-linux-x86_64.zip"
     
-    - name: Create folder
-      run: mkdir --parents /usr/local/lib/android/sdk/ndk/23.0.7599858/
+#     - name: Create folder
+#       run: mkdir --parents /usr/local/lib/android/sdk/ndk/23.0.7599858/
       
     - name: Unzip
       uses: montudor/action-zip@v1
       with:
-        args: unzip -q android-ndk.zip -d /usr/local/lib/android/sdk/ndk/
+        args: unzip -q android-ndk.zip -d /usr/local/lib/android/sdk/ndk/23.0.7599858/
         
     - name: Delete zip
       run: rm --force android-ndk.zip
