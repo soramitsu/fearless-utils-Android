@@ -5,10 +5,11 @@ import jp.co.soramitsu.fearless_utils.encrypt.keypair.BaseKeypair
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.integration.BaseIntegrationTest
 import jp.co.soramitsu.fearless_utils.integration.WESTEND_URL
+import jp.co.soramitsu.fearless_utils.integration.transfer
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.multiAddressFromId
 import jp.co.soramitsu.fearless_utils.runtime.extrinsic.ExtrinsicBuilder
-import jp.co.soramitsu.fearless_utils.runtime.extrinsic.transfer
 import jp.co.soramitsu.fearless_utils.wsrpc.executeAsync
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.author.SubmitExtrinsicRequest
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.chain.RuntimeVersion
@@ -51,3 +52,4 @@ class SendIntegrationTest : BaseIntegrationTest(WESTEND_URL) {
         print(socketService.executeAsync(SubmitExtrinsicRequest(extrinsic)).result!!)
     }
 }
+
