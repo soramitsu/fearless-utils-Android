@@ -1,6 +1,5 @@
-# Fearless Wallet native Android (Kotlin/Java) library
-
-Fearless Wallet utils Android is a native Android library to help developers build native mobile apps for Substrate-based networks, e.g. Polkadot, Kusama, and Westend.
+# Nova Substrate SDK for Android (Kotlin/Java)
+Nova Substrate SDK is a native Android library to help developers build native mobile apps for Substrate-based networks, e.g. Polkadot, Kusama & parachains
 
 # Table of contents
 
