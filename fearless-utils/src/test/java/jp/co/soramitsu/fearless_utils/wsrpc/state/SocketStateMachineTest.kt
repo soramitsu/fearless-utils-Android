@@ -29,7 +29,8 @@ val emptyConnectedState = State.Connected(
     url = URL,
     toResendOnReconnect = emptySet(),
     waitingForResponse = emptySet(),
-    subscriptions = emptySet()
+    subscriptions = emptySet(),
+    unknownSubscriptionResponses = emptyMap()
 )
 
 class TestSendable(override val id: Int, override val deliveryType: DeliveryType) :
@@ -567,7 +568,8 @@ class SocketStateMachineTest {
             URL,
             toResendOnReconnect = emptySet(),
             waitingForResponse = sendables,
-            subscriptions = emptySet()
+            subscriptions = emptySet(),
+            unknownSubscriptionResponses = emptyMap()
         )
 
         state = transition(state, Event.Pause)
