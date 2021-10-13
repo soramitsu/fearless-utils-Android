@@ -12,7 +12,8 @@ import java.io.ByteArrayOutputStream
 import kotlin.Exception
 
 @Suppress("UNCHECKED_CAST")
-abstract class Schema<S : Schema<S>> : ScaleReader<EncodableStruct<S>>,
+abstract class Schema<S : Schema<S>> :
+    ScaleReader<EncodableStruct<S>>,
     ScaleWriter<EncodableStruct<S>> {
     companion object;
 

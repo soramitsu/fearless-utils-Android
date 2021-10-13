@@ -69,7 +69,7 @@ class JsonSeedEncoder(
         val secret = secretBox.seal(nonce, pkcs8Bytes)
 
         val encodedBytes = salt + N.asLittleEndianBytes() + p.asLittleEndianBytes() +
-                r.asLittleEndianBytes() + nonce + secret
+            r.asLittleEndianBytes() + nonce + secret
 
         return Base64.toBase64String(encodedBytes)
     }
