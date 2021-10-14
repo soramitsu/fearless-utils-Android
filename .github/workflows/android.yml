@@ -29,7 +29,8 @@ jobs:
         rm -rf /usr/local/lib/android/sdk/ndk/23.0.7599858/
         mkdir /usr/local/lib/android/sdk/ndk/23.0.7599858/
         unzip -q android-ndk.zip
-        cp -r android-ndk-r21d /usr/local/lib/android/sdk/ndk/23.0.7599858/
+        cd android-ndk-r21d
+        cp -r . /usr/local/lib/android/sdk/ndk/23.0.7599858/
         ls /usr/local/lib/android/sdk/ndk/23.0.7599858/
       
 #     - name: Install rust dependencies
