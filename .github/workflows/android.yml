@@ -30,7 +30,7 @@ jobs:
         mkdir /usr/local/lib/android/sdk/ndk/23.0.7599858/
         unzip -q android-ndk.zip -d /usr/local/lib/android/sdk/ndk/23.0.7599858/
         rm --force android-ndk.zip
-        ls /usr/local/lib/android/sdk/ndk/23.0.7599858/toolchains/llvm/prebuilt/linux-x86_64/bin/
+        ls /usr/local/lib/android/sdk/ndk/23.0.7599858/
       
 #     - name: Install rust dependencies
 #       run: rustup target add armv7-linux-androideabi | rustup target add aarch64-linux-android | rustup target add i686-linux-android | rustup target add x86_64-linux-android | rustup target add x86_64-unknown-linux-gnu
