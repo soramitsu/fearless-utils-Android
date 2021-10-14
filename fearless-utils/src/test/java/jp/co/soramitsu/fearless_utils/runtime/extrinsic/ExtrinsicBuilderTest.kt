@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.runtime.extrinsic
 import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.BaseKeypair
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
+import jp.co.soramitsu.fearless_utils.integration.transfer
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.multiAddressFromId

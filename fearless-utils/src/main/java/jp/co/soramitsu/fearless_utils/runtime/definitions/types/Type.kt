@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
 
 class TypeReference(var value: Type<*>?) {
@@ -30,6 +31,11 @@ class TypeReference(var value: Type<*>?) {
 }
 
 abstract class Type<InstanceType>(val name: String) {
+
+    interface InstanceConstructor<I> {
+
+        fun constructInstance(typeRegistry: TypeRegistry, value: I): Any?
+    }
 
     abstract val isFullyResolved: Boolean
 
