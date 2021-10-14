@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.encrypt
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.Keypair
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.substrate.Sr25519Keypair
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
+import jp.co.soramitsu.fearless_utils.hash.Hasher.keccak256
 import net.i2p.crypto.eddsa.EdDSAEngine
 import net.i2p.crypto.eddsa.EdDSAPrivateKey
 import net.i2p.crypto.eddsa.EdDSAPublicKey
@@ -19,6 +20,12 @@ import java.security.Signature
 
 object Signer {
 
+    enum class MessageHashing(val hasher: (ByteArray) -> ByteArray) {
+
+        SUBSTRATE(hasher = { it.blake2b256() }),
+        ETHEREUM(hasher = { it.keccak256() })
+    }
+
     init {
         SecurityProviders.requireEdDSA
         SecurityProviders.requireBouncyCastle
@@ -27,7 +34,8 @@ object Signer {
     fun sign(
         encryptionType: EncryptionType,
         message: ByteArray,
-        keypair: Keypair
+        keypair: Keypair,
+        messageHashing: MessageHashing = MessageHashing.SUBSTRATE,
     ): SignatureWrapper {
         return when (encryptionType) {
             EncryptionType.SR25519 -> {
@@ -38,14 +46,14 @@ object Signer {
                 signSr25519(message, keypair)
             }
             EncryptionType.ED25519 -> signEd25519(message, keypair)
-            EncryptionType.ECDSA -> signEcdsa(message, keypair)
+            EncryptionType.ECDSA -> signEcdsa(message, keypair, messageHashing.hasher)
         }
     }
 
     private fun signSr25519(message: ByteArray, keypair: Sr25519Keypair): SignatureWrapper {
         val sign = Sr25519.sign(keypair.publicKey, keypair.privateKey + keypair.nonce, message)
 
-        return SignatureWrapper.Other(signature = sign)
+        return SignatureWrapper.Sr25519(signature = sign)
     }
 
     fun verifySr25519(
@@ -66,7 +74,7 @@ object Signer {
         val privateKey = EdDSAPrivateKey(privKeySpec)
         sgr.initSign(privateKey)
         sgr.update(message)
-        return SignatureWrapper.Other(signature = sgr.sign())
+        return SignatureWrapper.Ed25519(signature = sgr.sign())
     }
 
     fun verifyEd25519(
@@ -88,11 +96,15 @@ object Signer {
         return sgr.verify(signature)
     }
 
-    private fun signEcdsa(message: ByteArray, keypair: Keypair): SignatureWrapper {
+    private fun signEcdsa(
+        message: ByteArray,
+        keypair: Keypair,
+        hasher: (ByteArray) -> ByteArray
+    ): SignatureWrapper {
         val privateKey = BigInteger(Hex.toHexString(keypair.privateKey), 16)
         val publicKey = Sign.publicKeyFromPrivate(privateKey)
 
-        val messageHash = message.blake2b256()
+        val messageHash = hasher(message)
 
         val sign = Sign.signMessage(messageHash, ECKeyPair(privateKey, publicKey), false)
 
