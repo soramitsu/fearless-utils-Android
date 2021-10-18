@@ -18,12 +18,12 @@ class RuntimeMetadata(
 ) {
     constructor(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<RuntimeMetadataSchema>
+        struct: RuntimeMetadataReader
     ) : this(
-        runtimeVersion = struct[RuntimeMetadataSchema.runtimeVersion].toInt().toBigInteger(),
-        modules = struct[RuntimeMetadataSchema.modules].map { Module(typeRegistry, it) }
+        runtimeVersion = struct.getMagic()[Magic.runtimeVersion].toInt().toBigInteger(),
+        modules = struct.getSchema()[RuntimeMetadataSchema.modules].map { Module(typeRegistry, it) }
             .groupByName(),
-        extrinsic = ExtrinsicMetadata(struct[RuntimeMetadataSchema.extrinsic])
+        extrinsic = ExtrinsicMetadata(struct.getSchema()[RuntimeMetadataSchema.extrinsic])
     )
 }
 

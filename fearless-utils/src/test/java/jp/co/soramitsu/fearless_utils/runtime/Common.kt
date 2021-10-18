@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.runtime
 
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
+import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.getResourceReader
 import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionParser
@@ -11,7 +12,9 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.Ge
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
+import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadataReader
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadataSchema
+import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 
 object RealRuntimeProvider {
 
@@ -26,7 +29,7 @@ object RealRuntimeProvider {
 
     fun buildRawMetadata(networkName: String = "kusama") =
         getFileContentFromResources("${networkName}_metadata").run {
-            RuntimeMetadataSchema.read(this)
+            RuntimeMetadataReader.read(this)
         }
 
     fun buildRegistry(networkName: String): TypeRegistry {

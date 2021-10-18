@@ -29,10 +29,22 @@ class MetadataTest {
     }
 
     @Test
-    fun `should decode metadata`() {
-        val inHex = getFileContentFromResources("kusama_metadata")
+    fun `should decode metadata v14`() {
+        val inHex = getFileContentFromResources("westend_metadata_v14")
 
-        val metadataRaw = RuntimeMetadataSchema.read(inHex)
+        val metadataRaw = RuntimeMetadataReader.read(inHex)
+        val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
+
+        assertInstance<StorageEntryType.Plain>(metadata.module("System").storage("Events").type)
+        assertEquals(4 to 2, metadata.module("Balances").event("Transfer").index)
+        assertEquals(4 to 0, metadata.module("Balances").call("transfer").index)
+    }
+
+    @Test
+    fun `should decode metadata`() {
+        val inHex = getFileContentFromResources("westend_metadata")
+
+        val metadataRaw = RuntimeMetadataReader.read(inHex)
         val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
 
         assertInstance<StorageEntryType.Plain>(metadata.module("System").storage("Events").type)
@@ -44,7 +56,7 @@ class MetadataTest {
     fun `should decode metadata with NMap`() {
         val inHex = getFileContentFromResources("statemine_metadata")
 
-        val metadataRaw = RuntimeMetadataSchema.read(inHex)
+        val metadataRaw = RuntimeMetadataReader.read(inHex)
         val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
 
         assertInstance<StorageEntryType.NMap>(metadata.module("Assets").storage("Approvals").type)
@@ -65,7 +77,7 @@ class MetadataTest {
 
         val toResolve = mutableSetOf<Holder>()
 
-        for (module in metadata[RuntimeMetadataSchema.modules]) {
+        for (module in metadata.getSchema()[RuntimeMetadataSchema.modules]) {
             val toResolveInModule = mutableSetOf<String>()
 
             val storage = module[ModuleMetadataSchema.storage]

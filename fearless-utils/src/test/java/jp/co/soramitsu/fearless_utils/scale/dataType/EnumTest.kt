@@ -1,5 +1,6 @@
 package jp.co.soramitsu.fearless_utils.scale.dataType
 
+import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.scale.Schema
 import jp.co.soramitsu.fearless_utils.scale.enum
 import jp.co.soramitsu.fearless_utils.scale.toHexString
@@ -23,7 +24,7 @@ class EnumTest {
     fun `should serialize an deserialize enum`() {
         val hex = "0x01"
 
-        val parsed = EnumTypeTest.read(hex)
+        val parsed = EnumTypeTest.read(hex.fromHex())
 
         assertEquals(parsed[EnumTypeTest.enumField], TestEnum.ONE)
 

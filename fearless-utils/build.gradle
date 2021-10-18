@@ -37,7 +37,7 @@ android {
         targetCompatibility 1.8
     }
 
-    ndkVersion "21.3.6528147"
+    ndkVersion "22.0.6917172-rc1"
 
     sourceSets {
         test {

@@ -4,6 +4,7 @@ package jp.co.soramitsu.fearless_utils.scale
 
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
+import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.scale.Account.address
 import jp.co.soramitsu.fearless_utils.scale.Account.balance
 import jp.co.soramitsu.fearless_utils.scale.Account.something
@@ -229,7 +230,7 @@ class ScaleStructTest {
 
         println(hex)
 
-        return schema.read(hex)
+        return schema.read(hex.fromHex())
     }
 
     @Test
@@ -245,7 +246,7 @@ class ScaleStructTest {
 
         assertEquals(expected, encoded)
 
-        val afterIO = Vector.read(encoded)
+        val afterIO = Vector.read(encoded.fromHex())
 
         assertEquals(data, afterIO[numbers])
     }
@@ -289,7 +290,7 @@ class ScaleStructTest {
 
         assertEquals(expected, struct.toHexString())
 
-        val afterIo = CustomTypeTest.read(expected)
+        val afterIo = CustomTypeTest.read(expected.fromHex())
 
         assertEquals(struct[CustomTypeTest.delimiter], afterIo[CustomTypeTest.delimiter])
     }
