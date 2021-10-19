@@ -64,7 +64,7 @@ object StorageEntryMetadataSchema : Schema<StorageEntryMetadataSchema>() {
 }
 
 enum class StorageEntryModifier {
-    Optional, Default
+    Optional, Default, Required
 }
 
 object MapSchema : Schema<MapSchema>() {

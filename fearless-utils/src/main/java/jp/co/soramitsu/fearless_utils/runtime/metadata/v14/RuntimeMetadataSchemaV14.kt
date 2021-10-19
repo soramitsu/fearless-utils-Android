@@ -44,8 +44,22 @@ object RegistryType : Schema<RegistryType>() {
     val docs by vector(jp.co.soramitsu.fearless_utils.scale.dataType.string)
 }
 
-enum class TypeDefEnum {
-    bool, char, str, u8, u16, u32, u64, u128, u256, i8, i16, i32, i64, i128, i256
+enum class TypeDefEnum(val localName: String) {
+    bool("bool"),
+    char(""),
+    str(""),
+    u8("u8"),
+    u16("u16"),
+    u32("u32"),
+    u64("u64"),
+    u128("u128"),
+    u256("u256"),
+    i8("u8"),
+    i16("u16"),
+    i32("u32"),
+    i64("u64"),
+    i128("u128"),
+    i256("u256")
 }
 
 object TypeDefBitSequence : Schema<TypeDefBitSequence>() {

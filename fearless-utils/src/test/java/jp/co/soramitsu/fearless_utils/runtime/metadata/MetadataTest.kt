@@ -5,6 +5,7 @@ import jp.co.soramitsu.fearless_utils.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.stub.FakeType
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module.StorageEntryType
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -26,18 +27,6 @@ class MetadataTest {
     fun startUp() {
         Mockito.`when`(typeRegistry[Mockito.anyString()])
             .thenAnswer { FakeType(it.arguments[0] as String) }
-    }
-
-    @Test
-    fun `should decode metadata v14`() {
-        val inHex = getFileContentFromResources("westend_metadata_v14")
-
-        val metadataRaw = RuntimeMetadataReader.read(inHex)
-        val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
-
-        assertInstance<StorageEntryType.Plain>(metadata.module("System").storage("Events").type)
-        assertEquals(4 to 2, metadata.module("Balances").event("Transfer").index)
-        assertEquals(4 to 0, metadata.module("Balances").call("transfer").index)
     }
 
     @Test

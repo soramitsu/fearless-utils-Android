@@ -7,13 +7,13 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.BooleanType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u8
-import jp.co.soramitsu.fearless_utils.runtime.metadata.Event
 import jp.co.soramitsu.fearless_utils.runtime.metadata.ExtrinsicMetadata
-import jp.co.soramitsu.fearless_utils.runtime.metadata.Function
-import jp.co.soramitsu.fearless_utils.runtime.metadata.FunctionArgument
-import jp.co.soramitsu.fearless_utils.runtime.metadata.Module
 import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
-import jp.co.soramitsu.fearless_utils.runtime.metadata.Storage
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module.Event
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module.FunctionArgument
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module.MetadataFunction
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module.Module
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module.Storage
 import java.math.BigInteger
 
 abstract class BaseTypeTest {
@@ -34,7 +34,7 @@ abstract class BaseTypeTest {
                     name = "A",
                     storage = Storage("_A", emptyMap()),
                     calls = mapOf(
-                        "B" to Function(
+                        "B" to MetadataFunction(
                             name = "B",
                             arguments = listOf(
                                 FunctionArgument(

@@ -1,5 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata.v14
 
+import jp.co.soramitsu.fearless_utils.runtime.metadata.StorageEntryModifier
 import jp.co.soramitsu.fearless_utils.runtime.metadata.StorageHasher
 import jp.co.soramitsu.fearless_utils.scale.Schema
 import jp.co.soramitsu.fearless_utils.scale.byteArray
@@ -29,7 +30,7 @@ object StorageMetadataV14 : Schema<StorageMetadataV14>() {
 
 object StorageEntryMetadataV14 : Schema<StorageEntryMetadataV14>() {
     val name by string()
-    val modifier by enum(StorageEntryModifierV14::class)
+    val modifier by enum(StorageEntryModifier::class)
     val type by enum(
         jp.co.soramitsu.fearless_utils.scale.dataType.compactInt,
         scalable(MapTypeV14),
@@ -42,10 +43,6 @@ object MapTypeV14 : Schema<MapTypeV14>() {
     val hashers by vector(EnumType(StorageHasher::class.java))
     val key by compactInt()
     val value by compactInt()
-}
-
-enum class StorageEntryModifierV14 {
-    Optional, Default, Required
 }
 
 object PalletCallMetadataV14 : Schema<PalletCallMetadataV14>() {

@@ -17,9 +17,11 @@ object RuntimeMetadataReader {
     private var schema: EncodableStruct<*>? = null
     fun read(s: String): RuntimeMetadataReader {
         val bytes = s.fromHex()
-        val m = Magic.read(bytes.copyOfRange(0, 5))
+        val runtimeVersion = Magic.read(bytes.copyOfRange(0, 5)).let {
+            magic = it
+            it[Magic.runtimeVersion].toInt()
+        }
         val schemaBytes = bytes.copyOfRange(5, bytes.size)
-        val runtimeVersion = m[Magic.runtimeVersion].toInt()
         schema = when {
             runtimeVersion < 14 -> {
                 RuntimeMetadataSchema.read(schemaBytes)
@@ -28,7 +30,6 @@ object RuntimeMetadataReader {
                 RuntimeMetadataSchemaV14.read(schemaBytes)
             }
         }
-        magic = m
         return this
     }
 
