@@ -80,10 +80,7 @@ fun StorageEntry.storageKeyOrNull() = nullOnException { storageKey() }
  */
 fun StorageEntryType.dimension() = when (this) {
     is StorageEntryType.Plain -> 0
-    is StorageEntryType.Map -> 1
-    is StorageEntryType.DoubleMap -> 2
     is StorageEntryType.NMap -> keys.size
-    is StorageEntryType.MapV14 -> hashers.size
 }
 
 /**
@@ -102,13 +99,7 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, vararg keys: Any?): String
 
     val keysWithHashers = when (type) {
         is StorageEntryType.Plain -> emptyList()
-        is StorageEntryType.Map -> listOf(type.key to type.hasher)
-        is StorageEntryType.DoubleMap -> listOf(
-            type.key1 to type.key1Hasher,
-            type.key2 to type.key2Hasher
-        )
         is StorageEntryType.NMap -> type.keys.zip(type.hashers)
-        is StorageEntryType.MapV14 -> type.key.zip(type.hashers)
     }
 
     val keyOutputStream = ByteArrayOutputStream()
@@ -129,6 +120,14 @@ fun StorageEntry.storageKey(runtime: RuntimeSnapshot, vararg keys: Any?): String
 
 fun StorageEntry.storageKeyOrNull(runtime: RuntimeSnapshot, vararg keys: Any?): String? {
     return nullOnException { storageKey(runtime, keys) }
+}
+
+fun Module.fullNameOf(suffix: String): String {
+    return "$name.$suffix"
+}
+
+fun Module.fullNameOf(withName: WithName): String {
+    return "$name.${withName.name}"
 }
 
 private fun typeNotResolved(entryName: String): Nothing =

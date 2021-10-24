@@ -230,7 +230,7 @@ class ScaleStructTest {
 
         println(hex)
 
-        return schema.read(hex.fromHex())
+        return schema.read(hex)
     }
 
     @Test
@@ -246,7 +246,7 @@ class ScaleStructTest {
 
         assertEquals(expected, encoded)
 
-        val afterIO = Vector.read(encoded.fromHex())
+        val afterIO = Vector.read(encoded)
 
         assertEquals(data, afterIO[numbers])
     }
@@ -290,7 +290,7 @@ class ScaleStructTest {
 
         assertEquals(expected, struct.toHexString())
 
-        val afterIo = CustomTypeTest.read(expected.fromHex())
+        val afterIo = CustomTypeTest.read(expected)
 
         assertEquals(struct[CustomTypeTest.delimiter], afterIo[CustomTypeTest.delimiter])
     }

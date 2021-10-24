@@ -2,6 +2,7 @@ package jp.co.soramitsu.fearless_utils.hash
 
 import net.jpountz.xxhash.XXHashFactory
 import org.bouncycastle.jcajce.provider.digest.Blake2b
+import org.bouncycastle.jcajce.provider.digest.Keccak
 
 object Hasher {
     private val blake2bLock = Any()
@@ -23,6 +24,12 @@ object Hasher {
     fun ByteArray.blake2b128() = withBlake2bLock { blake2b128.digest(this) }
     fun ByteArray.blake2b256() = withBlake2bLock { blake2b256.digest(this) }
     fun ByteArray.blake2b512() = withBlake2bLock { blake2b512.digest(this) }
+
+    fun ByteArray.keccak256(): ByteArray {
+        val digest = Keccak.Digest256()
+
+        return digest.digest(this)
+    }
 
     fun ByteArray.blake2b128Concat() = withBlake2bLock { blake2b128.hashConcat(this) }
 

@@ -1,10 +1,9 @@
 package jp.co.soramitsu.fearless_utils.runtime.definitions.v14
 
+import jp.co.soramitsu.fearless_utils.extensions.snakeCaseToCamelCase
 import jp.co.soramitsu.fearless_utils.runtime.definitions.ParseResult
-import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePreset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypePresetBuilder
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.create
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.getOrCreate
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.newBuilder
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.type
@@ -18,6 +17,8 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Bytes
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Compact
+import jp.co.soramitsu.fearless_utils.runtime.definitions.v14.typeMapping.SiTypeMapping
+import jp.co.soramitsu.fearless_utils.runtime.definitions.v14.typeMapping.default
 import jp.co.soramitsu.fearless_utils.runtime.metadata.v14.LookupSchema
 import jp.co.soramitsu.fearless_utils.runtime.metadata.v14.PortableType
 import jp.co.soramitsu.fearless_utils.runtime.metadata.v14.RegistryType
@@ -33,24 +34,30 @@ import jp.co.soramitsu.fearless_utils.runtime.metadata.v14.TypeDefVariantItem
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import java.math.BigInteger
 
+private const val NAME_NONE = ""
+
+@OptIn(ExperimentalUnsignedTypes::class)
 object TypesParserV14 {
 
     private class Params(
         val types: List<EncodableStruct<PortableType>>,
-        val dynamicTypeResolver: DynamicTypeResolver,
+        val typeMapping: SiTypeMapping,
         val typesBuilder: TypePresetBuilder
     )
 
     fun parse(
-        struct: EncodableStruct<LookupSchema>,
+        lookup: EncodableStruct<LookupSchema>,
         typePreset: TypePreset,
-        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
+        typeMapping: SiTypeMapping = SiTypeMapping.default()
     ): ParseResult {
         val builder = typePreset.newBuilder()
-        val params = Params(struct[LookupSchema.types], dynamicTypeResolver, builder)
+        val params = Params(lookup[LookupSchema.types], typeMapping, builder)
+
         parseParams(params)
+
         val unknownTypes = params.typesBuilder.entries
             .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
+
         return ParseResult(params.typesBuilder, unknownTypes)
     }
 
@@ -61,78 +68,107 @@ object TypesParserV14 {
         }
     }
 
-    private fun parseParam(params: Params, pt: EncodableStruct<PortableType>): Type<*>? {
+    private fun parseParam(params: Params, portableType: EncodableStruct<PortableType>): Type<*>? {
         val typesBuilder = params.typesBuilder
-        val name = pt[PortableType.id]
-        val type = pt[PortableType.type]
+        val name = portableType[PortableType.id].toString()
+        val type = portableType[PortableType.type]
         val def = type[RegistryType.def]
+
+        val fromTypeMapping = params.typeMapping.map(type, name, params.typesBuilder)
+
+        if (fromTypeMapping != null) {
+            return fromTypeMapping
+        }
+
         return when (def) {
             is EncodableStruct<*> -> {
-                when {
-                    def.schema is TypeDefComposite -> {
+                when (def.schema) {
+                    is TypeDefComposite -> {
                         val list = def[TypeDefComposite.fields2]
-                        val children = parseTypeMapping(params, list as List<*>)
-                        Struct(name.toString(), children)
+                        val children = parseTypeMapping(params, list, useSnakeCaseForFieldNames = true)
+
+                        Struct(name, children)
                     }
-                    def.schema is TypeDefArray -> {
+
+                    is TypeDefArray -> {
                         FixedArray(
-                            name.toString(),
+                            name,
                             def[TypeDefArray.len].toInt(),
-                            resolveTypeAllWaysOrCreate(params, def[TypeDefArray.type].toString())
+                            params.typesBuilder.getOrCreate(def[TypeDefArray.type].toString())
                         )
                     }
-                    def.schema is TypeDefSequence -> {
+
+                    is TypeDefSequence -> {
                         Vec(
-                            name.toString(),
-                            resolveTypeAllWaysOrCreate(params, def[TypeDefSequence.type].toString())
+                            name,
+                            params.typesBuilder.getOrCreate(def[TypeDefSequence.type].toString())
                         )
                     }
-                    def.schema is TypeDefVariant -> {
-                        val list = def[TypeDefVariant.variants]
-                        val res = list.map {
-                            val ch = it[TypeDefVariantItem.fields2]
+
+                    is TypeDefVariant -> {
+                        val variants = def[TypeDefVariant.variants]
+
+                        val transformedVariants = variants.map {
+                            val fields = it[TypeDefVariantItem.fields2]
+
                             val itemName = it[TypeDefVariantItem.index].toString()
-                            val children = parseTypeMapping(params, ch as List<*>)
-                            val s = Struct(itemName, children)
-                            DictEnum.Entry(it[TypeDefVariantItem.name], TypeReference(s))
+
+                            val children = parseTypeMapping(params, fields, useSnakeCaseForFieldNames = false)
+
+                            if (children.size == 1) {
+                                val (childName, childTypeRef) = children.entries.first()
+
+                                if (childName == NAME_NONE) {
+                                    return@map DictEnum.Entry(
+                                        name = it[TypeDefVariantItem.name],
+                                        value = childTypeRef
+                                    )
+                                }
+                            }
+
+                            val struct = Struct(itemName, children)
+
+                            DictEnum.Entry(
+                                name = it[TypeDefVariantItem.name],
+                                value = TypeReference(struct)
+                            )
                         }
-                        DictEnum(name.toString(), res)
+
+                        DictEnum(name, transformedVariants)
                     }
-                    def.schema is TypeDefCompact -> {
-                        Compact(name.toString())
-                    }
-                    def.schema is TypeDefBitSequence -> {
+
+                    is TypeDefCompact -> Compact(name)
+
+                    is TypeDefBitSequence -> {
                         Tuple(
-                            name.toString(),
-                            listOf(
+                            name = name,
+                            typeReferences = listOf(
                                 def[TypeDefBitSequence.bit_store_type],
                                 def[TypeDefBitSequence.bit_order_type]
-                            ).map { resolveTypeAllWaysOrCreate(params, it.toString()) }
+                            ).map { params.typesBuilder.getOrCreate(it.toString()) }
                         )
                     }
-                    else -> {
-                        null
-                    }
+                    else -> null
                 }
             }
             is TypeDefEnum -> {
                 when (def) {
                     TypeDefEnum.str -> {
-                        Alias(name.toString(), TypeReference(Bytes))
+                        Alias(name, TypeReference(Bytes))
                     }
                     TypeDefEnum.char -> {
-                        Alias(name.toString(), TypeReference(Bytes))
+                        Alias(name, TypeReference(Bytes))
                     }
                     else -> {
-                        Alias(name.toString(), typesBuilder.getOrCreate(def.localName))
+                        Alias(name, typesBuilder.getOrCreate(def.localName))
                     }
                 }
             }
             is List<*> -> {
                 (def as? List<BigInteger>)?.let { list ->
                     Tuple(
-                        name.toString(),
-                        list.map { resolveTypeAllWaysOrCreate(params, it.toString()) }
+                        name,
+                        list.map { params.typesBuilder.getOrCreate(it.toString()) }
                     )
                 }
             }
@@ -144,41 +180,25 @@ object TypesParserV14 {
 
     private fun parseTypeMapping(
         params: Params,
-        struct: List<*>,
+        childrenRaw: List<EncodableStruct<TypeDefCompositeField>>,
+        useSnakeCaseForFieldNames: Boolean
     ): LinkedHashMap<String, TypeReference> {
         val children = LinkedHashMap<String, TypeReference>()
-        for (type in struct) {
-            val s = type as EncodableStruct<*>
-            when {
-                s.schema is TypeDefCompositeField -> {
-                    val entryName =
-                        s[TypeDefCompositeField.name] ?: s[TypeDefCompositeField.typeName]
-                            ?: s[TypeDefCompositeField.type].toString()
-                    children[entryName] =
-                        resolveTypeAllWaysOrCreate(params, s[TypeDefCompositeField.type].toString())
-                }
+
+        for (child in childrenRaw) {
+            val typeIndex = child[TypeDefCompositeField.type].toString()
+
+            val entryName = child[TypeDefCompositeField.name] ?: NAME_NONE
+
+            val entryNameTransformed = if (useSnakeCaseForFieldNames) {
+                entryName.snakeCaseToCamelCase()
+            } else {
+                entryName
             }
+
+            children[entryNameTransformed] = params.typesBuilder.getOrCreate(typeIndex)
         }
+
         return children
-    }
-
-    private fun resolveDynamicType(
-        parsingParams: Params,
-        name: String,
-        typeDef: String
-    ): Type<*>? {
-        return parsingParams.dynamicTypeResolver.createDynamicType(name, typeDef) {
-            resolveTypeAllWaysOrCreate(parsingParams, it)
-        }
-    }
-
-    private fun resolveTypeAllWaysOrCreate(
-        parsingParams: Params,
-        typeDef: String,
-        name: String = typeDef
-    ): TypeReference {
-        return parsingParams.typesBuilder[name]
-            ?: resolveDynamicType(parsingParams, name, typeDef)?.let(::TypeReference)
-            ?: parsingParams.typesBuilder.create(name)
     }
 }

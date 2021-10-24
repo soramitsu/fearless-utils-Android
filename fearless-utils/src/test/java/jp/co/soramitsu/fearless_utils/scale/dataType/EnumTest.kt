@@ -24,7 +24,7 @@ class EnumTest {
     fun `should serialize an deserialize enum`() {
         val hex = "0x01"
 
-        val parsed = EnumTypeTest.read(hex.fromHex())
+        val parsed = EnumTypeTest.read(hex)
 
         assertEquals(parsed[EnumTypeTest.enumField], TestEnum.ONE)
 

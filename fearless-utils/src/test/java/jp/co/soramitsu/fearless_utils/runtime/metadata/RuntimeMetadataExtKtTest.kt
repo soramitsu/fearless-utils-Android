@@ -39,46 +39,6 @@ class RuntimeMetadataExtKtTest {
     }
 
     @Test
-    fun `test single map storage`() {
-        val storageEntry = storageEntry(
-            StorageEntryType.Map(
-                value = BooleanType,
-                key = BooleanType,
-                hasher = StorageHasher.Identity,
-                unused = false
-            )
-        )
-
-        assertEquals(PREFIX, storageEntry.storageKey(runtime))
-        assertEquals(PREFIX + "01", storageEntry.storageKey(runtime, true))
-
-        assertThrows<IllegalArgumentException> {
-            storageEntry.storageKey(runtime, false, false)
-        }
-    }
-
-    @Test
-    fun `test double map storage`() {
-        val storageEntry = storageEntry(
-            StorageEntryType.DoubleMap(
-                value = BooleanType,
-                key1 = BooleanType,
-                key1Hasher = StorageHasher.Identity,
-                key2 = BooleanType,
-                key2Hasher = StorageHasher.Identity,
-            )
-        )
-
-        assertEquals(PREFIX, storageEntry.storageKey(runtime))
-        assertEquals(PREFIX + "01", storageEntry.storageKey(runtime, true))
-        assertEquals(PREFIX + "0100", storageEntry.storageKey(runtime, true, false))
-
-        assertThrows<IllegalArgumentException> {
-            storageEntry.storageKey(runtime, false, false, false)
-        }
-    }
-
-    @Test
     fun `test nmap`() {
         val storageEntry = storageEntry(
             StorageEntryType.NMap(

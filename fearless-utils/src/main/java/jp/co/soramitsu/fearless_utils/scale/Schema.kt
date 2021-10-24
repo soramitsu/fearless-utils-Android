@@ -42,6 +42,10 @@ abstract class Schema<S : Schema<S>> :
         }
     }
 
+    fun read(scale: String): EncodableStruct<S> {
+        return read(scale.fromHex())
+    }
+
     fun read(bytes: ByteArray): EncodableStruct<S> {
         val reader = ScaleCodecReader(bytes)
 

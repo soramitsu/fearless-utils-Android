@@ -38,7 +38,7 @@ class ScaleCollectionMapper<S : Schema<S>>(val schema: S) :
     ): List<EncodableStruct<S>>? {
         val raw = rpcResponse.result as? List<String> ?: return null
 
-        return raw.map { schema.read(it.fromHex()) }
+        return raw.map(schema::read)
     }
 }
 

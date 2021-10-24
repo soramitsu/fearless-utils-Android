@@ -1,5 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
+import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.metadata.v14.RuntimeMetadataSchemaV14
 import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
@@ -12,27 +13,33 @@ object Magic : Schema<Magic>() {
     val runtimeVersion by uint8()
 }
 
-object RuntimeMetadataReader {
-    private var magic: EncodableStruct<*>? = null
-    private var schema: EncodableStruct<*>? = null
-    fun read(s: String): RuntimeMetadataReader {
-        val bytes = s.fromHex()
-        val runtimeVersion = Magic.read(bytes.copyOfRange(0, 5)).let {
-            magic = it
-            it[Magic.runtimeVersion].toInt()
-        }
-        val schemaBytes = bytes.copyOfRange(5, bytes.size)
-        schema = when {
-            runtimeVersion < 14 -> {
-                RuntimeMetadataSchema.read(schemaBytes)
-            }
-            else -> {
-                RuntimeMetadataSchemaV14.read(schemaBytes)
-            }
-        }
-        return this
-    }
+class RuntimeMetadataReader private constructor(
+    val metadataVersion: Int,
+    val metadata: EncodableStruct<*>
+) {
 
-    fun getMagic() = magic!!
-    fun getSchema() = schema!!
+    companion object {
+
+        @OptIn(ExperimentalUnsignedTypes::class)
+        fun read(metadaScale: String): RuntimeMetadataReader {
+
+            val scaleCoderReader = ScaleCodecReader(metadaScale.fromHex())
+
+            val runtimeVersion = Magic.read(scaleCoderReader)[Magic.runtimeVersion].toInt()
+
+            val metadata = when {
+                runtimeVersion < 14 -> {
+                    RuntimeMetadataSchema.read(scaleCoderReader)
+                }
+                else -> {
+                    RuntimeMetadataSchemaV14.read(scaleCoderReader)
+                }
+            }
+
+            return RuntimeMetadataReader(
+                metadataVersion = runtimeVersion,
+                metadata = metadata
+            )
+        }
+    }
 }

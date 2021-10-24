@@ -1,5 +1,6 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata.v14
 
+import jp.co.soramitsu.fearless_utils.scale.EncodableStruct
 import jp.co.soramitsu.fearless_utils.scale.Schema
 import jp.co.soramitsu.fearless_utils.scale.compactInt
 import jp.co.soramitsu.fearless_utils.scale.dataType.EnumType
@@ -28,6 +29,12 @@ object PortableType : Schema<PortableType>() {
     val type by schema(RegistryType)
 }
 
+val EncodableStruct<PortableType>.id
+    get() = get(PortableType.id)
+
+val EncodableStruct<PortableType>.type
+    get() = get(PortableType.type)
+
 object RegistryType : Schema<RegistryType>() {
     val path by vector(jp.co.soramitsu.fearless_utils.scale.dataType.string)
     val params by vector(TypeParameter)
@@ -43,6 +50,15 @@ object RegistryType : Schema<RegistryType>() {
     )
     val docs by vector(jp.co.soramitsu.fearless_utils.scale.dataType.string)
 }
+
+val EncodableStruct<RegistryType>.path
+    get() = get(RegistryType.path)
+
+val EncodableStruct<RegistryType>.def
+    get() = get(RegistryType.def)
+
+val EncodableStruct<RegistryType>.params
+    get() = get(RegistryType.params)
 
 enum class TypeDefEnum(val localName: String) {
     bool("bool"),
@@ -94,6 +110,15 @@ object TypeDefVariantItem : Schema<TypeDefVariantItem>() {
 object TypeDefComposite : Schema<TypeDefComposite>() {
     val fields2 by vector(TypeDefCompositeField)
 }
+
+val EncodableStruct<TypeDefComposite>.fields
+    get() = get(TypeDefComposite.fields2)
+
+val EncodableStruct<TypeDefCompositeField>.type
+    get() = get(TypeDefCompositeField.type)
+
+val EncodableStruct<TypeDefCompositeField>.name
+    get() = get(TypeDefCompositeField.name)
 
 object TypeDefCompositeField : Schema<TypeDefCompositeField>() {
     val name by string().optional()
