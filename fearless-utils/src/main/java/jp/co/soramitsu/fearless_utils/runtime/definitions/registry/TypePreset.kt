@@ -76,6 +76,8 @@ fun v14Preset() = typePreset {
     type(u128)
     type(u256)
     type(Bytes)
+    type(Null)
+    type(H256)
 
     type(GenericCall)
     type(GenericEvent)

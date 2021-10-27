@@ -62,14 +62,12 @@ abstract class Type<InstanceType>(val name: String) {
     fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Any?) {
         if (!isValidInstance(value)) {
             val valueTypeName = value?.let { it::class.java.simpleName }
-
-            throw EncodeDecodeException("$value ($valueTypeName) is not a valid instance if $this")
+            val message = """
+                |$value ($valueTypeName) is not a valid instance of ${this.name}
+                | (${this::class.java.simpleName})""".trimMargin()
+            throw EncodeDecodeException(message)
         }
 
         encode(scaleCodecWriter, runtime, value as InstanceType)
-    }
-
-    override fun toString(): String {
-        return name
     }
 }
