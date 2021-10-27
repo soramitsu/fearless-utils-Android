@@ -1,18 +1,20 @@
 package jp.co.soramitsu.fearless_utils.runtime.extrinsic
 
-import jp.co.soramitsu.fearless_utils.encrypt.EncryptionType
+import jp.co.soramitsu.fearless_utils.encrypt.MultiChainEncryption
+import jp.co.soramitsu.fearless_utils.encrypt.SignatureWrapper
 import jp.co.soramitsu.fearless_utils.encrypt.Signer
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.Keypair
 import jp.co.soramitsu.fearless_utils.hash.Hasher.blake2b256
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.AdditionalExtras
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Extrinsic
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.ExtrinsicPayloadExtrasInstance
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericCall
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.MultiSignature
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.SignedExtras
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.new
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.instances.SignatureInstanceConstructor
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.toHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.useScaleWriter
 import jp.co.soramitsu.fearless_utils.runtime.metadata.call
@@ -25,16 +27,17 @@ private val DEFAULT_TIP = BigInteger.ZERO
 private const val PAYLOAD_HASH_THRESHOLD = 256
 
 class ExtrinsicBuilder(
-    private val runtime: RuntimeSnapshot,
+    val runtime: RuntimeSnapshot,
     private val keypair: Keypair,
     private val nonce: BigInteger,
     private val runtimeVersion: RuntimeVersion,
     private val genesisHash: ByteArray,
-    private val encryptionType: EncryptionType,
+    private val multiChainEncryption: MultiChainEncryption,
     private val accountIdentifier: Any,
     private val blockHash: ByteArray = genesisHash,
     private val era: Era = Era.Immortal,
-    private val tip: BigInteger = DEFAULT_TIP
+    private val tip: BigInteger = DEFAULT_TIP,
+    private val signatureConstructor: Type.InstanceConstructor<SignatureWrapper> = SignatureInstanceConstructor
 ) {
 
     private val calls = mutableListOf<GenericCall.Instance>()
@@ -90,7 +93,7 @@ class ExtrinsicBuilder(
         }
     }
 
-    private fun buildSignature(call: GenericCall.Instance): MultiSignature {
+    private fun buildSignature(call: GenericCall.Instance): Any? {
         val signedExtrasInstance = mapOf(
             SignedExtras.ERA to era,
             SignedExtras.NONCE to nonce,
@@ -116,9 +119,9 @@ class ExtrinsicBuilder(
             payloadBytes
         }
 
-        val signature = Signer.sign(encryptionType, messageToSign, keypair).signature
+        val signatureWrapper = Signer.sign(multiChainEncryption, messageToSign, keypair)
 
-        return MultiSignature(encryptionType, signature)
+        return signatureConstructor.constructInstance(runtime.typeRegistry, signatureWrapper)
     }
 
     private fun wrapInBatch(): GenericCall.Instance {

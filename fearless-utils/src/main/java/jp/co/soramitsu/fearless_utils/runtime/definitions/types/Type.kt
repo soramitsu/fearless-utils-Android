@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.runtime.definitions.types
 import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
 
 class TypeReference(var value: Type<*>?) {
@@ -31,6 +32,11 @@ class TypeReference(var value: Type<*>?) {
 
 abstract class Type<InstanceType>(val name: String) {
 
+    interface InstanceConstructor<I> {
+
+        fun constructInstance(typeRegistry: TypeRegistry, value: I): Any?
+    }
+
     abstract val isFullyResolved: Boolean
 
     /**
@@ -56,14 +62,12 @@ abstract class Type<InstanceType>(val name: String) {
     fun encodeUnsafe(scaleCodecWriter: ScaleCodecWriter, runtime: RuntimeSnapshot, value: Any?) {
         if (!isValidInstance(value)) {
             val valueTypeName = value?.let { it::class.java.simpleName }
-
-            throw EncodeDecodeException("$value ($valueTypeName) is not a valid instance if $this")
+            val message = """
+                |$value ($valueTypeName) is not a valid instance of ${this.name}
+                | (${this::class.java.simpleName})""".trimMargin()
+            throw EncodeDecodeException(message)
         }
 
         encode(scaleCodecWriter, runtime, value as InstanceType)
-    }
-
-    override fun toString(): String {
-        return name
     }
 }

@@ -9,24 +9,43 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.TypeDefinitionsTree
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.extentsions.GenericsExtension
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
-import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.substratePreParsePreset
-import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadata
-import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadataSchema
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.v13Preset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.v14Preset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.v14.TypesParserV14
+import jp.co.soramitsu.fearless_utils.runtime.metadata.RuntimeMetadataReader
+import jp.co.soramitsu.fearless_utils.runtime.metadata.builder.VersionedRuntimeBuilder
+import jp.co.soramitsu.fearless_utils.runtime.metadata.v14.RuntimeMetadataSchemaV14
 
 object RealRuntimeProvider {
 
-    fun buildRuntime(networkName: String): RuntimeSnapshot {
-        val metadataRaw = buildRawMetadata(networkName)
-        val typeRegistry = buildRegistry(networkName)
-
-        val metadata = RuntimeMetadata(typeRegistry, metadataRaw)
-
+    fun buildRuntime(networkName: String, suffix: String = ""): RuntimeSnapshot {
+        val metadataRaw = buildRawMetadata(networkName, suffix)
+        val typeRegistry = if (metadataRaw.metadataVersion < 14) {
+            buildRegistry(networkName)
+        } else {
+            val parseResult = TypesParserV14.parse(
+                lookup = metadataRaw.metadata[RuntimeMetadataSchemaV14.lookup],
+                typePreset = v14Preset()
+            )
+            val nReader = JsonReader(getResourceReader("${networkName}$suffix.json"))
+            val nTree =
+                Gson().fromJson<TypeDefinitionsTree>(nReader, TypeDefinitionsTree::class.java)
+            val networkParsed = TypeDefinitionParser.parseNetworkVersioning(
+                nTree,
+                parseResult.typePreset
+            )
+            TypeRegistry(
+                networkParsed.typePreset,
+                DynamicTypeResolver.defaultCompoundResolver()
+            )
+        }
+        val metadata = VersionedRuntimeBuilder.buildMetadata(metadataRaw, typeRegistry)
         return RuntimeSnapshot(typeRegistry, metadata)
     }
 
-    fun buildRawMetadata(networkName: String = "kusama") =
-        getFileContentFromResources("${networkName}_metadata").run {
-            RuntimeMetadataSchema.read(this)
+    fun buildRawMetadata(networkName: String = "kusama", suffix: String = "") =
+        getFileContentFromResources("${networkName}_metadata$suffix").run {
+            RuntimeMetadataReader.read(this)
         }
 
     fun buildRegistry(networkName: String): TypeRegistry {
@@ -39,7 +58,7 @@ object RealRuntimeProvider {
             gson.fromJson<TypeDefinitionsTree>(kusamaReader, TypeDefinitionsTree::class.java)
 
         val defaultTypeRegistry =
-            TypeDefinitionParser.parseBaseDefinitions(tree, substratePreParsePreset()).typePreset
+            TypeDefinitionParser.parseBaseDefinitions(tree, v13Preset()).typePreset
         val networkParsed = TypeDefinitionParser.parseNetworkVersioning(
             kusamaTree,
             defaultTypeRegistry

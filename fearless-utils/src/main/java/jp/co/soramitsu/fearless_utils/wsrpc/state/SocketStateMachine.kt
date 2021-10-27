@@ -182,7 +182,7 @@ object SocketStateMachine {
                             ),
                             waitingForResponse = state.pendingSendables,
                             subscriptions = emptySet(),
-                            unknownSubscriptionResponses = emptyMap()
+                            unknownSubscriptionResponses = emptyMap(),
                         )
                     }
                     is Event.Stop -> handleStop(sideEffects)
@@ -341,8 +341,8 @@ object SocketStateMachine {
             is State.Paused -> {
                 when (event) {
                     is Event.Send -> state.copy(
-                            pendingSendables = state.pendingSendables + event.sendable
-                        )
+                        pendingSendables = state.pendingSendables + event.sendable
+                    )
 
                     is Event.Cancel -> state.copy(
                         pendingSendables = state.pendingSendables - event.sendable
