@@ -5,8 +5,11 @@ import jp.co.soramitsu.fearless_utils.encrypt.MultiChainEncryption
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.BaseKeypair
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.multiAddressFromId
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module
+import jp.co.soramitsu.fearless_utils.runtime.metadata.storage
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAccountId
 import jp.co.soramitsu.fearless_utils.wsrpc.request.runtime.chain.RuntimeVersion
 import org.junit.Assert.assertEquals
@@ -21,6 +24,15 @@ private val KEYPAIR = BaseKeypair(
 class ExtrinsicBuilderTestV14 {
 
     val runtime = RealRuntimeProvider.buildRuntime("westend", "_v14")
+
+    @Test
+    fun `polkatrain test`() {
+        val pr = RealRuntimeProvider.buildRuntime("polkatrain", "")
+        val eventsType = runtime.metadata.module("System").storage("Events").type.value!!
+        val hex = "0x1400000000000000b0338609000000000200000001000000000080b2e60e000000000200000002000000130674489913000000000000000000000000000002000000050474dbd6b95909e4ab120120ba7cf48c28e5008137a41f2b9b3d31e5a65c49e8381d52e6040000000000000000000000000000020000000000301b0f0000000000000000"
+        val decoded = eventsType.fromHex(pr, hex) as List<*>
+        assertEquals(5, decoded.size)
+    }
 
     @Test
     fun `should build single transfer extrinsic`() {
