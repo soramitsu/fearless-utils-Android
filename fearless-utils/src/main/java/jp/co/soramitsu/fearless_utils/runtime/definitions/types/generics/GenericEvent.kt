@@ -15,7 +15,7 @@ import jp.co.soramitsu.fearless_utils.scale.dataType.uint8
 
 object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
 
-    class Instance(val moduleIndex: Int, val eventIndex: Int, val arguments: List<Any?>)
+    class Instance(val module: Module, val event: Event, val arguments: List<Any?>)
 
     private val indexCoder = tuple(uint8, uint8)
 
@@ -32,7 +32,7 @@ object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
                 .decode(scaleCodecReader, runtime)
         }
 
-        return Instance(moduleIndex, eventIndex, arguments)
+        return Instance(module, event, arguments)
     }
 
     override fun encode(
@@ -40,7 +40,7 @@ object GenericEvent : Type<GenericEvent.Instance>("GenericEvent") {
         runtime: RuntimeSnapshot,
         value: Instance
     ) = with(value) {
-        val (module, event) = getEventOrThrow(runtime, moduleIndex, eventIndex)
+        val (moduleIndex, eventIndex) = event.index
 
         indexCoder.write(scaleCodecWriter, moduleIndex.toUByte() to eventIndex.toUByte())
 
