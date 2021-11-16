@@ -98,7 +98,7 @@ class IconGenerator {
         val colors = scheme.colors.mapIndexed { index, _ -> palette[scheme.colors[if (index < 18) (index + rot) % 18 else 18]] }
         var index = 0
 
-        val mainCircleColor = String.format("#%08X", backgroundColor)
+        val mainCircleColor = String.format("#%06X", backgroundColor)
 
         return mutableListOf(
             Circle(MAIN_RADIUS, MAIN_RADIUS, mainCircleColor, MAIN_RADIUS.toInt()),
