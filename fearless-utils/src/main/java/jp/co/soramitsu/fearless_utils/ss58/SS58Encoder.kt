@@ -20,7 +20,7 @@ object SS58Encoder {
     private fun getPrefixLenIdent(decodedByteArray: ByteArray): Pair<Int, Short> {
         return when {
             decodedByteArray[0] in 0..63 -> 1 to decodedByteArray[0].toShort()
-            decodedByteArray[0] in 64..127 -> {
+            decodedByteArray[0] in 64..16383 -> {
                 val lower =
                     ((decodedByteArray[0].toInt() shl 2) or (decodedByteArray[1].toInt() shr 6)).toByte()
                 val upper = (decodedByteArray[1] and 0b00111111)
@@ -39,7 +39,7 @@ object SS58Encoder {
         val ident = addressByte.toShort() and 0b00111111_11111111
         val addressTypeByteArray = when (ident) {
             in 0..63 -> byteArrayOf(ident.toByte())
-            in 64..127 -> {
+            in 64..16383 -> {
                 val first = (ident and 0b00000000_11111100).toInt() shr 2
                 val second =
                     (ident.toInt() shr 8) or ((ident and 0b00000000_00000011).toInt() shl 6)

@@ -1,7 +1,7 @@
 buildscript {
     ext {
         // App version
-        versionName = '1.0.92'
+        versionName = '1.0.93'
         versionCode = 1
 
         // SDK and tools
