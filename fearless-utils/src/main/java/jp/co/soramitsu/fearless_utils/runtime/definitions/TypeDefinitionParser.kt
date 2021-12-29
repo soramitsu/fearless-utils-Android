@@ -53,7 +53,8 @@ object TypeDefinitionParser {
     fun parseBaseDefinitions(
         tree: TypeDefinitionsTree,
         typePreset: TypePreset,
-        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
+        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver(),
+        getUnknownTypes: Boolean = false
     ): ParseResult {
         val builder = typePreset.newBuilder()
 
@@ -61,8 +62,8 @@ object TypeDefinitionParser {
 
         parseTypes(params)
 
-        val unknownTypes = params.typesBuilder.entries
-            .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
+        val unknownTypes = if (getUnknownTypes) params.typesBuilder.entries
+            .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null } else emptyList()
 
         return ParseResult(params.typesBuilder, unknownTypes)
     }
@@ -71,7 +72,8 @@ object TypeDefinitionParser {
         tree: TypeDefinitionsTree,
         typePreset: TypePreset,
         currentRuntimeVersion: Int = tree.runtimeId!!,
-        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver()
+        dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver(),
+        getUnknownTypes: Boolean = false
     ): ParseResult {
         val versioning = tree.versioning
         requireNotNull(versioning)
@@ -84,8 +86,8 @@ object TypeDefinitionParser {
                 parseTypes(Params(it.types, dynamicTypeResolver, builder))
             }
 
-        val unknownTypes = builder.entries
-            .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
+        val unknownTypes = if (getUnknownTypes) builder.entries
+            .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null } else emptyList()
 
         return ParseResult(builder, unknownTypes)
     }
