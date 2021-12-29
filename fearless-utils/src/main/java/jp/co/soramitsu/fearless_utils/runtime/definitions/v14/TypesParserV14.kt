@@ -46,15 +46,16 @@ object TypesParserV14 {
     fun parse(
         lookup: EncodableStruct<LookupSchema>,
         typePreset: TypePreset,
-        typeMapping: SiTypeMapping = SiTypeMapping.default()
+        typeMapping: SiTypeMapping = SiTypeMapping.default(),
+        getUnknownTypes: Boolean = false
     ): ParseResult {
         val builder = typePreset.newBuilder()
         val params = Params(lookup[LookupSchema.types], typeMapping, builder)
 
         parseParams(params)
 
-        val unknownTypes = params.typesBuilder.entries
-            .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null }
+        val unknownTypes = if (getUnknownTypes) params.typesBuilder.entries
+            .mapNotNull { (name, typeRef) -> if (!typeRef.isResolved()) name else null } else emptyList()
 
         return ParseResult(params.typesBuilder, unknownTypes)
     }
