@@ -49,7 +49,7 @@ object SS58Encoder {
         }
 
         val hash = (PREFIX + addressTypeByteArray + normalizedKey).blake2b512()
-        val checksum = hash.copyOfRange(0, if (publicKey.size in 32..33) 2 else 1)
+        val checksum = hash.copyOfRange(0, PREFIX_SIZE)
 
         val resultByteArray = addressTypeByteArray + normalizedKey + checksum
 
