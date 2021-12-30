@@ -30,13 +30,13 @@ object SS58Encoder {
         }
     }
 
-    fun encode(publicKey: ByteArray, addressByte: Byte): String {
+    fun encode(publicKey: ByteArray, addressByte: Short): String {
         val normalizedKey = if (publicKey.size > 32) {
             publicKey.blake2b256()
         } else {
             publicKey
         }
-        val ident = addressByte.toShort() and 0b00111111_11111111
+        val ident = addressByte and 0b00111111_11111111
         val addressTypeByteArray = when (ident) {
             in 0..63 -> byteArrayOf(ident.toByte())
             in 64..16383 -> {
@@ -70,20 +70,20 @@ object SS58Encoder {
     }
 
     @Throws(AddressFormatException::class)
-    fun extractAddressByte(address: String): Byte {
+    fun extractAddressByte(address: String): Short {
         val decodedByteArray = base58.decode(address)
         if (decodedByteArray.size < 2) throw IllegalArgumentException("Invalid address")
         val (_, ident) = getPrefixLenIdent(decodedByteArray)
-        return ident.toByte()
+        return ident
     }
 
-    fun extractAddressByteOrNull(address: String): Byte? = try {
+    fun extractAddressByteOrNull(address: String): Short? = try {
         extractAddressByte(address)
     } catch (e: Exception) {
         null
     }
 
-    fun ByteArray.toAddress(addressByte: Byte) = encode(this, addressByte)
+    fun ByteArray.toAddress(addressByte: Short) = encode(this, addressByte)
 
     fun String.toAccountId() = decode(this)
 
