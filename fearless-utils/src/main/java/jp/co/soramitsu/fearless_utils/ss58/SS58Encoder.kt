@@ -22,9 +22,9 @@ object SS58Encoder {
             decodedByteArray[0] in 0..63 -> 1 to decodedByteArray[0].toShort()
             decodedByteArray[0] in 64..16383 -> {
                 val lower =
-                    ((decodedByteArray[0].toInt() shl 2) or (decodedByteArray[1].toInt() shr 6)).toByte()
+                    (((decodedByteArray[0] and 0b00111111).toInt() shl 2) or (decodedByteArray[1].toUByte().toInt() shr 6)).toShort()
                 val upper = (decodedByteArray[1] and 0b00111111)
-                2 to (lower.toShort() or (upper.toInt() shl 8).toShort())
+                2 to (lower or (upper.toInt() shl 8).toShort())
             }
             else -> throw IllegalArgumentException("Incorrect address byte")
         }
