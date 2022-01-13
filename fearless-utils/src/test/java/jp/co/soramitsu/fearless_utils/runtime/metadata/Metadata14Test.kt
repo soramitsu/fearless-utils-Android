@@ -37,6 +37,24 @@ class Metadata14Test {
     }
 
     @Test
+    fun `should decode metadata types v14 statemine`() {
+        val inHex = getFileContentFromResources("statemine_metadata_v14")
+        val metadataReader = RuntimeMetadataReader.read(inHex)
+        val parseResult = TypesParserV14.parse(
+            lookup = metadataReader.metadata[RuntimeMetadataSchemaV14.lookup],
+            typePreset = v14Preset()
+        )
+
+        val typeRegistry = TypeRegistry(
+            parseResult.typePreset,
+            DynamicTypeResolver.defaultCompoundResolver()
+        )
+        val metadata = VersionedRuntimeBuilder.buildMetadata(metadataReader, typeRegistry)
+
+        assertInstance<StorageEntryType.NMap>(metadata.module("Assets").storage("Approvals").type)
+    }
+
+    @Test
     fun `should decode metadata v14`() {
         val inHex = getFileContentFromResources("westend_metadata_v14")
         val metadataReader = RuntimeMetadataReader.read(inHex)

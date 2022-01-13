@@ -62,6 +62,34 @@ class ExtrinsicBuilderTestV14 {
     }
 
     @Test
+    fun `should build single transfer extrinsic statemine`() {
+        val curruntime = RealRuntimeProvider.buildRuntime("statemine", "_v14")
+        val extrinsicInHex =
+            "0x45028400fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d1680045ba1f9d291fff7dddf36f7ec060405d5e87ac8fab8832cfcc66858e6975141748ce89c41bda6c3a84204d3c6f929b928702168ca38bbed69b172044b599a10ab5038800000a0000bcc5ecf679ebd776866a04c212a4ec5dc45cefab57d7aa858c389844e212693f0700e40b5402"
+
+        val builder = ExtrinsicBuilder(
+            runtime = curruntime,
+            keypair = KEYPAIR,
+            nonce = 34.toBigInteger(),
+            runtimeVersion = RuntimeVersion(601, 4),
+            genesisHash = "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a".fromHex(),
+            multiChainEncryption = MultiChainEncryption.Substrate(EncryptionType.ED25519),
+            accountIdentifier = multiAddressFromId(KEYPAIR.publicKey),
+            era = Era.Mortal(64, 59),
+            blockHash = "0xdd7532c5c01242696001e57cded1bc1326379059300287552a9c344e5bea1070".fromHex()
+        )
+
+        builder.transfer(
+            recipientAccountId = "GqqKJJZ1MtiWiC6CzNg3g8bawriq6HZioHW1NEpxdf6Q6P5".toAccountId(),
+            amount = BigInteger("10000000000")
+        )
+
+        val encoded = builder.build()
+
+        assertEquals(extrinsicInHex, encoded)
+    }
+
+    @Test
     fun `should build batch extrinsic`() {
 
         val extrinsicInHex =
