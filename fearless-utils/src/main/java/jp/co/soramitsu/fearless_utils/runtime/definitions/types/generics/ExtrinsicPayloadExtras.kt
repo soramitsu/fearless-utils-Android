@@ -4,6 +4,9 @@ import io.emeraldpay.polkaj.scale.ScaleCodecReader
 import io.emeraldpay.polkaj.scale.ScaleCodecWriter
 import jp.co.soramitsu.fearless_utils.runtime.RuntimeSnapshot
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.Type
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Option
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Tuple
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.errors.EncodeDecodeException
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.Compact
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.u32
@@ -13,18 +16,21 @@ typealias ExtrinsicPayloadExtrasInstance = Map<String, Any?>
 private const val _MORTALITY = "CheckMortality"
 private const val _NONCE = "CheckNonce"
 private const val _TIP = "ChargeTransactionPayment"
+private const val _ASSET_TX_PAYMENT = "ChargeAssetTxPayment"
 
 object SignedExtras : ExtrinsicPayloadExtras(
     name = "SignedExtras",
     extrasMapping = mapOf(
         _MORTALITY to EraType,
         _NONCE to Compact("Compact<Index>"),
-        _TIP to Compact("Compact<u32>")
+        _TIP to Compact("Compact<u32>"),
+        _ASSET_TX_PAYMENT to Tuple(_ASSET_TX_PAYMENT, listOf(TypeReference(Compact("u32")), TypeReference(Option("asset_id", TypeReference(u32)))))
     )
 ) {
     const val ERA = _MORTALITY
     const val NONCE = _NONCE
     const val TIP = _TIP
+    const val ASSET_TX_PAYMENT = _ASSET_TX_PAYMENT
 }
 
 private const val _GENESIS = "CheckGenesis"

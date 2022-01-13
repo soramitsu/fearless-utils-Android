@@ -99,7 +99,8 @@ class ExtrinsicBuilder(
         val signedExtrasInstance = mapOf(
             SignedExtras.ERA to era,
             SignedExtras.NONCE to nonce,
-            SignedExtras.TIP to tip
+            SignedExtras.TIP to tip,
+            SignedExtras.ASSET_TX_PAYMENT to listOf(DEFAULT_TIP, null)
         )
 
         val additionalExtrasInstance = mapOf(
@@ -143,6 +144,7 @@ class ExtrinsicBuilder(
     private fun buildSignedExtras(): ExtrinsicPayloadExtrasInstance = mapOf(
         SignedExtras.ERA to era,
         SignedExtras.TIP to tip,
+        SignedExtras.ASSET_TX_PAYMENT to listOf(DEFAULT_TIP, null),
         SignedExtras.NONCE to nonce
     )
 }
