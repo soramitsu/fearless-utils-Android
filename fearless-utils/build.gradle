@@ -28,9 +28,6 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
     compileOptions {
         sourceCompatibility 1.8
@@ -48,6 +45,9 @@ android {
         androidTest {
             java.srcDirs += "$projectDir/src/testShared/java"
         }
+    }
+    lint {
+        abortOnError false
     }
 }
 
