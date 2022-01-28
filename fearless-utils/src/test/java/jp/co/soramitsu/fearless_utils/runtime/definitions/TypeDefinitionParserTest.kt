@@ -365,7 +365,7 @@ class TypeDefinitionParserTest {
         val tree = gson.fromJson(definitions, TypeDefinitionsTree::class.java)
 
         val unknown =
-            TypeDefinitionParser.parseBaseDefinitions(tree, initialTypeRegistry).unknownTypes
+            TypeDefinitionParser.parseBaseDefinitions(tree = tree, typePreset = initialTypeRegistry, getUnknownTypes = true).unknownTypes
 
         assert("F" in unknown)
     }

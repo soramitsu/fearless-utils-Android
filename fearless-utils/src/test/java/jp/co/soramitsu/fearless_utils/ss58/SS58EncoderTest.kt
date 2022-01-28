@@ -32,6 +32,36 @@ class SS58EncoderTest {
     }
 
     @Test
+    fun `should encode public key to address with prefix 255`() {
+        val pk = "0x84bdc405d139399bba3ccea5d3de23316c9deeab661f57e2f4d1720cc6649859"
+        val address = pk.fromHex().toAddress(255)
+        assertEquals("yGFjZAdDruDn4CzV1ZkYZD5m2cexzXceAnTGmXLHpfUh4FUgc", address)
+    }
+
+    @Test
+    fun `should encode public key to address with prefix 10041`() {
+        val pk = "0x84bdc405d139399bba3ccea5d3de23316c9deeab661f57e2f4d1720cc6649859"
+        val address = pk.fromHex().toAddress(10041)
+        assertEquals("bXjbTjWHWhkx18SofTq3Vv23owpSGBN6mp2k6HejCMFw4v3Wi", address)
+    }
+
+    @Test
+    fun `should encode public key to address with prefix 78`() {
+        val pk = "0x84bdc405d139399bba3ccea5d3de23316c9deeab661f57e2f4d1720cc6649859"
+        val address = pk.fromHex().toAddress(78)
+        assertEquals("dmwwH4BrfFSJWx3k3Sd5Vh17MN33zoXp1yVhSAd17b8uQBTLE", address)
+    }
+
+    @Test
+    fun `decode address to key with 78 prefix`() {
+        val address = "dmwwH4BrfFSJWx3k3Sd5Vh17MN33zoXp1yVhSAd17b8uQBTLE"
+        val hexKey = address.toAccountId().toHexString(true)
+        val prefix = address.addressByte()
+        assertEquals("0x84bdc405d139399bba3ccea5d3de23316c9deeab661f57e2f4d1720cc6649859", hexKey)
+        assertEquals(78.toShort(), prefix)
+    }
+
+    @Test
     fun `encode key to address with 69 prefix`() {
         val hexKey = "0x84bdc405d139399bba3ccea5d3de23316c9deeab661f57e2f4d1720cc6649859"
         val address = hexKey.fromHex().toAddress(69)
@@ -65,7 +95,7 @@ class SS58EncoderTest {
         val hexKey = address.toAccountId().toHexString(true)
         val prefix = address.addressByte()
         assertEquals("0x84bdc405d139399bba3ccea5d3de23316c9deeab661f57e2f4d1720cc6649859", hexKey)
-        assertEquals(69.toByte(), prefix)
+        assertEquals(69.toShort(), prefix)
     }
 
     @Test

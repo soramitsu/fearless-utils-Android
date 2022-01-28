@@ -1,0 +1,22 @@
+{
+  "runtime_id": 1,
+  "types": {},
+  "versioning": [
+    {
+      "runtime_range": [
+        0,
+        null
+      ],
+      "types": {
+        "Balance": "u128",
+        "Index": "u32",
+        "Phase": "94",
+        "Address": "154",
+        "ExtrinsicSignature": "286",
+        "ParaId": "124",
+        "20": "GenericEvent",
+        "245": "GenericCall"
+      }
+    }
+  ]
+}
