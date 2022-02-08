@@ -1,0 +1,15 @@
+{
+  "runtime_id": 9,
+  "types": {},
+  "versioning": [
+    {
+      "runtime_range": [1, null],
+      "types": {
+        "Balance": "u128",
+        "20": "GenericEvent",
+        "156": "GenericCall",
+        "ExtrinsicSignature": "389"
+      }
+    }
+  ]
+}
