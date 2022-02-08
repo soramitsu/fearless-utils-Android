@@ -2,9 +2,11 @@ package jp.co.soramitsu.fearless_utils.runtime.metadata
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
 import jp.co.soramitsu.fearless_utils.getFileContentFromResources
+import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.v14Preset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
@@ -16,6 +18,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.v14.TypesParserV14
 import jp.co.soramitsu.fearless_utils.runtime.metadata.builder.VersionedRuntimeBuilder
 import jp.co.soramitsu.fearless_utils.runtime.metadata.module.StorageEntryType
 import jp.co.soramitsu.fearless_utils.runtime.metadata.v14.RuntimeMetadataSchemaV14
+import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAccountId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -105,5 +108,31 @@ class Metadata14Test {
 
         assertEquals(4 to 2, metadata.module("Balances").event("Transfer").index)
         assertEquals(4 to 3, metadata.module("Balances").call("transfer_keep_alive").index)
+    }
+
+    @Test
+    fun `should decode metadata kintsugi v14`() {
+        val address = "a3eUfmT5zPBUEC5ybgSGrLuuvNALEvycAZhBCAi3VhHp9bZXR"
+        val runtime = RealRuntimeProvider.buildRuntime("kintsugi", "_v14")
+
+        val storage = runtime.metadata.module("Tokens").storage("Accounts")
+        val accountReturnEntry = storage.type
+        assertInstance<StorageEntryType.NMap>(accountReturnEntry)
+
+        val accountInfo = accountReturnEntry.value
+        assertInstance<Struct>(accountInfo)
+        val accountData = accountInfo.get<UIntType>("free")
+        requireNotNull(accountData)
+
+        val keys = accountReturnEntry.keys
+        assertInstance<Alias>(keys[0])
+        assertInstance<GenericAccountId>((keys[0] as Alias).aliasedReference.value)
+        assertInstance<DictEnum>(keys[1])
+
+        val accountId = address.toAccountId()
+        val storageKey = storage.storageKey(runtime, accountId, DictEnum.Entry("Token", DictEnum.Entry("KINT", null)))
+
+        val expectedKey = "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51016e8dba7066b2902dd05fe1636b4637bcc5ecf679ebd776866a04c212a4ec5dc45cefab57d7aa858c389844e212693f56a60a12d72ef524000c"
+        assertEquals(expectedKey, storageKey)
     }
 }
