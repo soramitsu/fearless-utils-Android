@@ -67,7 +67,7 @@ afterEvaluate {
                 // You can customize attributes of the publication here or in module's build.gradle file.
                 //groupId = 'com.example'
                 //artifactId = 'custom-artifact'
-                version = '1.0.101'//android.defaultConfig.versionName // or just '1.0'
+                version = '1.0.102'//android.defaultConfig.versionName // or just '1.0'
             }
         }
 
