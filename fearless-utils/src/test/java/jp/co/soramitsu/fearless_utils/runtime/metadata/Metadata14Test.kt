@@ -116,7 +116,7 @@ class Metadata14Test {
         assertInstance<Vec>(batchArgument)
         val callType = batchArgument.innerType
         assertInstance<Alias>(callType)
-        assertEquals("westend_runtime.Call", callType.aliasedReference.value?.name)
+        assertEquals("westend_runtime::Call", callType.aliasedReference.value?.name)
 
         // id-based types with empty path should not be aliased
         val u8Primitive = typeRegistry["2"]

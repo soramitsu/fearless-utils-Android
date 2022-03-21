@@ -251,6 +251,6 @@ object TypesParserV14 {
     private fun EncodableStruct<PortableType>.pathBasedName(): String? {
         val pathSegments = this[PortableType.type][RegistryType.path]
 
-        return if (pathSegments.isEmpty()) null else pathSegments.joinToString(separator = ".")
+        return if (pathSegments.isEmpty()) null else pathSegments.joinToString(separator = "::")
     }
 }
