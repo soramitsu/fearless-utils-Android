@@ -1,6 +1,8 @@
 package jp.co.soramitsu.fearless_utils.runtime.metadata
 
 import jp.co.soramitsu.fearless_utils.common.assertInstance
+import jp.co.soramitsu.fearless_utils.common.assertNotInstance
+import jp.co.soramitsu.fearless_utils.extensions.toHexString
 import jp.co.soramitsu.fearless_utils.getFileContentFromResources
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
@@ -8,22 +10,27 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.v14Preset
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
-import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Data
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Null
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.DynamicByteArray
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.primitives.UIntType
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.skipAliases
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.useScaleWriter
 import jp.co.soramitsu.fearless_utils.runtime.definitions.v14.TypesParserV14
 import jp.co.soramitsu.fearless_utils.runtime.metadata.builder.VersionedRuntimeBuilder
 import jp.co.soramitsu.fearless_utils.runtime.metadata.module.StorageEntryType
 import jp.co.soramitsu.fearless_utils.runtime.metadata.v14.RuntimeMetadataSchemaV14
+import jp.co.soramitsu.fearless_utils.scale.dataType.uint128
 import jp.co.soramitsu.fearless_utils.ss58.SS58Encoder.toAccountId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
+import java.math.BigInteger
 
 @RunWith(MockitoJUnitRunner::class)
 class Metadata14Test {
@@ -82,21 +89,16 @@ class Metadata14Test {
         val misFrozenType = accountData.get<UIntType>("miscFrozen")
         assertNotNull(misFrozenType) // test that snake case -> camel case is performed
 
-        val identityType = metadata.module("Identity").call("set_identity").arguments.first().type
-        assertInstance<Struct>(identityType)
-        val dataType = identityType.get<Data>("display")
-        assertInstance<Data>(dataType)
-
-        val systemRemarkType = metadata.module("System").call("remark").arguments.first().type
+        val systemRemarkType = metadata.module("System").call("remark").arguments.first().type?.skipAliases()
         assertInstance<DynamicByteArray>(systemRemarkType)
 
-        val setPayeeVariant = metadata.module("Staking").call("set_payee").arguments.first().type
+        val setPayeeVariant = metadata.module("Staking").call("set_payee").arguments.first().type?.skipAliases()
         assertInstance<DictEnum>(setPayeeVariant)
 
         // empty variant element -> null optimization
         assertInstance<Null>(setPayeeVariant["Staked"])
         // 1 field variant element -> unwrap struct optimization
-        assertInstance<GenericAccountId>(setPayeeVariant["Account"])
+        assertInstance<FixedArray>(setPayeeVariant["Account"])
 
         // multiple null-named elements in struct does not collapse into single one
         val dustLostEventArguments = metadata.module("Balances").event("DustLost").arguments
@@ -108,6 +110,17 @@ class Metadata14Test {
 
         assertEquals(4 to 2, metadata.module("Balances").event("Transfer").index)
         assertEquals(4 to 3, metadata.module("Balances").call("transfer_keep_alive").index)
+
+        // id-based types should alias to path-based types
+        val batchArgument = metadata.module("Utility").call("batch").arguments.first().type
+        assertInstance<Vec>(batchArgument)
+        val callType = batchArgument.innerType
+        assertInstance<Alias>(callType)
+        assertEquals("westend_runtime::Call", callType.aliasedReference.value?.name)
+
+        // id-based types with empty path should not be aliased
+        val u8Primitive = typeRegistry["2"]
+        assertNotInstance<Alias>(u8Primitive)
     }
 
     @Test
@@ -126,8 +139,9 @@ class Metadata14Test {
 
         val keys = accountReturnEntry.keys
         assertInstance<Alias>(keys[0])
-        assertInstance<GenericAccountId>((keys[0] as Alias).aliasedReference.value)
-        assertInstance<DictEnum>(keys[1])
+        assertInstance<Alias>((keys[0] as Alias).aliasedReference.value)
+        assertInstance<Alias>(keys[1])
+        assertInstance<DictEnum>((keys[1] as Alias).aliasedReference.value)
 
         val accountId = address.toAccountId()
         val storageKey = storage.storageKey(runtime, accountId, DictEnum.Entry("Token", DictEnum.Entry("KINT", null)))
