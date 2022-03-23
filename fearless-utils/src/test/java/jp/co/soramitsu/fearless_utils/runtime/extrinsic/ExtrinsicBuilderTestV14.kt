@@ -5,6 +5,7 @@ import jp.co.soramitsu.fearless_utils.encrypt.MultiChainEncryption
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.BaseKeypair
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.Era
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.multiAddressFromId
@@ -59,6 +60,15 @@ class ExtrinsicBuilderTestV14 {
         val encoded = builder.build()
 
         assertEquals(extrinsicInHex, encoded)
+    }
+
+    @Test
+    fun `polkadot v14 test`() {
+        val runtime = RealRuntimeProvider.buildRuntime("polkadot", "_v14")
+        val storageType = runtime.metadata.module("Crowdloan").storage("Funds").type.value!!
+        val hex = "0x3a2d163712bfa3a894b26009f3e8c092d5b99da1375a06f4036e93eadcebcc65010116732d1a045c9351606743bf786aad1db344e5dd51e15d6417deb3828044080e005039278c04000000000000000000003cec986eae72f6040000000000000000ffcd7c00000064a7b3b6e00d000000000000000002b7407700060000000d00000002000000"
+        val decoded = storageType.fromHex(runtime, hex)!!
+        assertEquals(true, storageType is Struct)
     }
 
     @Test
