@@ -7,12 +7,14 @@
       "types": {
         "Balance": "u128",
         "Index": "u32",
-        "Phase": "141",
-        "Address": "184",
-        "ExtrinsicSignature": "400",
-        "ParaId": "87",
-        "17": "GenericEvent",
-        "167": "GenericCall"
+        "Phase": "frame_system::Phase",
+        "Address": "sp_runtime::multiaddress::MultiAddress",
+        "ExtrinsicSignature": "sp_runtime::MultiSignature",
+        "ParaId": "polkadot_parachain::primitives::Id",
+        "polkadot_runtime::Event": "GenericEvent",
+        "polkadot_runtime::Call": "GenericCall",
+        "sp_core::crypto::AccountId32": "GenericAccountId",
+        "pallet_identity::types::Data": "Data"
       }
     }
   ]
