@@ -15,6 +15,7 @@ import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Collec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.SetType
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.skipAliasesOrNull
 import java.math.BigInteger
 
 class TypeDefinitionsTree(
@@ -30,6 +31,7 @@ class TypeDefinitionsTree(
     ) {
         val from: Int
             get() = range.first()!!
+        fun isMatch(v: Int): Boolean = (v >= from && range.size == 2) && ((range[1] == null) || (range[1] != null && range[1]!! >= v))
     }
 }
 
@@ -80,10 +82,10 @@ object TypeDefinitionParser {
 
         val builder = typePreset.newBuilder()
 
-        versioning.filter { it.from <= currentRuntimeVersion }
+        versioning.filter { it.isMatch(currentRuntimeVersion) }
             .sortedBy(TypeDefinitionsTree.Versioning::from)
             .forEach {
-                parseTypes(Params(it.types, dynamicTypeResolver, builder))
+                parseTypes(Params(it.types, dynamicTypeResolver, builder), true)
             }
 
         val unknownTypes = if (getUnknownTypes) builder.entries
@@ -92,21 +94,21 @@ object TypeDefinitionParser {
         return ParseResult(builder, unknownTypes)
     }
 
-    private fun parseTypes(parsingParams: Params) {
+    private fun parseTypes(parsingParams: Params, networkVersioning: Boolean = false) {
         for (name in parsingParams.types.keys) {
-            val type = parse(parsingParams, name) ?: continue
+            val type = parse(parsingParams, name, networkVersioning) ?: continue
 
             parsingParams.typesBuilder.type(type)
         }
     }
 
-    private fun parse(parsingParams: Params, name: String): Type<*>? {
+    private fun parse(parsingParams: Params, name: String, networkVersioning: Boolean): Type<*>? {
         val typeValue = parsingParams.types[name]
 
-        return parseType(parsingParams, name, typeValue)
+        return parseType(parsingParams, name, typeValue, networkVersioning)
     }
 
-    private fun parseType(parsingParams: Params, name: String, typeValue: Any?): Type<*>? {
+    private fun parseType(parsingParams: Params, name: String, typeValue: Any?, networkVersioning: Boolean): Type<*>? {
         val typesBuilder = parsingParams.typesBuilder
 
         return when (typeValue) {
@@ -116,7 +118,20 @@ object TypeDefinitionParser {
                 when {
                     dynamicType != null -> dynamicType
                     typeValue == name -> parsingParams.typesBuilder[name]?.value
-                    else -> Alias(name, typesBuilder.getOrCreate(typeValue))
+                    else -> {
+                        val fromType = typesBuilder[name]
+                        if (networkVersioning && fromType != null && fromType.value is Alias) {
+                            val toTypeValue = typesBuilder[typeValue]?.skipAliasesOrNull()
+                            val fromTypeValue = (fromType.value as Alias).aliasedReference
+                            if (fromTypeValue.value != null) {
+                                val aliasSkipped = fromTypeValue.skipAliasesOrNull()
+                                if (toTypeValue?.value?.name != aliasSkipped?.value?.name) {
+                                    typesBuilder.type(Alias(fromTypeValue.value!!.name, typesBuilder.getOrCreate(typeValue)))
+                                }
+                            }
+                        }
+                        Alias(name, typesBuilder.getOrCreate(typeValue))
+                    }
                 }
             }
 

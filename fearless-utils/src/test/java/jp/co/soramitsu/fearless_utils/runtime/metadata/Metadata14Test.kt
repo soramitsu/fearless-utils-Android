@@ -8,9 +8,11 @@ import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.dynamic.DynamicTypeResolver
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.TypeRegistry
 import jp.co.soramitsu.fearless_utils.runtime.definitions.registry.v14Preset
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.TypeReference
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Alias
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.DictEnum
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.FixedArray
+import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Option
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Vec
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.generics.GenericAccountId
@@ -65,6 +67,31 @@ class Metadata14Test {
     }
 
     @Test
+    fun decodeMetadataV14Polkadot() {
+        val inHex = getFileContentFromResources("polkadot_metadata_v14")
+        val metadataReader = RuntimeMetadataReader.read(inHex)
+        val parseResult = TypesParserV14.parse(
+            lookup = metadataReader.metadata[RuntimeMetadataSchemaV14.lookup],
+            typePreset = v14Preset()
+        )
+
+        val typeRegistry = TypeRegistry(
+            parseResult.typePreset,
+            DynamicTypeResolver.defaultCompoundResolver()
+        )
+        val metadata = VersionedRuntimeBuilder.buildMetadata(metadataReader, typeRegistry)
+        val storageType = metadata.module("Crowdloan").storage("Funds").type.value!!
+        assertEquals(true, storageType is Struct)
+        assertEquals(typeRegistry["polkadot_runtime_common::crowdloan::FundInfo"]?.name, storageType.name)
+        storageType as Struct
+        assertInstance<FixedArray>(storageType["depositor"])
+        assertInstance<Option>(storageType["verifier"])
+        val o: Option = storageType["verifier"]!!
+        assertEquals(typeRegistry["sp_runtime::MultiSigner"]?.name, o.innerType?.name)
+        assertInstance<DictEnum>(o.innerType())
+    }
+
+    @Test
     fun `should decode metadata v14`() {
         val inHex = getFileContentFromResources("westend_metadata_v14")
         val metadataReader = RuntimeMetadataReader.read(inHex)
@@ -115,12 +142,12 @@ class Metadata14Test {
         val batchArgument = metadata.module("Utility").call("batch").arguments.first().type
         assertInstance<Vec>(batchArgument)
         val callType = batchArgument.innerType
-        assertInstance<Alias>(callType)
-        assertEquals("westend_runtime::Call", callType.aliasedReference.value?.name)
+        assertInstance<DictEnum>(callType)
+        assertEquals(typeRegistry["westend_runtime::Call"]?.name, callType.name)
 
         // id-based types with empty path should not be aliased
         val u8Primitive = typeRegistry["2"]
-        assertNotInstance<Alias>(u8Primitive)
+        assertEquals("u8", u8Primitive?.name)
     }
 
     @Test
@@ -139,9 +166,8 @@ class Metadata14Test {
 
         val keys = accountReturnEntry.keys
         assertInstance<Alias>(keys[0])
-        assertInstance<Alias>((keys[0] as Alias).aliasedReference.value)
-        assertInstance<Alias>(keys[1])
-        assertInstance<DictEnum>((keys[1] as Alias).aliasedReference.value)
+        assertInstance<GenericAccountId>((keys[0] as Alias).aliasedReference.value)
+        assertInstance<DictEnum>(keys[1])
 
         val accountId = address.toAccountId()
         val storageKey = storage.storageKey(runtime, accountId, DictEnum.Entry("Token", DictEnum.Entry("KINT", null)))

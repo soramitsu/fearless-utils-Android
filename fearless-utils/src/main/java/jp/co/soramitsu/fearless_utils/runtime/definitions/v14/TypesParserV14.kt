@@ -66,9 +66,9 @@ object TypesParserV14 {
             val constructedType = parseParam(params, type) ?: continue
             params.typesBuilder.type(constructedType)
 
-            val aliasedName = type[PortableType.id].toString()
+            val aliasedName = type.pathBasedName()
 
-            if (aliasedName != constructedType.name) {
+            if (aliasedName != null && aliasedName != constructedType.name) {
                 params.typesBuilder.alias(alias = aliasedName, original = constructedType.name)
             }
         }
@@ -77,7 +77,7 @@ object TypesParserV14 {
     private fun parseParam(params: Params, portableType: EncodableStruct<PortableType>): Type<*>? {
         val typesBuilder = params.typesBuilder
 
-        val name = portableType.pathBasedName() ?: portableType[PortableType.id].toString()
+        val name = portableType[PortableType.id].toString()
 
         val type = portableType[PortableType.type]
         val def = type[RegistryType.def]
@@ -251,6 +251,6 @@ object TypesParserV14 {
     private fun EncodableStruct<PortableType>.pathBasedName(): String? {
         val pathSegments = this[PortableType.type][RegistryType.path]
 
-        return if (pathSegments.isEmpty()) null else pathSegments.joinToString(separator = "::")
+        return if (pathSegments.size < 2) null else pathSegments.joinToString(separator = "::")
     }
 }
