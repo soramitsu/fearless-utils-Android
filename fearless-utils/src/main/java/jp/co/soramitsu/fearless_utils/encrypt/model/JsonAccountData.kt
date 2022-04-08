@@ -7,7 +7,7 @@ const val ENCODING_SALSA = "xsalsa20-poly1305"
 const val ENCODING_PKCS8 = "pkcs8"
 const val ENCODING_ETHEREUM = "ethereum"
 
-const val JSON_VERSION = 3
+const val JSON_VERSION = "3"
 
 class JsonAccountData(
     val address: String?,
@@ -18,7 +18,7 @@ class JsonAccountData(
     class Encoding(
         val content: List<String>,
         val type: List<String>,
-        val version: Int
+        val version: String
     ) {
         companion object {
             fun substrate(encryptionType: EncryptionType) = Encoding(
