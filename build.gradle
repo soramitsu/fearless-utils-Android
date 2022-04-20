@@ -1,7 +1,7 @@
 buildscript {
     ext {
         // App version
-        versionName = '1.0.104'
+        versionName = '1.0.105'
         versionCode = 1
 
         // SDK and tools
@@ -9,13 +9,12 @@ buildscript {
         minVersion = 21
         targetVersion = 31
 
-        kotlinVersion = '1.6.10'
+        kotlinVersion = '1.6.20'
 
         supportVersion = '1.0.0'
         constraintVersion = '1.1.3'
 
-        rxJavaVersion = '2.2.7'
-        coroutinesVersion = '1.6.0'
+        coroutinesVersion = '1.6.1'
 
         gsonVersion = '2.8.2'
 
@@ -27,8 +26,7 @@ buildscript {
         web3jVersion = '4.6.0-android'
         apacheXercesVersion = '2.9.0'
 
-        junitVersion = '4.12'
-        mockitoVersion = '2.23.0'
+        junitVersion = '4.13.2'
         wsVersion = '2.10'
         xxHashVersion = '1.7.1'
         svgVersion = '1.4'
@@ -37,7 +35,6 @@ buildscript {
         constraintDep = "androidx.constraintlayout:constraintlayout:$constraintVersion"
         materialDep = "com.google.android.material:material:$supportVersion"
 
-        rxJavaDep = "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
         coroutinesDep = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 
         gsonDep = "com.google.code.gson:gson:$gsonVersion"
@@ -54,11 +51,15 @@ buildscript {
         xxHashDep = "org.lz4:lz4-java:$xxHashVersion"
         svgDep = "com.caverock:androidsvg-aar:$svgVersion"
 
-        jUnitDep = "junit:junit:$junitVersion"
-        mockitoDep = "org.mockito:mockito-inline:$mockitoVersion"
+        jUnitDep = "junit:junit:4.13.2"
+        mockitoDep = "org.mockito:mockito-inline:4.5.0"
+        mockitoAndroidDep = "org.mockito:mockito-android:4.5.0"
+        mockitoKotlinDep = "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
 
+        // AndroidJUnitRunner and JUnit Rules
         androidTestRunnerDep = 'androidx.test:runner:1.4.0'
         androidTestRulesDep = 'androidx.test:rules:1.4.0'
+        // Assertions
         androidJunitDep = 'androidx.test.ext:junit:1.1.3'
     }
     repositories {
@@ -69,7 +70,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:7.1.3'
         classpath 'org.mozilla.rust-android-gradle:plugin:0.9.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
