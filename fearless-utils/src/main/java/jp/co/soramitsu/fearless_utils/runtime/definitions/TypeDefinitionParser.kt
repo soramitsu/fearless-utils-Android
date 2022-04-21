@@ -125,7 +125,7 @@ object TypeDefinitionParser {
                             val fromTypeValue = (fromType.value as Alias).aliasedReference
                             if (fromTypeValue.value != null) {
                                 val aliasSkipped = fromTypeValue.skipAliasesOrNull()
-                                if (toTypeValue?.value?.name != aliasSkipped?.value?.name) {
+                                if (toTypeValue != null && toTypeValue.value?.name != aliasSkipped?.value?.name) {
                                     typesBuilder.type(Alias(fromTypeValue.value!!.name, typesBuilder.getOrCreate(typeValue)))
                                 }
                             }

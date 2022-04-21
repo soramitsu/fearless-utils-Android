@@ -1,5 +1,5 @@
 {
-  "runtime_id": 1,
+  "runtime_id": 32,
   "types": {},
   "versioning": [
     {
@@ -110,6 +110,7 @@
             ]
           ]
         },
+        "ContentSource": "Vec<u8>",
         "CurrencyId": "AssetId",
         "CurrencyIdEncoded": {
           "type": "enum",
@@ -153,6 +154,7 @@
             ]
           ]
         },
+        "Description": "Vec<u8>",
         "DispatchErrorWithPostInfoTPostDispatchInfo": {
           "type": "struct",
           "type_mapping": [
@@ -166,9 +168,28 @@
             ]
           ]
         },
-        "DispatchResultWithPostInfo": "Result<PostDispatchInfo, DispatchErrorWithPostInfoTPostDispatchInfo>",
+        "DispatchResultWithPostInfo": {
+          "type": "enum",
+          "type_mapping": [
+            [
+              "Ok",
+              "PostDispatchInfo"
+            ],
+            [
+              "Err",
+              "DispatchErrorWithPostInfoTPostDispatchInfo"
+            ]
+          ]
+        },
         "DistributionAccounts": "Null",
         "Duration": "Null",
+        "EthBridgeStorageVersion": {
+          "type": "enum",
+          "value_list": [
+            "V1",
+            "V2RemovePendingTransfers"
+          ]
+        },
         "EthPeersSync": {
           "type": "struct",
           "type_mapping": [
@@ -237,7 +258,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "network_id",
@@ -278,7 +299,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "network_id",
@@ -315,7 +336,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "network_id",
@@ -356,7 +377,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "network_id",
@@ -385,7 +406,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "network_id",
@@ -421,7 +442,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "network_id",
@@ -446,7 +467,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "network_id",
@@ -551,7 +572,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "network_id",
@@ -607,7 +628,8 @@
             "MockPool",
             "MockPool2",
             "MockPool3",
-            "MockPool4"
+            "MockPool4",
+            "XSTPool"
           ]
         },
         "LoadIncomingMetaRequest": {
@@ -623,7 +645,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "kind",
@@ -661,7 +683,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ],
             [
               "kind",
@@ -673,7 +695,41 @@
             ]
           ]
         },
+        "LockInfo": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "pool_tokens",
+              "Balance"
+            ],
+            [
+              "unlocking_block",
+              "BlockNumber"
+            ],
+            [
+              "asset_a",
+              "AssetId"
+            ],
+            [
+              "asset_b",
+              "AssetId"
+            ]
+          ]
+        },
         "LookupSource": "AccountId",
+        "MarketMakerInfo": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "count",
+              "u32"
+            ],
+            [
+              "volume",
+              "Balance"
+            ]
+          ]
+        },
         "Mode": {
           "type": "enum",
           "value_list": [
@@ -696,7 +752,19 @@
         },
         "MultiCurrencyBalance": "Balance",
         "MultiCurrencyBalanceOf": "MultiCurrencyBalance",
-        "MultisigAccount": "Null",
+        "MultisigAccount": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "signatories",
+              "Vec<AccountId>"
+            ],
+            [
+              "threshold",
+              "u8"
+            ]
+          ]
+        },
         "OffchainRequest": {
           "type": "enum",
           "type_mapping": [
@@ -740,7 +808,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -806,7 +874,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -835,7 +903,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -893,7 +961,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -955,7 +1023,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -1005,7 +1073,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -1055,7 +1123,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -1084,7 +1152,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -1204,7 +1272,7 @@
             ],
             [
               "timepoint",
-              "Timepoint"
+              "BridgeTimepoint"
             ]
           ]
         },
@@ -1242,9 +1310,38 @@
           ]
         },
         "OwnerId": "AccountId",
-        "PendingMultisigAccount": "Null",
+        "PendingMultisigAccount": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "approving_accounts",
+              "Vec<AccountId>"
+            ],
+            [
+              "migrate_at",
+              "Option<BlockNumber>"
+            ]
+          ]
+        },
         "Permission": "Null",
         "PermissionId": "u32",
+        "PoolFarmer": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "account",
+              "AccountId"
+            ],
+            [
+              "block",
+              "BlockNumber"
+            ],
+            [
+              "weight",
+              "Balance"
+            ]
+          ]
+        },
         "PostDispatchInfo": {
           "type": "struct",
           "type_mapping": [
@@ -1255,6 +1352,45 @@
             [
               "pays_fee",
               "Pays"
+            ]
+          ]
+        },
+        "PredefinedAssetId": {
+          "type": "enum",
+          "value_list": [
+            "XOR",
+            "DOT",
+            "KSM",
+            "USDT",
+            "VAL",
+            "PSWAP",
+            "DAI",
+            "ETH",
+            "XSTUSD"
+          ]
+        },
+        "PriceInfo": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "price_failures",
+              "u32"
+            ],
+            [
+              "spot_prices",
+              "Vec<Balance>"
+            ],
+            [
+              "average_price",
+              "Balance"
+            ],
+            [
+              "needs_update",
+              "bool"
+            ],
+            [
+              "last_spot_price",
+              "Balance"
             ]
           ]
         },
@@ -1301,11 +1437,30 @@
             "Done"
           ]
         },
+        "RewardInfo": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "limit",
+              "Balance"
+            ],
+            [
+              "total_available",
+              "Balance"
+            ],
+            [
+              "rewards",
+              "BTreeMap<RewardReason, Balance>"
+            ]
+          ]
+        },
         "RewardReason": {
           "type": "enum",
           "value_list": [
             "Unspecified",
-            "BuyOnBondingCurve"
+            "BuyOnBondingCurve",
+            "LiquidityProvisionFarming",
+            "MarketMakerVolume"
           ]
         },
         "Scope": {
@@ -1339,6 +1494,20 @@
           ]
         },
         "SmoothPriceState": "Null",
+        "StakingInfo": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "deposited",
+              "Balance"
+            ],
+            [
+              "rewards",
+              "Balance"
+            ]
+          ]
+        },
+        "StorageVersion": "Null",
         "SwapAction": "Null",
         "SwapAmount": {
           "type": "enum",
@@ -1435,9 +1604,20 @@
             ]
           ]
         },
-        "TechAccountIdPrimitive": "Null",
         "TechAmount": "Amount",
-        "TechAssetId": "Null",
+        "TechAssetId": {
+          "type": "enum",
+          "type_mapping": [
+            [
+              "Wrapped",
+              "PredefinedAssetId"
+            ],
+            [
+              "Escaped",
+              "AssetId"
+            ]
+          ]
+        },
         "TechBalance": "Balance",
         "TechPurpose": {
           "type": "enum",
@@ -1447,8 +1627,12 @@
               "Null"
             ],
             [
+              "FeeCollectorForPair",
+              "TechTradingPair"
+            ],
+            [
               "LiquidityKeeper",
-              "TradingPair"
+              "TechTradingPair"
             ],
             [
               "Identifier",
@@ -1456,7 +1640,19 @@
             ]
           ]
         },
-        "Timepoint": "BridgeTimepoint",
+        "TechTradingPair": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "base_asset_id",
+              "TechAssetId"
+            ],
+            [
+              "target_asset_id",
+              "TechAssetId"
+            ]
+          ]
+        },
         "TradingPair": {
           "type": "struct",
           "type_mapping": [
