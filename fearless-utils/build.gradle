@@ -98,6 +98,7 @@ dependencies {
     testImplementation mockitoDep
 
     androidTestImplementation androidTestRunnerDep
+    androidTestImplementation mockitoAndroidDep
     androidTestImplementation androidTestRulesDep
     androidTestImplementation androidJunitDep
 }
