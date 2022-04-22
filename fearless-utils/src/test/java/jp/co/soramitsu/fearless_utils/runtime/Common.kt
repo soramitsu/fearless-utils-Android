@@ -31,8 +31,8 @@ object RealRuntimeProvider {
             val nTree =
                 Gson().fromJson<TypeDefinitionsTree>(nReader, TypeDefinitionsTree::class.java)
             val networkParsed = TypeDefinitionParser.parseNetworkVersioning(
-                nTree,
-                parseResult.typePreset
+                tree = nTree,
+                typePreset = parseResult.typePreset,
             )
             TypeRegistry(
                 networkParsed.typePreset,
@@ -60,8 +60,9 @@ object RealRuntimeProvider {
         val defaultTypeRegistry =
             TypeDefinitionParser.parseBaseDefinitions(tree, v13Preset()).typePreset
         val networkParsed = TypeDefinitionParser.parseNetworkVersioning(
-            kusamaTree,
-            defaultTypeRegistry
+            tree = kusamaTree,
+            typePreset = defaultTypeRegistry,
+            upto14 = true,
         )
 
         return TypeRegistry(
