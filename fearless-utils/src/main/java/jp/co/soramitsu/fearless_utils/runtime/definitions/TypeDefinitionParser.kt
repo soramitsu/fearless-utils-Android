@@ -75,7 +75,8 @@ object TypeDefinitionParser {
         typePreset: TypePreset,
         currentRuntimeVersion: Int = tree.runtimeId!!,
         dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver(),
-        getUnknownTypes: Boolean = false
+        getUnknownTypes: Boolean = false,
+        upto14: Boolean = false,
     ): ParseResult {
         val versioning = tree.versioning
         requireNotNull(versioning)
@@ -85,7 +86,7 @@ object TypeDefinitionParser {
         versioning.filter { it.isMatch(currentRuntimeVersion) }
             .sortedBy(TypeDefinitionsTree.Versioning::from)
             .forEach {
-                parseTypes(Params(it.types, dynamicTypeResolver, builder), true)
+                parseTypes(Params(it.types, dynamicTypeResolver, builder), !upto14)
             }
 
         val unknownTypes = if (getUnknownTypes) builder.entries
@@ -94,21 +95,21 @@ object TypeDefinitionParser {
         return ParseResult(builder, unknownTypes)
     }
 
-    private fun parseTypes(parsingParams: Params, networkVersioning: Boolean = false) {
+    private fun parseTypes(parsingParams: Params, doAliases: Boolean = false) {
         for (name in parsingParams.types.keys) {
-            val type = parse(parsingParams, name, networkVersioning) ?: continue
+            val type = parse(parsingParams, name, doAliases) ?: continue
 
             parsingParams.typesBuilder.type(type)
         }
     }
 
-    private fun parse(parsingParams: Params, name: String, networkVersioning: Boolean): Type<*>? {
+    private fun parse(parsingParams: Params, name: String, doAliases: Boolean): Type<*>? {
         val typeValue = parsingParams.types[name]
 
-        return parseType(parsingParams, name, typeValue, networkVersioning)
+        return parseType(parsingParams, name, typeValue, doAliases)
     }
 
-    private fun parseType(parsingParams: Params, name: String, typeValue: Any?, networkVersioning: Boolean): Type<*>? {
+    private fun parseType(parsingParams: Params, name: String, typeValue: Any?, doAliases: Boolean): Type<*>? {
         val typesBuilder = parsingParams.typesBuilder
 
         return when (typeValue) {
@@ -120,7 +121,7 @@ object TypeDefinitionParser {
                     typeValue == name -> parsingParams.typesBuilder[name]?.value
                     else -> {
                         val fromType = typesBuilder[name]
-                        if (networkVersioning && fromType != null && fromType.value is Alias) {
+                        if (doAliases && fromType != null && fromType.value is Alias) {
                             val toTypeValue = typesBuilder[typeValue]?.skipAliasesOrNull()
                             val fromTypeValue = (fromType.value as Alias).aliasedReference
                             if (fromTypeValue.value != null) {

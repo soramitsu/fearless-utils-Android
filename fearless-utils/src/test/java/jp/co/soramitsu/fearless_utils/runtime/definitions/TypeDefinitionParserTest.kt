@@ -399,7 +399,8 @@ class TypeDefinitionParserTest {
         val defaultRegistry = TypeRegistry(defaultParsed.typePreset, DynamicTypeResolver.defaultCompoundResolver())
 
         val keysDefault = defaultRegistry["Keys"]
-        assertEquals("SessionKeysSubstrate", keysDefault?.name)
+        assertEquals("Keys", keysDefault?.name)
+        assertEquals(3, (keysDefault as Struct).mapping.size)
 
         val kusamaParsed = TypeDefinitionParser.parseNetworkVersioning(
             kusamaTree,
