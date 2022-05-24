@@ -22,8 +22,19 @@ class TypeDefinitionsTree(
     @SerializedName("runtime_id")
     val runtimeId: Int?,
     val types: Map<String, Any>,
-    val versioning: List<Versioning>?
+    val versioning: List<Versioning>?,
+    val overrides: List<OverriddenItem>?
 ) {
+
+    class OverriddenItem(
+        val module: String,
+        val constants: List<OverriddenConstant>?
+    )
+
+    class OverriddenConstant(
+        val name: String,
+        val value: String
+    )
 
     class Versioning(
         @SerializedName("runtime_range") val range: List<Int?>,
