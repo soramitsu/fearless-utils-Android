@@ -22,7 +22,7 @@ class RequestExecutor(private val executor: ExecutorService = Executors.newSingl
     }
 
     fun reset() {
-        futures.forEach { it.cancel(true) }
+        futures.iterator().forEach { it.cancel(true) }
 
         futures.clear()
     }
