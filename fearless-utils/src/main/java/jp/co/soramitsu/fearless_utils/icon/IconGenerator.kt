@@ -3,6 +3,7 @@ package jp.co.soramitsu.fearless_utils.icon
 import android.graphics.drawable.PictureDrawable
 import com.caverock.androidsvg.SVG
 import org.bouncycastle.jcajce.provider.digest.Blake2b
+import kotlin.math.absoluteValue
 import kotlin.math.floor
 import kotlin.math.sqrt
 
@@ -22,8 +23,11 @@ class IconGenerator {
             Scheme("hmirror", 128, arrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 8, 6, 7, 5, 3, 4, 2, 11))
         )
 
+        private val squareSchema = Scheme("square", 32, arrayOf(0, 1, 2, 3))
+
         private const val MAIN_RADIUS = 32.0
         private const val RADIUS = 20
+        private const val SQUARE_SIDE_SIZE = 32.0
     }
 
     fun getSvgImage(
@@ -96,16 +100,15 @@ class IconGenerator {
         val totalFreq = SCHEMES.fold(0) { summ, schema -> summ + schema.frequency }
 
         val zeroHash = Blake2b.Blake2b512().digest(ByteArray(32) { 0 })
-        val idHash = Blake2b.Blake2b512().digest(id).mapIndexed { index, byte -> (byte + 256 - zeroHash[index]) % 256 }
+        val idHash = Blake2b.Blake2b512().digest(id)
+            .mapIndexed { index, byte -> (byte + 256 - zeroHash[index]) % 256 }
 
         val sat = (floor(idHash[29].toDouble() * 70 / 256 + 26) % 80) + 30
         val d = floor((idHash[30].toDouble() + idHash[31].toDouble() * 256) % totalFreq)
         val scheme = findScheme(d.toInt())
 
         val palette = idHash.mapIndexed { index, byte ->
-            val b = (byte + index % 28 * 58) % 256
-            var resultColor = ""
-            resultColor = when (b) {
+            val resultColor: String = when (val b = (byte + index % 28 * 58) % 256) {
                 0 -> {
                     "#444"
                 }
@@ -123,7 +126,8 @@ class IconGenerator {
         }
 
         val rot = (idHash[28] % 6) * 3
-        val colors = scheme.colors.mapIndexed { index, _ -> palette[scheme.colors[if (index < 18) (index + rot) % 18 else 18]] }
+        val colors =
+            scheme.colors.mapIndexed { index, _ -> palette[scheme.colors[if (index < 18) (index + rot) % 18 else 18]] }
         var index = 0
 
         val mainCircleColor = String.format("#%06X", backgroundColor)
@@ -163,5 +167,107 @@ class IconGenerator {
             }
         }
         throw RuntimeException()
+    }
+
+    fun generateEthereumAddressIcon(
+        id: ByteArray,
+        sizeInPixels: Int,
+        backgroundColor: Int = "eeeeee".toInt(radix = 16)
+    ): PictureDrawable {
+
+        val colors = getEthereumColors(id)
+        val rotation = generateSquaresRotation(id)
+        val squares = generateSquares(id, colors, rotation)
+
+        val stringBuilder = java.lang.StringBuilder()
+        stringBuilder.append("<svg ")
+        stringBuilder.append("viewBox='0 0 64 64' ")
+        stringBuilder.append("width='$sizeInPixels' ")
+        stringBuilder.append("height='$sizeInPixels' ")
+        stringBuilder.append(">")
+
+        stringBuilder.append("<defs>")
+        stringBuilder.append("<clipPath id=\"cut\">")
+        stringBuilder.append("<circle cx='${sizeInPixels / 2}' cy='${sizeInPixels / 2}' r='${sizeInPixels / 2}' fill=\"#ffffff\" />")
+        stringBuilder.append("</clipPath>")
+        stringBuilder.append("</defs>")
+
+        stringBuilder.append("<g clip-path=\"url(#cut)\" >")
+        stringBuilder.append("<rect x='0' y='0' width='100' height='100' fill=\"#ffffff\"/>")
+        squares.forEach {
+            stringBuilder.append("<rect x='${it.x}' y='${it.y}' width='${it.sideSize}' height='${it.sideSize}' fill='${it.colorString}' transform='rotate(${it.rotation / 2})'/>")
+        }
+
+        stringBuilder.append("</g>")
+        stringBuilder.append("</svg>")
+        val svg = SVG.getFromString(stringBuilder.toString())
+        return PictureDrawable(svg.renderToPicture())
+    }
+
+    private fun getEthereumColors(id: ByteArray): List<String> {
+        val zeroHash = Blake2b.Blake2b512().digest(ByteArray(32) { 0 })
+        val idHash = Blake2b.Blake2b512().digest(id)
+            .mapIndexed { index, byte -> (byte + 256 - zeroHash[index]) % 256 }
+        val sat = (floor(idHash[29].toDouble() * 70 / 256 + 26) % 80) + 30
+
+        val palette = idHash.mapIndexed { index, byte ->
+            val resultColor: String = when (val b = (byte + index % 28 * 58) % 256) {
+                0 -> {
+                    "#444"
+                }
+                255 -> {
+                    "transparent"
+                }
+                else -> {
+                    val h = floor(b.toDouble() % 64 * 360 / 64)
+                    val array = arrayOf(53, 15, 35, 75)
+                    val l = array[floor(b.toDouble() / 64).toInt()]
+                    "hsl($h, $sat%, $l%)"
+                }
+            }
+            resultColor
+        }
+
+        return squareSchema.colors.mapIndexed { index, _ -> palette[squareSchema.colors[index]] }
+    }
+
+    private fun generateSquares(
+        id: ByteArray,
+        colors: List<String>,
+        rotation: List<Float>
+    ): List<Square> {
+        val sideSize = SQUARE_SIDE_SIZE.toInt() * 1.7
+        return listOf(
+            Square(
+                id[0].toDouble().absoluteValue / 2,
+                id[1].toDouble().absoluteValue / 2,
+                colors[0], sideSize, rotation[0]
+            ),
+            Square(
+                (SQUARE_SIDE_SIZE - id[2].toDouble().absoluteValue / 2),
+                id[3].toDouble().absoluteValue / 2,
+                colors[1], sideSize, rotation[1]
+            ),
+            Square(
+                id[4].toDouble().absoluteValue / 2,
+                (SQUARE_SIDE_SIZE - id[5].toDouble().absoluteValue / 2),
+                colors[2], sideSize, rotation[2]
+            ),
+            Square(
+                (SQUARE_SIDE_SIZE - id[6].toDouble().absoluteValue / 2),
+                (SQUARE_SIDE_SIZE - id[7].toDouble().absoluteValue / 2),
+                colors[3], sideSize, rotation[3]
+            )
+        )
+    }
+
+    private fun generateSquaresRotation(id: ByteArray): List<Float> {
+        return listOf(1, 2, 3, 4).map {
+            val div = id[31] / it
+            val result = if (div > 60) {
+                div / it
+            } else div
+            result.toFloat()
+        }
     }
 }
