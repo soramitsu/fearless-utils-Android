@@ -87,7 +87,7 @@ dependencies {
     implementation "com.neovisionaries:nv-websocket-client:2.14"
     implementation "com.google.code.gson:gson:2.9.0"
     implementation "org.web3j:crypto:4.6.0-android"
-    //implementation "org.eclipse.birt.runtime.3_7_1:org.apache.xerces:2.9.0"
+    implementation "org.eclipse.birt.runtime.3_7_1:org.apache.xerces:2.9.0"
     implementation "org.lz4:lz4-java:1.7.1"
 
     implementation coroutinesDep
