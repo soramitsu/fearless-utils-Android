@@ -43,7 +43,7 @@ fun Greeting(name: String) {
 fun DefaultPreview() {
     FullTestComposeTheme {
         Button(
-            onClick = {  },
+            onClick = { },
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier.height(28.dp)
         ) {
