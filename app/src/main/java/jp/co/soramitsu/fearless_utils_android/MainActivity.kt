@@ -47,7 +47,6 @@ fun DefaultPreview() {
             contentPadding = PaddingValues(0.dp),
             modifier = Modifier.height(28.dp)
         ) {
-
             Greeting(name = "check")
         }
     }

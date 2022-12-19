@@ -84,7 +84,6 @@ class IconGenerator {
         isAlternative: Boolean = false,
         backgroundColor: Int
     ): List<Circle> {
-
         val r1 = if (isAlternative) {
             MAIN_RADIUS / 8 * 5
         } else {
@@ -174,7 +173,6 @@ class IconGenerator {
         sizeInPixels: Int,
         backgroundColor: Int = "eeeeee".toInt(radix = 16)
     ): PictureDrawable {
-
         val colors = getEthereumColors(id)
         val rotation = generateSquaresRotation(id)
         val squares = generateSquares(id, colors, rotation)
@@ -241,22 +239,30 @@ class IconGenerator {
             Square(
                 id[0].toDouble().absoluteValue / 2,
                 id[1].toDouble().absoluteValue / 2,
-                colors[0], sideSize, rotation[0]
+                colors[0],
+                sideSize,
+                rotation[0]
             ),
             Square(
                 (SQUARE_SIDE_SIZE - id[2].toDouble().absoluteValue / 2),
                 id[3].toDouble().absoluteValue / 2,
-                colors[1], sideSize, rotation[1]
+                colors[1],
+                sideSize,
+                rotation[1]
             ),
             Square(
                 id[4].toDouble().absoluteValue / 2,
                 (SQUARE_SIDE_SIZE - id[5].toDouble().absoluteValue / 2),
-                colors[2], sideSize, rotation[2]
+                colors[2],
+                sideSize,
+                rotation[2]
             ),
             Square(
                 (SQUARE_SIDE_SIZE - id[6].toDouble().absoluteValue / 2),
                 (SQUARE_SIDE_SIZE - id[7].toDouble().absoluteValue / 2),
-                colors[3], sideSize, rotation[3]
+                colors[3],
+                sideSize,
+                rotation[3]
             )
         )
     }

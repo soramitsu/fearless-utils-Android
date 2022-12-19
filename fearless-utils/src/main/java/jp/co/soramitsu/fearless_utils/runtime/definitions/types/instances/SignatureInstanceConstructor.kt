@@ -16,7 +16,6 @@ object SignatureInstanceConstructor : Type.InstanceConstructor<SignatureWrapper>
 
     override fun constructInstance(typeRegistry: TypeRegistry, value: SignatureWrapper): Any {
         return when (val type = typeRegistry.getOrThrow(EXTRINSIC_SIGNATURE_TYPE)) {
-
             is DictEnum -> { // MultiSignature
                 MultiSignature(value.encryptionType, value.signature).prepareForEncoding()
             }

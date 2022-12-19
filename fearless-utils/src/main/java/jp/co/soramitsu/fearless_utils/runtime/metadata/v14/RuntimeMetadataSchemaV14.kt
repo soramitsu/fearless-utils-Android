@@ -46,7 +46,7 @@ object RegistryType : Schema<RegistryType>() {
         list(jp.co.soramitsu.fearless_utils.scale.dataType.compactInt),
         EnumType(TypeDefEnum::class.java),
         scalable(TypeDefCompact),
-        scalable(TypeDefBitSequence),
+        scalable(TypeDefBitSequence)
     )
     val docs by vector(jp.co.soramitsu.fearless_utils.scale.dataType.string)
 }

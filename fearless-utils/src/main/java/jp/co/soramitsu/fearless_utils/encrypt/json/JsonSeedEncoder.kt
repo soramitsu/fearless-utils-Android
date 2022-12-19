@@ -12,7 +12,7 @@ import org.spongycastle.util.encoders.Base64
 
 @Suppress("EXPERIMENTAL_API_USAGE")
 class JsonSeedEncoder(
-    private val gson: Gson,
+    private val gson: Gson
 ) {
     fun generate(
         keypair: Keypair,

@@ -64,7 +64,7 @@ object V14RuntimeBuilder : RuntimeBuilder {
 
     private fun buildModule(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<PalletMetadataV14>,
+        struct: EncodableStruct<PalletMetadataV14>
     ): Module {
         val moduleName = struct[PalletMetadataV14.name]
         val moduleIndex = struct[PalletMetadataV14.index].toInt()
@@ -91,7 +91,7 @@ object V14RuntimeBuilder : RuntimeBuilder {
     private fun buildStorage(
         typeRegistry: TypeRegistry,
         struct: EncodableStruct<StorageMetadataV14>,
-        moduleName: String,
+        moduleName: String
     ): Storage {
         val storageEntries = struct[StorageMetadataV14.entries].map { entryStruct ->
             StorageEntry(
@@ -114,9 +114,8 @@ object V14RuntimeBuilder : RuntimeBuilder {
     private fun buildCalls(
         typeRegistry: TypeRegistry,
         callsRaw: EncodableStruct<PalletCallMetadataV14>,
-        moduleIndex: Int,
+        moduleIndex: Int
     ): Map<String, MetadataFunction> {
-
         val type = typeRegistry[callsRaw[PalletCallMetadataV14.type].toString()]
 
         if (type !is DictEnum) return emptyMap()
@@ -136,9 +135,8 @@ object V14RuntimeBuilder : RuntimeBuilder {
     private fun buildEvents(
         typeRegistry: TypeRegistry,
         eventsRaw: EncodableStruct<PalletEventMetadataV14>,
-        moduleIndex: Int,
+        moduleIndex: Int
     ): Map<String, Event> {
-
         val type = typeRegistry[eventsRaw[PalletEventMetadataV14.type].toString()]
 
         if (type !is DictEnum) return emptyMap()
@@ -171,9 +169,8 @@ object V14RuntimeBuilder : RuntimeBuilder {
 
     private fun buildConstants(
         typeRegistry: TypeRegistry,
-        constantsRaw: List<EncodableStruct<PalletConstantMetadataV14>>,
+        constantsRaw: List<EncodableStruct<PalletConstantMetadataV14>>
     ): Map<String, Constant> {
-
         return constantsRaw.map { constantStruct ->
             val typeIndex = constantStruct[PalletConstantMetadataV14.type].toString()
 
@@ -188,9 +185,8 @@ object V14RuntimeBuilder : RuntimeBuilder {
 
     private fun buildErrors(
         typeRegistry: TypeRegistry,
-        errorsRaw: EncodableStruct<PalletErrorMetadataV14>,
+        errorsRaw: EncodableStruct<PalletErrorMetadataV14>
     ): Map<String, Error> {
-
         val type = typeRegistry[errorsRaw[PalletErrorMetadataV14.type].toString()]
 
         if (type !is DictEnum) return emptyMap()
@@ -198,7 +194,7 @@ object V14RuntimeBuilder : RuntimeBuilder {
         return type.elements.values.map {
             Error(
                 name = it.name,
-                documentation = emptyList(),
+                documentation = emptyList()
             )
         }.groupByName()
     }

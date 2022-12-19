@@ -58,7 +58,7 @@ internal object V13RuntimeBuilder : RuntimeBuilder {
 
     private fun buildModule(
         typeRegistry: TypeRegistry,
-        struct: EncodableStruct<ModuleMetadataSchema>,
+        struct: EncodableStruct<ModuleMetadataSchema>
     ): Module {
         val moduleName = struct[ModuleMetadataSchema.name]
         val moduleIndex = struct[ModuleMetadataSchema.index].toInt()
@@ -83,7 +83,7 @@ internal object V13RuntimeBuilder : RuntimeBuilder {
     private fun buildStorage(
         typeRegistry: TypeRegistry,
         struct: EncodableStruct<StorageMetadataSchema>,
-        moduleName: String,
+        moduleName: String
     ): Storage {
         val storageEntries = struct[StorageMetadataSchema.entries].map { entryStruct ->
             StorageEntry(
@@ -106,9 +106,8 @@ internal object V13RuntimeBuilder : RuntimeBuilder {
     private fun buildCalls(
         typeRegistry: TypeRegistry,
         callsRaw: List<EncodableStruct<FunctionMetadataSchema>>,
-        moduleIndex: Int,
+        moduleIndex: Int
     ): Map<String, MetadataFunction> {
-
         return callsRaw.mapIndexed { index, callStruct ->
             MetadataFunction(
                 name = callStruct[FunctionMetadataSchema.name],
@@ -127,9 +126,8 @@ internal object V13RuntimeBuilder : RuntimeBuilder {
     private fun buildEvents(
         typeRegistry: TypeRegistry,
         eventsRaw: List<EncodableStruct<EventMetadataSchema>>,
-        moduleIndex: Int,
+        moduleIndex: Int
     ): Map<String, Event> {
-
         return eventsRaw.mapIndexed { index, eventStruct ->
             Event(
                 name = eventStruct[EventMetadataSchema.name],
@@ -142,9 +140,8 @@ internal object V13RuntimeBuilder : RuntimeBuilder {
 
     private fun buildConstants(
         typeRegistry: TypeRegistry,
-        constantsRaw: List<EncodableStruct<ModuleConstantMetadataSchema>>,
+        constantsRaw: List<EncodableStruct<ModuleConstantMetadataSchema>>
     ): Map<String, Constant> {
-
         return constantsRaw.map { constantStruct ->
             Constant(
                 name = constantStruct[ModuleConstantMetadataSchema.name],
@@ -156,7 +153,7 @@ internal object V13RuntimeBuilder : RuntimeBuilder {
     }
 
     private fun buildErrors(
-        errorsRaw: List<EncodableStruct<ErrorMetadataSchema>>,
+        errorsRaw: List<EncodableStruct<ErrorMetadataSchema>>
     ): Map<String, Error> {
         return errorsRaw.map { errorStruct ->
             Error(
@@ -184,11 +181,11 @@ internal object V13RuntimeBuilder : RuntimeBuilder {
                     DoubleMapSchema -> StorageEntryType.NMap(
                         keys = listOf(
                             typeRegistry[enumValue[DoubleMapSchema.key1]],
-                            typeRegistry[enumValue[DoubleMapSchema.key2]],
+                            typeRegistry[enumValue[DoubleMapSchema.key2]]
                         ),
                         hashers = listOf(
                             enumValue[DoubleMapSchema.key1Hasher],
-                            enumValue[DoubleMapSchema.key2Hasher],
+                            enumValue[DoubleMapSchema.key2Hasher]
                         ),
                         value = typeRegistry[enumValue[DoubleMapSchema.value]]
                     )

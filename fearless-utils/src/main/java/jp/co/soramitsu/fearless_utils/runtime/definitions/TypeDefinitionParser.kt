@@ -87,7 +87,7 @@ object TypeDefinitionParser {
         currentRuntimeVersion: Int = tree.runtimeId!!,
         dynamicTypeResolver: DynamicTypeResolver = DynamicTypeResolver.defaultCompoundResolver(),
         getUnknownTypes: Boolean = false,
-        upto14: Boolean = false,
+        upto14: Boolean = false
     ): ParseResult {
         val versioning = tree.versioning
         requireNotNull(versioning)
