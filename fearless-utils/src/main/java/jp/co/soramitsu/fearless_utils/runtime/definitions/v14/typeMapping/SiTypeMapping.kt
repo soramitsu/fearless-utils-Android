@@ -54,7 +54,7 @@ object SiSetTypeMapping : SiTypeMapping {
     override fun map(
         originalDefinition: EncodableStruct<RegistryType>,
         typeId: String,
-        typesBuilder: TypePresetBuilder,
+        typesBuilder: TypePresetBuilder
     ): Type<*>? {
         if (originalDefinition.lastPathSegment != "BitFlags") return null
 

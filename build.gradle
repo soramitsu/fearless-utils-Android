@@ -1,15 +1,15 @@
 buildscript {
     ext {
         // App version
-        versionName = '1.0.111'
+        versionName = '1.0.112'
         versionCode = 1
 
         // SDK and tools
-        compileVersion = 32
+        compileVersion = 33
         minVersion = 24
-        targetVersion = 32
+        targetVersion = 33
 
-        kotlinVersion = '1.7.10'
+        kotlinVersion = '1.7.20'
 
         coroutinesVersion = '1.6.4'
 
@@ -23,7 +23,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.1'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath 'org.mozilla.rust-android-gradle:plugin:0.9.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
@@ -49,19 +49,27 @@ task clean(type: Delete) {
 }
 
 dependencies {
-    ktlint "com.pinterest:ktlint:0.40.0"
+    ktlint("com.pinterest:ktlint:0.46.1") {
+        attributes {
+            attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
+        }
+    }
 }
 
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
-    main = "com.pinterest.ktlint.Main"
-    args "$project.rootDir/**/src/main/**/*.kt", "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/checkstyle/kotlin-checkstyle-report.xml"
+    mainClass.set("com.pinterest.ktlint.Main")
+    args "--reporter=plain"
+    args "--android"
+    args "--reporter=checkstyle,output=${project.buildDir}/reports/checkstyle/ktlint.xml"
+    args "$project.rootDir/**/src/main/**/*.kt"
 }
 
 task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
-    main = "com.pinterest.ktlint.Main"
+    mainClass.set("com.pinterest.ktlint.Main")
     args "-F", "$project.rootDir/**/src/main/**/*.kt"
+    args "--android"
 }

@@ -33,7 +33,7 @@ object StorageEntryMetadataV14 : Schema<StorageEntryMetadataV14>() {
     val modifier by enum(StorageEntryModifier::class)
     val type by enum(
         jp.co.soramitsu.fearless_utils.scale.dataType.compactInt,
-        scalable(MapTypeV14),
+        scalable(MapTypeV14)
     )
     val default by byteArray()
     val documentation by vector(jp.co.soramitsu.fearless_utils.scale.dataType.string)

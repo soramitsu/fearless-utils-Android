@@ -42,7 +42,6 @@ object Signer {
             }
             is MultiChainEncryption.Substrate -> {
                 when (multiChainEncryption.encryptionType) {
-
                     EncryptionType.SR25519 -> {
                         require(keypair is Sr25519Keypair) {
                             "Sr25519Keypair is needed to sign with SR25519"
