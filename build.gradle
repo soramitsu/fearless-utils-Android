@@ -49,27 +49,19 @@ task clean(type: Delete) {
 }
 
 dependencies {
-    ktlint("com.pinterest:ktlint:0.46.1") {
-        attributes {
-            attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
-        }
-    }
+    ktlint "com.pinterest:ktlint:0.40.0"
 }
 
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
-    mainClass.set("com.pinterest.ktlint.Main")
-    args "--reporter=plain"
-    args "--android"
-    args "--reporter=checkstyle,output=${project.buildDir}/reports/checkstyle/ktlint.xml"
-    args "$project.rootDir/**/src/main/**/*.kt"
+    main = "com.pinterest.ktlint.Main"
+    args "$project.rootDir/**/src/main/**/*.kt", "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/checkstyle/kotlin-checkstyle-report.xml"
 }
 
 task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
-    mainClass.set("com.pinterest.ktlint.Main")
+    main = "com.pinterest.ktlint.Main"
     args "-F", "$project.rootDir/**/src/main/**/*.kt"
-    args "--android"
 }
