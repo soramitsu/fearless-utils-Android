@@ -85,12 +85,12 @@ dependencies {
     implementation "io.github.novacrypto:BIP39:2019.01.27"
     implementation "io.github.novacrypto:securestring:2019.01.27@jar"
     implementation "com.neovisionaries:nv-websocket-client:2.14"
-    implementation "com.google.code.gson:gson:2.9.1"
+    implementation "com.google.code.gson:gson:2.10"
     implementation "org.web3j:crypto:4.6.0-android"
     implementation "org.eclipse.birt.runtime.3_7_1:org.apache.xerces:2.9.0"
     implementation "org.lz4:lz4-java:1.7.1"
 
-    implementation coroutinesDep
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
 
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-inline:4.6.1"
