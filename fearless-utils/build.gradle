@@ -48,6 +48,7 @@ android {
     lint {
         abortOnError false
     }
+    namespace 'jp.co.soramitsu.fearless_utils'
 }
 
 cargo {

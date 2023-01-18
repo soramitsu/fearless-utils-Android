@@ -35,6 +35,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'jp.co.soramitsu.fearless_utils_android'
 }
 
 dependencies {
