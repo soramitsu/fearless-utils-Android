@@ -2,12 +2,16 @@ package jp.co.soramitsu.fearless_utils.runtime.metadata
 
 import jp.co.soramitsu.fearless_utils.encrypt.keypair.BaseKeypair
 import jp.co.soramitsu.fearless_utils.extensions.fromHex
+import jp.co.soramitsu.fearless_utils.hash.Hasher.xxHash64
+import jp.co.soramitsu.fearless_utils.hash.hashConcat
 import jp.co.soramitsu.fearless_utils.runtime.RealRuntimeProvider
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.composite.Struct
 import jp.co.soramitsu.fearless_utils.runtime.definitions.types.fromHex
+import jp.co.soramitsu.fearless_utils.runtime.metadata.module.StorageEntryType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.math.BigInteger
 
 class Sora14MetadataTest {
 
@@ -35,6 +39,30 @@ class Sora14MetadataTest {
         val e2 = Struct.Instance(mapOf("code" to t2))
         val key = storage.storageKey(soraRuntime, e1, e2)
 
+        assertEquals(hex, key)
+    }
+
+    @Test
+    fun `dex manager storage 1`() {
+        val storage = soraRuntime.metadata.module("DEXManager").storage("DEXInfos")
+        val key = storage.storageKey(soraRuntime, BigInteger.ONE)
+        val hex = "0xa1bd2c8b755a708aa525cd47c8e225fd49e90400771bdeb88bf8ecd95a3c447d5153cb1f00942ff401000000"
+        assertEquals(hex, key)
+    }
+
+    @Test
+    fun `dex manager storage 0`() {
+        val storage = soraRuntime.metadata.module("DEXManager").storage("DEXInfos")
+        val key = storage.storageKey(soraRuntime, BigInteger.ZERO)
+        val hex = "0xa1bd2c8b755a708aa525cd47c8e225fd49e90400771bdeb88bf8ecd95a3c447db4def25cfda6ef3a00000000"
+        assertEquals(hex, key)
+    }
+
+    @Test
+    fun `dex manager storage 2`() {
+        val storage = soraRuntime.metadata.module("DEXManager").storage("DEXInfos")
+        val key = storage.storageKey(soraRuntime, BigInteger.TWO)
+        val hex = "0xa1bd2c8b755a708aa525cd47c8e225fd49e90400771bdeb88bf8ecd95a3c447d9eb2dcce60f37a2702000000"
         assertEquals(hex, key)
     }
 
