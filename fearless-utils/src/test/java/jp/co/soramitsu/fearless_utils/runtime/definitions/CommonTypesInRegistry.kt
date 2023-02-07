@@ -10,7 +10,7 @@ import org.junit.Test
 
 class CommonTypesInRegistry {
 
-    private val networks = listOf("sora2" to "", "kintsugi" to "_v14", "polkadot" to "_v14", "polkatrain" to "", "statemine" to "_v14", "westend" to "_v14")
+    private val networks = listOf("sora2" to "_v14", "kintsugi" to "_v14", "polkadot" to "_v14", "polkatrain" to "", "statemine" to "_v14", "westend" to "_v14")
 
     @Test
     fun test_u() {
