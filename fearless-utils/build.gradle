@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlinx-serialization'
 apply plugin: 'org.mozilla.rust-android-gradle.rust-android'
 apply from: '../maven-publish-helper.gradle'
 
@@ -92,6 +93,7 @@ dependencies {
     implementation "org.lz4:lz4-java:1.7.1"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0"
 
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-inline:4.6.1"
