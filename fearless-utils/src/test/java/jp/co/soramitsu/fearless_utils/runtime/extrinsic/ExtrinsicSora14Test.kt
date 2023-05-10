@@ -130,6 +130,77 @@ class ExtrinsicSora14Test {
     }
 
     @Test
+    fun `should build single sora add liquidity extrinsic`() {
+        val from = "cnVkoGs3rEMqLqY27c2nfVXJRGdzNJk2ns78DcqtppaSRe8qm"
+        val asset = "0200000000000000000000000000000000000000000000000000000000000000"
+        val asset2 = "0200040000000000000000000000000000000000000000000000000000000000"
+        val extrinsicInHex =
+            "0xed0584bcc5ecf679ebd776866a04c212a4ec5dc45cefab57d7aa858c389844e212693f002e7c0cbf95f48c77e64d567d50f3022cc0bb416723352260333d559e0ebad56c22f1a0a9da2b156299e4eca7cd66e1c231a2dee839baeb773cca9a2dc03ba60d250004000b000c140000000000020000000000000000000000000000000000000000000000000000000000000002000400000000000000000000000000000000000000000000000000000000001902000000000200000000000000000000000000000000000000000000000000000000000000020004000000000000000000000000000000000000000000000000000000000019000000000002000000000000000000000000000000000000000000000000000000000000000200040000000000000000000000000000000000000000000000000000000000e8030000000000000000000000000000d007000000000000000000000000000064000000000000000000000000000000c8000000000000000000000000000000"
+
+        val builder = ExtrinsicBuilder(
+            runtime = soraRuntime,
+            keypair = soraKeypair,
+            nonce = 1.toBigInteger(),
+            runtimeVersion = RuntimeVersion(1, 1),
+            genesisHash = "0f751ca2d30efe3385a4001d0bfa1548471babf5095f6fe88ee4813cf724fafc".fromHex(),
+            multiChainEncryption = MultiChainEncryption.Substrate(EncryptionType.ED25519),
+            accountIdentifier = from.toAccountId(),
+            era = Era.getEraFromBlockPeriod(44866, 64),
+            blockHash = "0xa532ea14451c9b4e1a9ed1c75ab67d8be659362c9d8f2206009ae8d62faf9fca".fromHex()
+        )
+
+        builder.call(
+            "TradingPair",
+            "register",
+            mapOf(
+                "dex_id" to BigInteger("0"),
+                "base_asset_id" to Struct.Instance(
+                    mapOf("code" to asset.fromHex().toList().map { it.toInt().toBigInteger() })
+                ),
+                "target_asset_id" to Struct.Instance(
+                    mapOf("code" to asset2.fromHex().toList().map { it.toInt().toBigInteger() })
+                )
+            )
+        )
+
+        builder.call(
+            "PoolXYK",
+            "initialize_pool",
+            mapOf(
+                "dex_id" to BigInteger("0"),
+                "asset_a" to Struct.Instance(
+                    mapOf("code" to asset.fromHex().toList().map { it.toInt().toBigInteger() })
+                ),
+                "asset_b" to Struct.Instance(
+                    mapOf("code" to asset2.fromHex().toList().map { it.toInt().toBigInteger() })
+                )
+            )
+        )
+
+        builder.call(
+            "PoolXYK",
+            "deposit_liquidity",
+            mapOf(
+                "dex_id" to BigInteger("0"),
+                "input_asset_a" to Struct.Instance(
+                    mapOf("code" to asset.fromHex().toList().map { it.toInt().toBigInteger() })
+                ),
+                "input_asset_b" to Struct.Instance(
+                    mapOf("code" to asset2.fromHex().toList().map { it.toInt().toBigInteger() })
+                ),
+                "input_a_desired" to BigInteger.valueOf(1000),
+                "input_b_desired" to BigInteger.valueOf(2000),
+                "input_a_min" to BigInteger.valueOf(100),
+                "input_b_min" to BigInteger.valueOf(200),
+            )
+        )
+
+        val encoded = builder.build()
+
+        assertEquals(extrinsicInHex, encoded)
+    }
+
+    @Test
     fun `should build single sora swap smart market extrinsic`() {
         val from = "cnVkoGs3rEMqLqY27c2nfVXJRGdzNJk2ns78DcqtppaSRe8qm"
         val asset = "0200000000000000000000000000000000000000000000000000000000000000"
