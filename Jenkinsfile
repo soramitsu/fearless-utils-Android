@@ -1,9 +1,10 @@
-@Library('jenkins-library' ) _
-// Pipeline
-new org.android.ShareFeature().call(
-    dockerImage: "build-tools/android-build-box-jdk17:latest",
+@Library('jenkins-library@feature/DOPS-2955/update_android_shared_feature') _
+
+def pipeline = new org.android.ShareFeature(
+    agentImage: "build-tools/android-build-box-jdk17:latest",
     lint: true,
     test: true,
-    dojo: true,
-    dojoProductType: "android"
+    dojoProductType: "fearless"
 )
+
+pipeline.runPipeline()
