@@ -65,8 +65,8 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "${project.group.split('\\.')[-1]}:${rootProject.name}.${project.name}"
-        property "sonar.projectName", "${project.group.split('\\.')[-1]}:${rootProject.name}.${project.name}"
+        property "sonar.projectKey", "fearless:fearless-utils-Android"
+        property "sonar.projectName", "fearless-utils-Android"
         property "sonar.exclusions", "${project.projectDir}/**/*.txt"
     }
 }
