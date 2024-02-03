@@ -7,8 +7,6 @@ def pipeline = new org.android.ShareFeature(
     sonarProjectName: "fearless-utils-Android",
     lint: true,
     test: true,
-    testCmd: 'testDebugUnitTest testCoverage'
-
     dojoProductType: "fearless"
 )
 

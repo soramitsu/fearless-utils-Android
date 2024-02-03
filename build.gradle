@@ -1,5 +1,4 @@
 apply plugin: 'org.sonarqube'
-apply plugin: 'jacoco'
 
 buildscript {
     ext {
@@ -70,20 +69,5 @@ sonarqube {
         property "sonar.projectKey", "fearless:fearless-utils-Android"
         property "sonar.projectName", "fearless-utils-Android"
         property "sonar.exclusions", "${project.projectDir}/**/*.txt"
-    }
-}
-
-jacoco {
-    toolVersion = "0.8.8"
-    reportsDir = file("$buildDir/reports/")
-}
-
-task testCoverage(type: JacocoReport) {
-    executionData tasks.withType(Test)
-    classDirectories.from = files(sourceSets.main.output.classesDirs)
-    sourceDirectories.from = files(sourceSets.main.java.srcDirs)
-
-    reports {
-        xml.enabled = true
     }
 }
