@@ -65,12 +65,6 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     args "-F", "$project.rootDir/**/src/main/**/*.kt"
 }
 
-
-tasks.named('testReleaseUnitTest') {
-    useJUnitPlatform()
-    finalizedBy testCoverage
-}
-
 sonarqube {
     properties {
         property "sonar.projectKey", "fearless:fearless-utils-Android"
