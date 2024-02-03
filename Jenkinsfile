@@ -1,4 +1,4 @@
-@Library('jenkins-library@feature/DOPS-2955/update_android_shared_feature') _
+@Library('jenkins-library') _
 
 def pipeline = new org.android.ShareFeature(
     steps: this,
