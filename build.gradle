@@ -65,7 +65,7 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     args "-F", "$project.rootDir/**/src/main/**/*.kt"
 }
 
-tasks.named('test') {
+tasks.withType<Test> {
     useJUnitPlatform()
     finalizedBy testCoverage
 }
