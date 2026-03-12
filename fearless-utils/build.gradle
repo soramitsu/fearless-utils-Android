@@ -34,8 +34,7 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    ndkVersion "25.2.9519653"
-    //ndkVersion "22.1.7171670"
+    ndkVersion "28.0.12674087"
 
     sourceSets {
         test {
