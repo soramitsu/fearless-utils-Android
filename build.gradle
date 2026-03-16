@@ -51,14 +51,14 @@ dependencies {
 task ktlint(type: JavaExec, group: "verification") {
     description = "Check Kotlin code style."
     classpath = configurations.ktlint
-    main = "com.pinterest.ktlint.Main"
+    mainClass.set("com.pinterest.ktlint.Main")
     args "$project.rootDir/**/src/main/**/*.kt", "--reporter=plain", "--reporter=checkstyle,output=${buildDir}/reports/checkstyle/kotlin-checkstyle-report.xml"
 }
 
 task ktlintFormat(type: JavaExec, group: "formatting") {
     description = "Fix Kotlin code style deviations."
     classpath = configurations.ktlint
-    main = "com.pinterest.ktlint.Main"
+    mainClass.set("com.pinterest.ktlint.Main")
     args "-F", "$project.rootDir/**/src/main/**/*.kt"
 }
 
