@@ -1,3 +1,19 @@
+import org.gradle.api.artifacts.dsl.DependencyHandler
+
+// Gradle 9 removed DependencyHandler.module(Object); keep legacy DSLs (dependencySubstitution etc.) working.
+if (!DependencyHandler.metaClass.respondsTo(DependencyHandler, "module", Object)) {
+    DependencyHandler.metaClass.module << { Object notation ->
+        delegate.create(notation)
+    }
+    DependencyHandler.metaClass.module << { Object notation, Closure config ->
+        def dependency = delegate.create(notation)
+        config.delegate = dependency
+        config.resolveStrategy = Closure.DELEGATE_FIRST
+        config.call(dependency)
+        dependency
+    }
+}
+
 include ':fearless-utils'
 include ':app'
 rootProject.name = "fearless-utils-android"
