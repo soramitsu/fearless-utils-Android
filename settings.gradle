@@ -1,16 +1,55 @@
+import org.gradle.api.GradleException
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
-// Gradle 9 removed DependencyHandler.module(Object); keep legacy DSLs (dependencySubstitution etc.) working.
-if (!DependencyHandler.metaClass.respondsTo(DependencyHandler, "module", Object)) {
-    DependencyHandler.metaClass.module << { Object notation ->
-        delegate.create(notation)
+def tryLoadClass(String name) {
+    try {
+        return Class.forName(name)
+    } catch (Throwable ignored) {
+        return null
     }
-    DependencyHandler.metaClass.module << { Object notation, Closure config ->
-        def dependency = delegate.create(notation)
-        config.delegate = dependency
-        config.resolveStrategy = Closure.DELEGATE_FIRST
-        config.call(dependency)
-        dependency
+}
+
+// Gradle 9 removed DependencyHandler.module(Object); keep legacy DSLs working.
+def dependencyHandlerMetaTargets = [
+        DependencyHandler,
+        tryLoadClass("org.gradle.api.internal.artifacts.dsl.dependencies.DefaultDependencyHandler")
+].findAll { it != null }
+dependencyHandlerMetaTargets.each { handlerClass ->
+    if (!handlerClass.metaClass.respondsTo(handlerClass, "module", Object)) {
+        handlerClass.metaClass.module << { Object notation ->
+            delegate.create(notation)
+        }
+        handlerClass.metaClass.module << { Object notation, Closure config ->
+            def dependency = delegate.create(notation)
+            config.delegate = dependency
+            config.resolveStrategy = Closure.DELEGATE_FIRST
+            config.call(dependency)
+            dependency
+        }
+    }
+}
+
+def moduleSelectorFactoryMethod = tryLoadClass("org.gradle.internal.component.external.model.DefaultModuleComponentSelector")?.declaredMethods?.find {
+    it.name == "newSelector" && it.parameterCount == 3
+}
+moduleSelectorFactoryMethod?.setAccessible(true)
+
+def createModuleSelector = { Object notation ->
+    if (moduleSelectorFactoryMethod == null) {
+        throw new GradleException("Legacy module() shim unavailable: DefaultModuleComponentSelector not found")
+    }
+    def parts = notation.toString().split(":", 3)
+    if (parts.length < 2) {
+        throw new GradleException("module notation '$notation' must be 'group:name[:version]'")
+    }
+    def version = parts.length == 3 ? parts[2] : null
+    moduleSelectorFactoryMethod.invoke(null, parts[0], parts[1], version)
+}
+
+def dependencySubstitutionsClass = tryLoadClass("org.gradle.api.artifacts.DependencySubstitutions")
+if (dependencySubstitutionsClass != null && !dependencySubstitutionsClass.metaClass.respondsTo(dependencySubstitutionsClass, "module", Object)) {
+    dependencySubstitutionsClass.metaClass.module << { Object notation ->
+        createModuleSelector(notation)
     }
 }
 
