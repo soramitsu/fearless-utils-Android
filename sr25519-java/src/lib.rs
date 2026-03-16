@@ -278,3 +278,114 @@ pub unsafe extern "system" fn Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr255
     };
     try_or_throw_null!(jni_env, jni_env.byte_array_from_slice(secret.to_bytes().as_ref()))
 }
+
+// Backward-compatible JNI exports for shared_utils package names used by downstream apps.
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_test<'a>(
+    jni_env: JNIEnv<'a>,
+    clazz: JClass,
+    hello_what: JString,
+) -> JString<'a> {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_test(jni_env, clazz, hello_what)
+}
+
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_verify(
+    jni_env: JNIEnv,
+    clazz: JClass,
+    signature_bytes: jbyteArray,
+    message: jbyteArray,
+    public_key: jbyteArray,
+) -> jboolean {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_verify(
+        jni_env,
+        clazz,
+        signature_bytes,
+        message,
+        public_key,
+    )
+}
+
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_sign(
+    jni_env: JNIEnv,
+    clazz: JClass,
+    public_key: jbyteArray,
+    secret: jbyteArray,
+    message: jbyteArray,
+) -> jbyteArray {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_sign(
+        jni_env,
+        clazz,
+        public_key,
+        secret,
+        message,
+    )
+}
+
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_deriveKeypairHard(
+    jni_env: JNIEnv,
+    clazz: JClass,
+    pair: jbyteArray,
+    cc: jbyteArray,
+) -> jbyteArray {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_deriveKeypairHard(
+        jni_env, clazz, pair, cc,
+    )
+}
+
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_deriveKeypairSoft(
+    jni_env: JNIEnv,
+    clazz: JClass,
+    pair: jbyteArray,
+    cc: jbyteArray,
+) -> jbyteArray {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_deriveKeypairSoft(
+        jni_env, clazz, pair, cc,
+    )
+}
+
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_derivePublicSoft(
+    jni_env: JNIEnv,
+    clazz: JClass,
+    pair: jbyteArray,
+    cc: jbyteArray,
+) -> jbyteArray {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_derivePublicSoft(
+        jni_env, clazz, pair, cc,
+    )
+}
+
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_keypairFromSeed(
+    jni_env: JNIEnv,
+    clazz: JClass,
+    seed: jbyteArray,
+) -> jbyteArray {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_keypairFromSeed(jni_env, clazz, seed)
+}
+
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_toEd25519Bytes(
+    jni_env: JNIEnv,
+    clazz: JClass,
+    secret: jbyteArray,
+) -> jbyteArray {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_toEd25519Bytes(jni_env, clazz, secret)
+}
+
+#[no_mangle]
+pub unsafe extern "system" fn Java_jp_co_soramitsu_shared_1utils_encrypt_Sr25519_fromEd25519Bytes(
+    jni_env: JNIEnv,
+    clazz: JClass,
+    expanded_ed_secret: jbyteArray,
+) -> jbyteArray {
+    Java_jp_co_soramitsu_fearless_1utils_encrypt_Sr25519_fromEd25519Bytes(
+        jni_env,
+        clazz,
+        expanded_ed_secret,
+    )
+}
